@@ -1,3 +1,7 @@
+// WARNING: SPAGHETTI CODE
+// it's really long and messy
+// i didnt feel like actually commenting the whole thing
+// im sorry please forgive me
 async function createError(system, title, content, iconID, button1, button2, button3, crossDisabled, color) {
     if (!iconID || Number(iconID) < 1) iconID = 1;
     if (!button2 || button2.name == "") button2 = null;
