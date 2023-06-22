@@ -9,6 +9,7 @@ let btn3Rec = document.querySelector("#btn3-rec");
 let btn1Dis = document.querySelector("#btn1-dis");
 let btn2Dis = document.querySelector("#btn2-dis");
 let btn3Dis = document.querySelector("#btn3-dis");
+let dl = document.querySelector(".dl");
 
 btn1Rec.addEventListener("input", e => {
     if (e.target.checked) {
