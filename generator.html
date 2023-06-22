@@ -12,10 +12,10 @@
         let fonts;
         let assetsArray;
         async function loadFonts() {
-            let f = await fetch("/err/fonts");
+            let f = await fetch("/fonts");
             fonts = await f.json();
 
-            let a = await fetch("/err/assets");
+            let a = await fetch("/assets");
             assetsArray = await a.json();
         }
         loadFonts();
@@ -58,7 +58,7 @@
     <input type="text" id="err-desc" name="err-desc">
     <br>
     <label for="icon">Icon ID:</label><br>
-    <input type="number" id="icon" min="1" max="405" value="1"> <small><a href="/err/icons">Icon IDs</a></small>
+    <input type="number" id="icon" min="1" max="405" value="1"> <small><a href="/icons">Icon IDs</a></small>
     <br>
     <div class="btns">
         <div class="btn1">
@@ -97,7 +97,6 @@
         <div class="color"></div>
     </span>
     <button class="generate">Generate!</button><br><br>
-    <a href="../winerr.zip">Download for Windows</a>
     <p>If you have any ideas to improve the generator or you've encountered a bug, feel free to DM me in Discord:
         <b>shikoshib</b>
     </p>
