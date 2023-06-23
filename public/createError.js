@@ -2779,7 +2779,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        testCanvas.width = !testBitmaps(title, true) ? 1 : testBitmaps(title, true) + 12;
+        testCanvas.width = !testBitmaps(title, true) ? 1 : testBitmaps(title, true) + 18;
         testCanvas.height = 23;
 
         testCtx.shadowColor = 'rgba(0,0,0)';
