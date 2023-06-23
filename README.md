@@ -11,6 +11,13 @@ You can try it out at https://shikoshib.ru/err.
 5. After they're installed, run `npm start`.
 6. The website should be running at http://localhost:3004/
 
+
+## Credits
+
+* shikoshib (me) - web design, programming, error message assets
+* [hammernick](https://www.youtube.com/@NickHammerich) - icons, error message assets, testing
+* [.dmytroyastrubiv](https://www.youtube.com/@DimaYastrebov) - testing
+
 ---
 
 it took only about 2 months to make it but im happy how it turned out so yeah
