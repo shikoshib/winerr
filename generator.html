@@ -8,18 +8,6 @@
     <title>Windows Error Message Generator</title>
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="/win1.png" type="image/png">
-    <script>
-        let fonts;
-        let assetsArray;
-        async function loadFonts() {
-            let f = await fetch("/fonts");
-            fonts = await f.json();
-
-            let a = await fetch("/assets");
-            assetsArray = await a.json();
-        }
-        loadFonts();
-    </script>
 </head>
 
 <body>
@@ -100,6 +88,23 @@
     <p>If you have any ideas to improve the generator or you've encountered a bug, feel free to DM me in Discord:
         <b>shikoshib</b>
     </p>
+    <script>
+      // Waiting for fonts and error assets to load
+      generate = document.querySelector(".generate");
+      generate.innerHTML = "Loading assets...";
+      generate.disabled = true;
+
+        let fonts;
+        let assetsArray;
+        async function load() {
+            let f = await fetch("/err/fonts");
+            fonts = await f.json();
+
+            let a = await fetch("/err/assets");
+            assetsArray = await a.json();
+        }
+        load().then(()=>{generate.innerHTML = "Generate!";generate.disabled = false;});
+    </script>
     <script src="createError.js"></script>
     <script src="ui.js"></script>
 </body>
