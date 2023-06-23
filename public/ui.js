@@ -11,6 +11,8 @@ let btn2Dis = document.querySelector("#btn2-dis");
 let btn3Dis = document.querySelector("#btn3-dis");
 let dl = document.querySelector(".dl");
 
+// basically the windows error message cannot have 2 or more recommended buttons
+// also a button cannot be disabled and recommended at the same time
 btn1Rec.addEventListener("input", e => {
     if (e.target.checked) {
         btn2Rec.checked = false;
@@ -54,6 +56,8 @@ btn3Rec.addEventListener("input", e => {
     }
 })
 
+// loading the features the generator can or can't provide for the os
+// e.g. frame recoloring for windows 8 or inability to add button 3 for windows 1.0
 function getSysInfo(sys) {
     document.querySelector("#icon").max = sys.icons;
 
@@ -109,6 +113,7 @@ function getSysInfo(sys) {
     favicon.href = `/${favName}.png`;
 }
 
+// when you load the page, windows 1.0 is set by default
 async function getDefInfo() {
     let getDefaultInfo = await fetch("/info?sys=win1");
     let info = await getDefaultInfo.json();
@@ -116,6 +121,7 @@ async function getDefInfo() {
 }
 getDefInfo();
 
+// once you select the os, the settings are getting tweaked a bit with the getSysInfo() function
 sys.addEventListener("change", async (evt) => {
     let getInfo = await fetch("/info?sys=" + evt.target.value)
     let info = await getInfo.json();
@@ -123,6 +129,7 @@ sys.addEventListener("change", async (evt) => {
     getSysInfo(info)
 })
 
+// There we go. The code that does the thing
 async function generateHandler() {
     dl.style.display = "none";
     let errorText = document.querySelector(".error-txt");
@@ -145,10 +152,12 @@ async function generateHandler() {
     if (color) color = color.value;
     let system = sys.value;
 
+    // if a user is offline, throw an error
+    // because the icon for the error is being loaded from the server
     if (!navigator.onLine) {
         generate.disabled = false;
         generate.innerHTML = "Generate!";
-        return errorWrapper.innerHTML = `Check your Internet connection.`;
+        return errorText.innerHTML = `Check your Internet connection.`;
     }
 
     errorText.innerHTML = "";
@@ -165,13 +174,17 @@ async function generateHandler() {
 
 generate.addEventListener("click", generateHandler);
 document.onkeydown = (async e => {
+    // did you know that you can simply hit "enter" to generate the error?
     if (["Enter", "NumpadEnter"].includes(e.code)) await generateHandler();
 });
 
+// adding a download button
 dl.addEventListener("click", () => {
     let url = dl.href;
     let a = document.createElement('a');
     a.download = 'err.png';
     a.href = url;
+    // sometimes when you download the error message on mobile, it fails for literally no reason
+    // so to prevent that, a new tab is being opened, so that you can hold the image and download it successfully
     a.click();
 })
