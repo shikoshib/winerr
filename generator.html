@@ -97,10 +97,10 @@
         let fonts;
         let assetsArray;
         async function load() {
-            let f = await fetch("/err/fonts");
+            let f = await fetch("/fonts");
             fonts = await f.json();
 
-            let a = await fetch("/err/assets");
+            let a = await fetch("/assets");
             assetsArray = await a.json();
         }
         load().then(()=>{generate.innerHTML = "Generate!";generate.disabled = false;});
