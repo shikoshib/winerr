@@ -3826,7 +3826,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         await drawBitmaps(ctx, title, 23, 23)
 
         if (crossDisabled) ctx.globalAlpha = .41;
-        await loadImage(ctx, cross, canvas.width - 47, 26)
+        await loadImage(ctx, cross, canvas.width - 47, 26,null,null,ctx.globalAlpha)
         ctx.globalAlpha = 1;
 
         let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
