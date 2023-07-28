@@ -413,7 +413,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let canvasWidth = 120;
         let canvasHeight = testY + 38 + 24;
         if (longestLine.width > 30) canvasWidth = longestLine.width + 91;
-        if (longestLine.lines > 1 && button1.name != "") canvasHeight = canvasHeight - 16;
+        if (longestLine.lines > 1 && button1.name == "") canvasHeight = canvasHeight - 18;
         if (longestLine.lines == 1 && button1.name != "") canvasHeight = canvasHeight + 18;
         if (contentWidth > 250) canvasWidth = 339;
 
