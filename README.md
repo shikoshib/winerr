@@ -15,7 +15,7 @@ You can try it out at https://shikoshib.ru/err.
 ## Credits
 
 * shikoshib (me) - web design, programming, error message assets
-* [hammernick](https://www.youtube.com/@NickHammerich) - icons, error message assets, testing
+* [NickHammerich](https://github.com/nickhammerich) - icons, error message assets, testing
 * [DimaYastrebovYT](https://github.com/dimayastrebovyt) - testing
 
 ---
