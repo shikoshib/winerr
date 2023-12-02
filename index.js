@@ -1,17 +1,28 @@
 const express = require("express");
 const app = express();
 const fs = require("fs");
+const cookieParser = require('cookie-parser');
 
 app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
-    return res.status(200).sendFile(__dirname + "/generator.html")
+    const lang = req.cookies.winerrLang || "en";
+    let html = fs.readFileSync(__dirname + "/generator.html").toString();
+    let langFile = require(fs.existsSync(`./winerr-lang/${lang}.json`) ? `./winerr-lang/${lang}.json` : `./winerr-lang/en.json`);
+    let keys = Object.keys(langFile);
+    for (let key of keys) {
+        html = html.replaceAll(`((${key}))`, langFile[key]);
+    }
+    html = html.replaceAll(`option value="${lang}"`, `option value="${lang}" selected`);
+    return res.status(200).send(html);
 })
 
 app.get("/info", (req, res) => {
     let sys = req.query.sys;
     if (sys == "winmem") sys = "win95";
+    if (sys == "winvista") sys = "win7";
     let obj = {};
     let icons;
     try {
@@ -19,15 +30,17 @@ app.get("/info", (req, res) => {
         icons = JSON.parse(icons)
         obj.icons = icons.length;
     } catch (e) {
-        return res.status(403).send("-1")
+        return res.status(404).send("-1")
     }
     let button3Allowed = sys == "win1" ? false : true;
     obj.button3Allowed = button3Allowed;
     obj.name = req.query.sys;
     let cross = sys == "win1" || sys == "win31" ? false : true;
     let recolor = sys == "win8" ? true : false;
+    let gradient=["win95","win98","win2k"].includes(sys)?true:false;
     obj.cross = cross;
     obj.recolor = recolor;
+    obj.gradient = gradient;
     return res.json(obj)
 })
 
@@ -50,7 +63,7 @@ app.get("/icons", (req, res) => {
             "winwh": "Windows Whistler build 2419",
             "winxp": "Windows XP",
             "winlh-4093": "Windows Longhorn build 4093",
-            "win7": "Windows 7",
+            "win7": "Windows Vista/7",
             "win8": "Windows 8",
             "win10": "Windows 10 build 20H2",
             "win11": "Windows 11"
@@ -89,13 +102,14 @@ app.get("/icon", (req, res) => {
     let { sys, id } = req.query;
     id = Number(id);
     if (sys == "winmem") sys = "win95";
+    if (sys == "winvista") sys = "win7";
     try {
         let iconSheet = require(`./public/assets/${sys}/icons.json`);
         if (id < 1) id = 1;
         if (id > iconSheet.length) id = iconSheet.length;
         return res.send(iconSheet.filter(i => i.iconID == id)[0].data);
     } catch (e) {
-        return res.status(403).send("-1")
+        return res.status(404).send("-1")
     }
 })
 
