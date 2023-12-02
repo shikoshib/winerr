@@ -1,15 +1,20 @@
 // WARNING: SPAGHETTI CODE
 // it's really long and messy
-// i didnt feel like actually commenting the whole thing
+// i dont feel like actually commenting the whole thing
 // im sorry please forgive me
-async function createError(system, title, content, iconID, button1, button2, button3, crossDisabled, color) {
+async function createError(system, title, content, iconID, button1, button2, button3, crossDisabled, color, gradientPrimaryColor, gradientSecondaryColor) {
     if (!iconID || Number(iconID) < 1) iconID = 1;
     if (!button2 || button2.name == "") button2 = null;
     if (!button3 || button3.name == "") button3 = null;
 
     let canvas;
 
-    let assets = assetsArray[system == "winmem" || system == "win98" ? "win95" : system].assets;
+    let assets;
+    if (system == "winmem" || system == "win98") {
+        assets = assetsArray["win95"].assets;
+    } else {
+        assets = assetsArray[system].assets;
+    }
 
     async function loadImage(ctx, i, x, y, w, h, a) {
         if (!a) a = 1.0;
@@ -121,7 +126,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.antialias = 'none';
         ctx.quality = 'best';
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
 
         ctx.fillStyle = "#ffffff";
@@ -477,7 +482,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = "#000000";
         ctx.fillRect(0, 19, canvas.width, 1);
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         let iconY = 37;
         if (longestLine.lines >= 3) iconY = (longestLine.lines / 2 * lineHeight) + 14;
@@ -875,26 +880,13 @@ async function createError(system, title, content, iconID, button1, button2, but
         await loadImage(ctx, frameBottomRightCorner, canvas.width - 3, canvas.height - 3);
         await loadImage(ctx, frameRightSide, canvas.width - 3, 3, 3, canvas.height - 6);
 
-        if (system == "win95") {
-            ctx.fillStyle = "rgb(0,0,128)";
-            ctx.fillRect(3, 3, canvas.width - 6, 18);
-        }
-        if (system == "winmem") {
-            let gradient = ctx.createLinearGradient(0, 0, canvas.width - 6, 0);
-            gradient.addColorStop(0, "rgb(0,0,128)");
-            gradient.addColorStop(1, "rgb(0,0,0)");
-            ctx.fillStyle = gradient;
-            ctx.fillRect(3, 3, canvas.width - 6, 18);
-        }
-        if (system == "win98") {
-            let gradient = ctx.createLinearGradient(0, 0, canvas.width - 6, 0);
-            gradient.addColorStop(0, "rgb(0,0,128)");
-            gradient.addColorStop(1, "rgb(16,132,208)");
-            ctx.fillStyle = gradient;
-            ctx.fillRect(3, 3, canvas.width - 6, 18);
-        }
+        let gradient = ctx.createLinearGradient(0, 0, canvas.width - 6, 0);
+        gradient.addColorStop(0, gradientPrimaryColor);
+        gradient.addColorStop(1, gradientSecondaryColor);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(3, 3, canvas.width - 6, 18);
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 13, 32, 34, 34);
 
@@ -942,7 +934,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + btnWidth - 3, canvas.height - 37)
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText + 1, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 32, false, ctx.globalAlpha);
@@ -979,7 +971,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + btn1Width - 3, canvas.height - 37)
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
@@ -1000,7 +992,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + 5 + btn1Width + btn2Width - 3, canvas.height - 37)
                     if (button2.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
@@ -1042,7 +1034,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + btn1Width - 3, canvas.height - 37)
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
@@ -1063,7 +1055,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + 5 + btn1Width + btn2Width - 3, canvas.height - 37)
                     if (button2.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
@@ -1084,7 +1076,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + 10 + btn1Width + btn2Width + btn3Width - 3, canvas.height - 37)
                     if (button3.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3 + 1, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 32, false, ctx.globalAlpha);
@@ -1283,12 +1275,12 @@ async function createError(system, title, content, iconID, button1, button2, but
         await loadImage(ctx, frameBottomLeftCorner, 0, canvas.height - 3)
 
         let gradient = ctx.createLinearGradient(0, 0, canvas.width - 6, 0);
-        gradient.addColorStop(0, "rgb(10,36,106)");
-        gradient.addColorStop(1, "rgb(166,202,240)");
+        gradient.addColorStop(0, gradientPrimaryColor);
+        gradient.addColorStop(1, gradientSecondaryColor);
         ctx.fillStyle = gradient;
         ctx.fillRect(3, 3, canvas.width - 6, 18);
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 13, 32, 34, 34);
 
@@ -1359,7 +1351,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + 11 + textWidth, canvas.height - 37);
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + 3 + xToCenterText, canvas.height - 31);
+                        await drawBitmaps(ctx, button1.name, btnX + 3 + xToCenterText, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, btnX + 2 + xToCenterText, canvas.height - 32, false, ctx.globalAlpha);
@@ -1398,7 +1390,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, xToPlaceBtns + 3 + xToCenterText1, canvas.height - 31);
+                        await drawBitmaps(ctx, button1.name, xToPlaceBtns + 3 + xToCenterText1, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, xToPlaceBtns + 2 + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
@@ -1420,7 +1412,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button2.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button2.name, xToPlaceBtns + 3 + btn1Width + 5 + xToCenterText2, canvas.height - 31);
+                        await drawBitmaps(ctx, button2.name, xToPlaceBtns + 3 + btn1Width + 5 + xToCenterText2, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button2.name, xToPlaceBtns + 2 + btn1Width + 5 + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
@@ -1464,7 +1456,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, xToPlaceBtns + 3 + xToCenterText1, canvas.height - 31);
+                        await drawBitmaps(ctx, button1.name, xToPlaceBtns + 3 + xToCenterText1, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, xToPlaceBtns + 2 + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
@@ -1486,7 +1478,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button2.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button2.name, xToPlaceBtns + 3 + 5 + btn1Width + xToCenterText2, canvas.height - 31);
+                        await drawBitmaps(ctx, button2.name, xToPlaceBtns + 3 + 5 + btn1Width + xToCenterText2, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button2.name, xToPlaceBtns + 2 + 5 + btn1Width + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
@@ -1508,7 +1500,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button3.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button3.name, xToPlaceBtns + 3 + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 31);
+                        await drawBitmaps(ctx, button3.name, xToPlaceBtns + 3 + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 39);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button3.name, xToPlaceBtns + 2 + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 32, false, ctx.globalAlpha);
@@ -1731,7 +1723,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         await drawBitmaps(ctx, title, 13, 5, true)
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 14, 33, 34, 34)
 
@@ -2137,7 +2129,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         let y = 43;
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 12, 39, 34, 34)
 
@@ -2547,7 +2539,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = "#e9e9e9";
         ctx.fillRect(3, 23, canvas.width, canvas.height);
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 13, 34, 34, 34)
 
@@ -2805,6 +2797,417 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
 
+    if (system == "winvista") {
+        if (button2) {
+            if (button1.name == "" && button2.name != "") {
+                button1 = button2;
+                button2 = null;
+            }
+        }
+        if (button3 && button2) {
+            if (button1.name == "" && button2.name != "" && button3.name != "") {
+                button1 = button2;
+                button2 = button3;
+                button3 = null;
+            }
+        }
+        if (button3 && !button2) {
+            if (button1.name != "" && button3.name != "") {
+                button2 = button3;
+                button3 = null;
+            }
+            if (button1.name == "" && button3.name != "") {
+                button1 = button3;
+                button2 = null;
+                button3 = null;
+            }
+        }
+
+        function checkChars() {
+            let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
+            title = title.replaceAll(" ", " ");
+            title = title.replaceAll("’", "'");
+            title.split("").forEach(char => {
+                let arrayChar = symbolCodes.filter(c => c.charID == char.charCodeAt(0))[0]
+                if (!arrayChar) title = title.replaceAll(char, "□")
+            })
+
+            content = content.replaceAll(" ", " ")
+            content = content.replaceAll("’", "'")
+            let chars = content.split("");
+            chars.forEach(char => {
+                let arrayChar = symbolCodes.filter(c => c.charID == char.charCodeAt(0))[0]
+                if (!arrayChar) content = content.replaceAll(char, "□")
+            })
+        }
+
+        checkChars();
+
+        function testBitmaps(content) {
+            let chars = content.split("");
+            if (chars[chars.length - 1] == "") chars.pop();
+            let charsWidth = 0;
+            for (const char of chars) {
+                let charsWidthList = fonts["SegoeUI_9pt"]["regular"]["chars-width"];
+                charsWidth += charsWidthList[char.charCodeAt(0)];
+            }
+            return charsWidth;
+        }
+
+        async function drawBitmaps(ctx, content, x, y, a) {
+            let chars = content.split("");
+            let charsWidth = 0;
+            for (const char of chars) {
+                let symbolsData = fonts["SegoeUI_9pt"]["regular"]["black"];
+                let charData = symbolsData.filter(c => c.charID == char.charCodeAt(0))[0].data
+                await loadImage(ctx, charData, x + charsWidth, y, null, null, a);
+                let charsWidthList = fonts["SegoeUI_9pt"]["regular"]["chars-width"];
+                charsWidth += charsWidthList[char.charCodeAt(0)];
+            }
+        }
+
+        let x = 57;
+        let testY = 44;
+        const lineHeight = 16;
+        const contentWidth = testBitmaps(content)
+
+        let longestLine = { width: 0, txt: "", lines: 0 };
+
+        if (contentWidth > 405) {
+            let words = content.split(' ');
+            let line = '';
+
+            for (let i = 0; i < words.length; i++) {
+                let testLine = line + words[i] + ' ';
+                let testWidth = testBitmaps(testLine);
+
+                if (testWidth > 405 && i > 0) {
+                    let lineWidth = testBitmaps(line);
+                    longestLine.lines++;
+                    if (lineWidth > longestLine.width) longestLine.width = lineWidth;
+                    longestLine.txt = line;
+                    line = words[i] + ' ';
+                    testY += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            longestLine.lines++;
+        } else {
+            longestLine.width = contentWidth;
+            longestLine.lines++;
+        }
+
+        let canvasWidth = 180;
+        let canvasHeight = testY + 64 + 13;
+        if (longestLine.width > canvasWidth - 108) canvasWidth = longestLine.width + 108;
+        if (button1.name != "" && longestLine.lines <= 1) canvasHeight = canvasHeight + 20;
+        if (longestLine.lines > 1 && button1.name == "") canvasHeight = canvasHeight - 35;
+        if (longestLine.lines == 1 && button1.name == "") canvasHeight = canvasHeight - 21;
+
+        if (button1.name != "") {
+            async function getBtnsWidth() {
+                const text1WidthFixed = testBitmaps(button1.name);
+                let text1Width = text1WidthFixed;
+                if (text1Width < 56) text1Width = 56;
+                let btn1Width = text1Width + 10;
+
+                if (!button2) return btn1Width;
+
+                if (!button3) {
+                    const text2WidthFixed = testBitmaps(button2.name);
+                    let text2Width = text2WidthFixed;
+                    if (text2Width < 56) text2Width = 56;
+                    let btn2Width = text2Width + 10;
+
+                    return btn1Width + btn2Width + 8;
+                }
+
+                const text2WidthFixed = testBitmaps(button2.name);
+                let text2Width = text2WidthFixed;
+                if (text2Width < 56) text2Width = 56;
+                let btn2Width = text2Width + 10;
+
+                const text3WidthFixed = testBitmaps(button3.name);
+                let text3Width = text3WidthFixed;
+                if (text3Width < 56) text3Width = 56;
+                let btn3Width = text3Width + 10;
+
+                return btn1Width + btn2Width + btn3Width + 16;
+            }
+
+            let btnsWidth = await getBtnsWidth();
+
+            if (canvasWidth - 68 < btnsWidth) canvasWidth = btnsWidth + 68;
+        }
+
+        canvas = document.getElementById("canvas");
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        const ctx = canvas.getContext("2d");
+
+        let basicLeftCorner = assets["basic-frame-left-corner"];
+        let basicRightCorner = assets["basic-frame-right-corner"];
+        let basicLeftSide = assets["basic-frame-left-light"];
+        let basicRightSide = assets["basic-frame-right-light"];
+        let basicLeftSideGradient = assets["basic-frame-left-gradient"];
+        let basicRightSideGradient = assets["basic-frame-right-gradient"];
+        let basicLeftDark = assets["basic-frame-left-dark"];
+        let basicRightDark = assets["basic-frame-right-dark"];
+        let basicBottomLeft = assets["basic-frame-bottom-left-corner"];
+        let basicBottomRight = assets["basic-frame-bottom-right-corner"];
+        let basicBottom = assets["basic-frame-bottom"];
+        let basicTop = assets["basic-frame-top"];
+
+        let cross = crossDisabled ? assets["basic-cross-disabled"] : assets["basic-cross"];
+
+        await loadImage(ctx, basicLeftCorner, 0, 0);
+        await loadImage(ctx, basicRightCorner, canvas.width - 8, 0);
+        await loadImage(ctx, basicTop, 8, 0, canvas.width - 16, 30);
+        if (!(canvas.height - 129 <= 1)) {
+            await loadImage(ctx, basicLeftSide, 0, 121, 8, canvas.height - 129);
+            await loadImage(ctx, basicRightSide, canvas.width - 8, 121, 8, canvas.height - 129);
+        }
+        await loadImage(ctx, basicLeftDark, 0, 30, 8, 23);
+        await loadImage(ctx, basicLeftSideGradient, 0, 53);
+        await loadImage(ctx, basicLeftSide, 0, 121, 8, canvas.height - 129);
+
+        await loadImage(ctx, basicRightDark, canvas.width - 8, 30, 8, 23);
+        await loadImage(ctx, basicRightSideGradient, canvas.width - 8, 53);
+        await loadImage(ctx, basicRightSide, canvas.width - 8, 121, 8, canvas.height - 129);
+
+        await loadImage(ctx, basicBottomLeft, 0, canvas.height - 8);
+        await loadImage(ctx, basicBottomRight, canvas.width - 8, canvas.height - 8);
+        await loadImage(ctx, basicBottom, 8, canvas.height - 8, canvas.width - 16, 8);
+
+        await loadImage(ctx, cross, canvas.width - 41, 10);
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(8, 30, canvas.width - 16, canvas.height - 38)
+
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let icon = await iconReq.text();
+        await loadImage(ctx, icon, 17, 41);
+
+        let y = 44;
+
+        async function draw(x, y) {
+            if (contentWidth > 405) {
+                let words = content.split(' ');
+                let line = '';
+
+                for (let i = 0; i < words.length; i++) {
+                    let testLine = line + words[i] + ' ';
+                    let testWidth = testBitmaps(testLine);
+
+                    if (testWidth > 405 && i > 0) {
+                        await drawBitmaps(ctx, line, x, y)
+                        line = words[i] + ' ';
+                        y += lineHeight;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                await drawBitmaps(ctx, line, x, y)
+            } else {
+                await drawBitmaps(ctx, content, x, y)
+            }
+        }
+
+        await draw(x, y);
+
+        for (let i = 1; i <= title.length; i++) {
+            let chunkWidth = testBitmaps(title.slice(0, i), true);
+            if (chunkWidth + 115 > canvas.width) {
+                title = `${title.slice(0, i).trim()}...`;
+                break;
+            }
+        }
+
+        await drawBitmaps(ctx, title, 9, 10);
+
+        let btnLeftSide = assets["btn-left-side"];
+        let btnMiddle = assets["btn-middle"];
+        let btnRightSide = assets["btn-right-side"];
+
+        let btnRecLeftSide = assets["btn-rec-left-side"];
+        let btnRecMiddle = assets["btn-rec-middle"];
+        let btnRecRightSide = assets["btn-rec-right-side"];
+
+        let btnDisabledLeftSide = assets["btn-disabled-left-side"];
+        let btnDisabledMiddle = assets["btn-disabled-middle"];
+        let btnDisabledRightSide = assets["btn-disabled-right-side"];
+
+        if (button1.name != "") {
+            let btnRowBG = assets["btn-row-bg"];
+            await loadImage(ctx, btnRowBG, 8, canvas.height - 49, canvas.width - 16, 41)
+
+            if (!button2) {
+                const textWidthFixed = testBitmaps(button1.name);
+                let textWidth = textWidthFixed;
+                if (textWidth < 56) textWidth = 56;
+
+                let btnWidth = textWidth + 10;
+                let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2)
+
+                if (button1.disabled) {
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btnWidth, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btnWidth + 2, canvas.height - 39, textWidth + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btnWidth + textWidth, canvas.height - 39);
+                    ctx.globalAlpha = .29;
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btnWidth + xToCenterText, canvas.height - 37, ctx.globalAlpha)
+                    ctx.globalAlpha = 1;
+                } else if (button1.rec) {
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btnWidth, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btnWidth + 3, canvas.height - 39, textWidth + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btnWidth + textWidth, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btnWidth + xToCenterText, canvas.height - 37)
+                } else {
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btnWidth, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btnWidth + 3, canvas.height - 39, textWidth + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btnWidth + textWidth, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btnWidth + xToCenterText, canvas.height - 37)
+                }
+            }
+
+            if (button2 && !button3) {
+                const text1WidthFixed = testBitmaps(button1.name);
+                let text1Width = text1WidthFixed;
+                if (text1Width < 56) text1Width = 56;
+
+                let btn1Width = text1Width + 10;
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2)
+
+                if (button1.disabled) {
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btn1Width + 2, canvas.height - 39, text1Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    ctx.globalAlpha = .29;
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37, ctx.globalAlpha);
+                    ctx.globalAlpha = 1;
+                } else if (button1.rec) {
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37);
+                } else {
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37);
+                }
+
+                const text2WidthFixed = testBitmaps(button2.name);
+                let text2Width = text2WidthFixed;
+                if (text2Width < 56) text2Width = 56;
+
+                let btn2Width = text2Width + 10;
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2)
+
+                if (button2.disabled) {
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btn2Width + 2 - 8 - btn1Width, canvas.height - 39, text2Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    ctx.globalAlpha = .29;
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37, ctx.globalAlpha);
+                    ctx.globalAlpha = 1;
+                } else if (button2.rec) {
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btn2Width + 3 - 8 - btn1Width, canvas.height - 39, text2Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37);
+                } else {
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btn2Width + 3 - 8 - btn1Width, canvas.height - 39, text2Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37);
+                }
+            }
+
+            if (button3) {
+                const text1WidthFixed = testBitmaps(button1.name);
+                let text1Width = text1WidthFixed;
+                if (text1Width < 56) text1Width = 56;
+
+                let btn1Width = text1Width + 10;
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2)
+
+                if (button1.disabled) {
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btn1Width + 2, canvas.height - 39, text1Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    ctx.globalAlpha = .29;
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37, ctx.globalAlpha);
+                    ctx.globalAlpha = 1;
+                } else if (button1.rec) {
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37);
+                } else {
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37);
+                }
+
+                const text2WidthFixed = testBitmaps(button2.name);
+                let text2Width = text2WidthFixed;
+                if (text2Width < 56) text2Width = 56;
+
+                let btn2Width = text2Width + 10;
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) + 1;
+
+                if (button2.disabled) {
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btn2Width + 2 - 8 - btn1Width, canvas.height - 39, text2Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    ctx.globalAlpha = .29;
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37, ctx.globalAlpha);
+                    ctx.globalAlpha = 1;
+                } else if (button2.rec) {
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btn2Width + 3 - 8 - btn1Width, canvas.height - 39, text2Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37);
+                } else {
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btn2Width + 3 - 8 - btn1Width, canvas.height - 39, text2Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37);
+                }
+
+                const text3WidthFixed = testBitmaps(button3.name);
+                let text3Width = text3WidthFixed;
+                if (text3Width < 56) text3Width = 56;
+
+                let btn3Width = text3Width + 10;
+                let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2)
+
+                if (button3.disabled) {
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - 8 - btn2Width - btn3Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - 8 - btn2Width - btn3Width + 2 - 8 - btn1Width, canvas.height - 39, text3Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - 8 - btn2Width - btn3Width + text3Width - 8 - btn1Width, canvas.height - 39);
+                    ctx.globalAlpha = .29;
+                    await drawBitmaps(ctx, button3.name, canvas.width - 24 - 8 - btn2Width - 8 - btn1Width - btn3Width + xToCenterText3, canvas.height - 37, ctx.globalAlpha);
+                    ctx.globalAlpha = 1;
+                } else if (button3.rec) {
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - 8 - btn2Width - btn3Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - 8 - btn2Width - btn3Width + 3 - 8 - btn1Width, canvas.height - 39, text3Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - 8 - btn2Width - btn3Width + text3Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 24 - 8 - btn2Width - 8 - btn1Width - btn3Width + xToCenterText3, canvas.height - 37);
+                } else {
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - 8 - btn2Width - btn3Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - 8 - btn2Width - btn3Width + 3 - 8 - btn1Width, canvas.height - 39, text3Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - 8 - btn2Width - btn3Width + text3Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 24 - 8 - btn2Width - 8 - btn1Width - btn3Width + xToCenterText3, canvas.height - 37);
+                }
+            }
+        }
+    }
+
+
+
 
     if (system == "win7") {
         if (button2) {
@@ -2989,7 +3392,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = "white";
         ctx.fillRect(21, 42, canvas.width - 46, canvas.height - 68)
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 30, 51)
 
@@ -3076,22 +3479,22 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2)
 
                 if (button1.disabled) {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 36 - btnWidth, canvas.height - 57);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 36 - btnWidth + 2, canvas.height - 57, textWidth + 8, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 26 - btnWidth + textWidth, canvas.height - 57);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btnWidth, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btnWidth + 2, canvas.height - 39, textWidth + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btnWidth + textWidth, canvas.height - 39);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btnWidth + xToCenterText, canvas.height - 55, ctx.globalAlpha)
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btnWidth + xToCenterText, canvas.height - 37, ctx.globalAlpha)
                     ctx.globalAlpha = 1;
                 } else if (button1.rec) {
-                    await loadImage(ctx, btnRecLeftSide, canvas.width - 36 - btnWidth, canvas.height - 57);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 36 - btnWidth + 3, canvas.height - 57, textWidth + 7, 21);
-                    await loadImage(ctx, btnRecRightSide, canvas.width - 26 - btnWidth + textWidth, canvas.height - 57);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btnWidth + xToCenterText, canvas.height - 55)
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btnWidth, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btnWidth + 3, canvas.height - 39, textWidth + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btnWidth + textWidth, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btnWidth + xToCenterText, canvas.height - 37)
                 } else {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 36 - btnWidth, canvas.height - 57);
-                    await loadImage(ctx, btnMiddle, canvas.width - 36 - btnWidth + 3, canvas.height - 57, textWidth + 7, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 26 - btnWidth + textWidth, canvas.height - 57);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btnWidth + xToCenterText, canvas.height - 55)
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btnWidth, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btnWidth + 3, canvas.height - 39, textWidth + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btnWidth + textWidth, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btnWidth + xToCenterText, canvas.height - 37)
                 }
             }
 
@@ -3104,22 +3507,22 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2)
 
                 if (button1.disabled) {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 36 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 36 - btn1Width + 2, canvas.height - 57, text1Width + 8, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btn1Width + 2, canvas.height - 39, text1Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 55, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37, ctx.globalAlpha);
                     ctx.globalAlpha = 1;
                 } else if (button1.rec) {
-                    await loadImage(ctx, btnRecLeftSide, canvas.width - 36 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 36 - btn1Width + 3, canvas.height - 57, text1Width + 7, 21);
-                    await loadImage(ctx, btnRecRightSide, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 55);
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37);
                 } else {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 36 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnMiddle, canvas.width - 36 - btn1Width + 3, canvas.height - 57, text1Width + 7, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37);
                 }
 
                 const text2WidthFixed = testBitmaps(button2.name);
@@ -3130,22 +3533,22 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2)
 
                 if (button2.disabled) {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 36 - btn2Width + 2 - 8 - btn1Width, canvas.height - 57, text2Width + 8, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btn2Width + 2 - 8 - btn1Width, canvas.height - 39, text2Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 55, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37, ctx.globalAlpha);
                     ctx.globalAlpha = 1;
                 } else if (button2.rec) {
-                    await loadImage(ctx, btnRecLeftSide, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 36 - btn2Width + 3 - 8 - btn1Width, canvas.height - 57, text2Width + 7, 21);
-                    await loadImage(ctx, btnRecRightSide, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 55);
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btn2Width + 3 - 8 - btn1Width, canvas.height - 39, text2Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37);
                 } else {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnMiddle, canvas.width - 36 - btn2Width + 3 - 8 - btn1Width, canvas.height - 57, text2Width + 7, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btn2Width + 3 - 8 - btn1Width, canvas.height - 39, text2Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37);
                 }
             }
 
@@ -3158,22 +3561,22 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2)
 
                 if (button1.disabled) {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 36 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 36 - btn1Width + 2, canvas.height - 57, text1Width + 8, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btn1Width + 2, canvas.height - 39, text1Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 55, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37, ctx.globalAlpha);
                     ctx.globalAlpha = 1;
                 } else if (button1.rec) {
-                    await loadImage(ctx, btnRecLeftSide, canvas.width - 36 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 36 - btn1Width + 3, canvas.height - 57, text1Width + 7, 21);
-                    await loadImage(ctx, btnRecRightSide, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 55);
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37);
                 } else {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 36 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnMiddle, canvas.width - 36 - btn1Width + 3, canvas.height - 57, text1Width + 7, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 24 - btn1Width + xToCenterText1, canvas.height - 37);
                 }
 
                 const text2WidthFixed = testBitmaps(button2.name);
@@ -3184,22 +3587,22 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) + 1;
 
                 if (button2.disabled) {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 36 - btn2Width + 2 - 8 - btn1Width, canvas.height - 57, text2Width + 8, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - btn2Width + 2 - 8 - btn1Width, canvas.height - 39, text2Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 55, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37, ctx.globalAlpha);
                     ctx.globalAlpha = 1;
                 } else if (button2.rec) {
-                    await loadImage(ctx, btnRecLeftSide, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 36 - btn2Width + 3 - 8 - btn1Width, canvas.height - 57, text2Width + 7, 21);
-                    await loadImage(ctx, btnRecRightSide, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 55);
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - btn2Width + 3 - 8 - btn1Width, canvas.height - 39, text2Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37);
                 } else {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnMiddle, canvas.width - 36 - btn2Width + 3 - 8 - btn1Width, canvas.height - 57, text2Width + 7, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - btn2Width + 3 - 8 - btn1Width, canvas.height - 39, text2Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 24 - 8 - btn1Width - btn2Width + xToCenterText2, canvas.height - 37);
                 }
 
                 const text3WidthFixed = testBitmaps(button3.name);
@@ -3210,22 +3613,22 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2)
 
                 if (button3.disabled) {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 36 - 8 - btn2Width - btn3Width - 8 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 36 - 8 - btn2Width - btn3Width + 2 - 8 - btn1Width, canvas.height - 57, text3Width + 8, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 26 - 8 - btn2Width - btn3Width + text3Width - 8 - btn1Width, canvas.height - 57);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 22 - 8 - btn2Width - btn3Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 22 - 8 - btn2Width - btn3Width + 2 - 8 - btn1Width, canvas.height - 39, text3Width + 8, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 12 - 8 - btn2Width - btn3Width + text3Width - 8 - btn1Width, canvas.height - 39);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button3.name, canvas.width - 38 - 8 - btn2Width - 8 - btn1Width - btn3Width + xToCenterText3, canvas.height - 55, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 24 - 8 - btn2Width - 8 - btn1Width - btn3Width + xToCenterText3, canvas.height - 37, ctx.globalAlpha);
                     ctx.globalAlpha = 1;
                 } else if (button3.rec) {
-                    await loadImage(ctx, btnRecLeftSide, canvas.width - 36 - 8 - btn2Width - btn3Width - 8 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 36 - 8 - btn2Width - btn3Width + 3 - 8 - btn1Width, canvas.height - 57, text3Width + 7, 21);
-                    await loadImage(ctx, btnRecRightSide, canvas.width - 26 - 8 - btn2Width - btn3Width + text3Width - 8 - btn1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button3.name, canvas.width - 38 - 8 - btn2Width - 8 - btn1Width - btn3Width + xToCenterText3, canvas.height - 55);
+                    await loadImage(ctx, btnRecLeftSide, canvas.width - 22 - 8 - btn2Width - btn3Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 22 - 8 - btn2Width - btn3Width + 3 - 8 - btn1Width, canvas.height - 39, text3Width + 7, 21);
+                    await loadImage(ctx, btnRecRightSide, canvas.width - 12 - 8 - btn2Width - btn3Width + text3Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 24 - 8 - btn2Width - 8 - btn1Width - btn3Width + xToCenterText3, canvas.height - 37);
                 } else {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 36 - 8 - btn2Width - btn3Width - 8 - btn1Width, canvas.height - 57);
-                    await loadImage(ctx, btnMiddle, canvas.width - 36 - 8 - btn2Width - btn3Width + 3 - 8 - btn1Width, canvas.height - 57, text3Width + 7, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 26 - 8 - btn2Width - btn3Width + text3Width - 8 - btn1Width, canvas.height - 57);
-                    await drawBitmaps(ctx, button3.name, canvas.width - 38 - 8 - btn2Width - 8 - btn1Width - btn3Width + xToCenterText3, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - 22 - 8 - btn2Width - btn3Width - 8 - btn1Width, canvas.height - 39);
+                    await loadImage(ctx, btnMiddle, canvas.width - 22 - 8 - btn2Width - btn3Width + 3 - 8 - btn1Width, canvas.height - 39, text3Width + 7, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 12 - 8 - btn2Width - btn3Width + text3Width - 8 - btn1Width, canvas.height - 39);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 24 - 8 - btn2Width - 8 - btn1Width - btn3Width + xToCenterText3, canvas.height - 37);
                 }
             }
         }
@@ -3421,9 +3824,9 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillRect(8, 31, canvas.width - 16, canvas.height - 39)
 
         let cross = assets["cross"];
-        await loadImage(ctx, cross, canvas.width - 38, 1, null, null, crossDisabled ? .5 : 1);
+        await loadImage(ctx, cross, canvas.width - 24, 1, null, null, crossDisabled ? .5 : 1);
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 17, 40)
 
@@ -3826,10 +4229,10 @@ async function createError(system, title, content, iconID, button1, button2, but
         await drawBitmaps(ctx, title, 23, 23)
 
         if (crossDisabled) ctx.globalAlpha = .41;
-        await loadImage(ctx, cross, canvas.width - 47, 26,null,null,ctx.globalAlpha)
+        await loadImage(ctx, cross, canvas.width - 47, 26, null, null, ctx.globalAlpha)
         ctx.globalAlpha = 1;
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 28, 57, 32, 32)
 
@@ -3881,19 +4284,19 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2) - 2;
 
                 if (button1.rec) {
-                    await loadImage(ctx, btnRecSide, canvas.width - 33 - btnWidth, canvas.height - 55);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 33 - btnWidth + 2, canvas.height - 55, btnWidth - 4, 21);
-                    await loadImage(ctx, btnRecSide, canvas.width - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnRecSide, canvas.width - 33 - btnWidth, canvas.height - 37);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 33 - btnWidth + 2, canvas.height - 37, btnWidth - 4, 21);
+                    await loadImage(ctx, btnRecSide, canvas.width - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button1.name, canvas.width - 33 - btnWidth + xToCenterText, canvas.height - 53)
                 } else if (!button1.disabled) {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 33 - btnWidth, canvas.height - 55);
-                    await loadImage(ctx, btnMiddle, canvas.width - 33 - btnWidth + 2, canvas.height - 55, btnWidth - 4, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - 33 - btnWidth, canvas.height - 37);
+                    await loadImage(ctx, btnMiddle, canvas.width - 33 - btnWidth + 2, canvas.height - 37, btnWidth - 4, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button1.name, canvas.width - 33 - btnWidth + xToCenterText, canvas.height - 53)
                 } else {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 33 - btnWidth, canvas.height - 55);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 33 - btnWidth + 2, canvas.height - 55, btnWidth - 4, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 33 - btnWidth, canvas.height - 37);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 33 - btnWidth + 2, canvas.height - 37, btnWidth - 4, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 33 - 2, canvas.height - 37);
                     ctx.globalAlpha = .37;
                     await drawBitmaps(ctx, button1.name, canvas.width - 33 - btnWidth + xToCenterText, canvas.height - 53, ctx.globalAlpha)
                     ctx.globalAlpha = 1;
@@ -3908,19 +4311,19 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) - 2;
 
                 if (button1.rec) {
-                    await loadImage(ctx, btnRecSide, canvas.width - 33 - btn1Width, canvas.height - 55);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
-                    await loadImage(ctx, btnRecSide, canvas.width - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnRecSide, canvas.width - 33 - btn1Width, canvas.height - 37);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 37, btn1Width - 4, 21);
+                    await loadImage(ctx, btnRecSide, canvas.width - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 53)
                 } else if (!button1.disabled) {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 33 - btn1Width, canvas.height - 55);
-                    await loadImage(ctx, btnMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - 33 - btn1Width, canvas.height - 37);
+                    await loadImage(ctx, btnMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 37, btn1Width - 4, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 53)
                 } else {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 33 - btn1Width, canvas.height - 55);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 33 - btn1Width, canvas.height - 37);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 37, btn1Width - 4, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 33 - 2, canvas.height - 37);
                     ctx.globalAlpha = .37;
                     await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 53, ctx.globalAlpha)
                     ctx.globalAlpha = 1;
@@ -3933,19 +4336,19 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) - 2;
 
                 if (button2.rec) {
-                    await loadImage(ctx, btnRecSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 55);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
-                    await loadImage(ctx, btnRecSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnRecSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 37);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 37, btn2Width - 4, 21);
+                    await loadImage(ctx, btnRecSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button2.name, canvas.width - btn1Width - 8 - 33 - btn2Width + xToCenterText2, canvas.height - 53);
                 } else if (!button2.disabled) {
-                    await loadImage(ctx, btnLeftSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 55);
-                    await loadImage(ctx, btnMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 37);
+                    await loadImage(ctx, btnMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 37, btn2Width - 4, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button2.name, canvas.width - btn1Width - 8 - 33 - btn2Width + xToCenterText2, canvas.height - 53);
                 } else {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 55);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 37);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 37, btn2Width - 4, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 37);
                     ctx.globalAlpha = .37;
                     await drawBitmaps(ctx, button2.name, canvas.width - btn1Width - 8 - 33 - btn2Width + xToCenterText2, canvas.height - 53, ctx.globalAlpha);
                     ctx.globalAlpha = 1;
@@ -3960,19 +4363,19 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) - 2;
 
                 if (button1.rec) {
-                    await loadImage(ctx, btnRecSide, canvas.width - 33 - btn1Width, canvas.height - 55);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
-                    await loadImage(ctx, btnRecSide, canvas.width - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnRecSide, canvas.width - 33 - btn1Width, canvas.height - 37);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 37, btn1Width - 4, 21);
+                    await loadImage(ctx, btnRecSide, canvas.width - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 53)
                 } else if (!button1.disabled) {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 33 - btn1Width, canvas.height - 55);
-                    await loadImage(ctx, btnMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - 33 - btn1Width, canvas.height - 37);
+                    await loadImage(ctx, btnMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 37, btn1Width - 4, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 53)
                 } else {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 33 - btn1Width, canvas.height - 55);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 33 - btn1Width, canvas.height - 37);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 33 - btn1Width + 2, canvas.height - 37, btn1Width - 4, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 33 - 2, canvas.height - 37);
                     ctx.globalAlpha = .37;
                     await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 53, ctx.globalAlpha)
                     ctx.globalAlpha = 1;
@@ -3985,19 +4388,19 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) - 2;
 
                 if (button2.rec) {
-                    await loadImage(ctx, btnRecSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 55);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
-                    await loadImage(ctx, btnRecSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnRecSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 37);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 37, btn2Width - 4, 21);
+                    await loadImage(ctx, btnRecSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button2.name, canvas.width - btn1Width - 8 - 33 - btn2Width + xToCenterText2, canvas.height - 53)
                 } else if (!button2.disabled) {
-                    await loadImage(ctx, btnLeftSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 55);
-                    await loadImage(ctx, btnMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 37);
+                    await loadImage(ctx, btnMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 37, btn2Width - 4, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button2.name, canvas.width - btn1Width - 8 - 33 - btn2Width + xToCenterText2, canvas.height - 53)
                 } else {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 55);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - btn1Width - 8 - 33 - btn2Width, canvas.height - 37);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - btn1Width - 8 - 33 - btn2Width + 2, canvas.height - 37, btn2Width - 4, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - btn1Width - 8 - 33 - 2, canvas.height - 37);
                     ctx.globalAlpha = .37;
                     await drawBitmaps(ctx, button2.name, canvas.width - btn1Width - 8 - 33 - btn2Width + xToCenterText2, canvas.height - 53, ctx.globalAlpha)
                     ctx.globalAlpha = 1;
@@ -4010,19 +4413,19 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2) - 2;
 
                 if (button3.rec) {
-                    await loadImage(ctx, btnRecSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width, canvas.height - 55);
-                    await loadImage(ctx, btnRecMiddle, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width + 2, canvas.height - 55, btn3Width - 4, 21);
-                    await loadImage(ctx, btnRecSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnRecSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width, canvas.height - 37);
+                    await loadImage(ctx, btnRecMiddle, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width + 2, canvas.height - 37, btn3Width - 4, 21);
+                    await loadImage(ctx, btnRecSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width + xToCenterText3, canvas.height - 53)
                 } else if (!button3.disabled) {
-                    await loadImage(ctx, btnLeftSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width, canvas.height - 55);
-                    await loadImage(ctx, btnMiddle, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width + 2, canvas.height - 55, btn3Width - 4, 21);
-                    await loadImage(ctx, btnRightSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnLeftSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width, canvas.height - 37);
+                    await loadImage(ctx, btnMiddle, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width + 2, canvas.height - 37, btn3Width - 4, 21);
+                    await loadImage(ctx, btnRightSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - 2, canvas.height - 37);
                     await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width + xToCenterText3, canvas.height - 53)
                 } else {
-                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width, canvas.height - 55);
-                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width + 2, canvas.height - 55, btn3Width - 4, 21);
-                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - 2, canvas.height - 55);
+                    await loadImage(ctx, btnDisabledLeftSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width, canvas.height - 37);
+                    await loadImage(ctx, btnDisabledMiddle, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width + 2, canvas.height - 37, btn3Width - 4, 21);
+                    await loadImage(ctx, btnDisabledRightSide, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - 2, canvas.height - 37);
                     ctx.globalAlpha = .37;
                     await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - btn1Width - 8 - 33 - btn3Width + xToCenterText3, canvas.height - 53, ctx.globalAlpha);
                     ctx.globalAlpha = 1;
@@ -4226,7 +4629,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let cross = assets[crossDisabled ? "cross-disabled" : "cross"];
         await loadImage(ctx, cross, canvas.width - 69, 42)
 
-        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 57, 73, 32, 32)
 
@@ -4457,5 +4860,5 @@ async function createError(system, title, content, iconID, button1, button2, but
         let url = URL.createObjectURL(blob);
         document.querySelector(".dl").href = url, dl.style.display = "inline"
     };
-    setTimeout(setDl, 1)
+    setTimeout(setDl, 100)
 }
