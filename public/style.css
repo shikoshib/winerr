@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
-:root{
-    --icons-width:80vw;
+:root {
+    --icons-width: 80vw;
 }
 
 #err-desc {
@@ -11,7 +11,7 @@
 body {
     background: #101010;
     color: white;
-    font-family: "Montserrat",sans-serif;
+    font-family: "Montserrat", sans-serif;
     user-select: none;
     image-rendering: -moz-crisp-edges;
     image-rendering: -o-crisp-edges;
@@ -31,11 +31,11 @@ body {
     width: var(--icons-width);
 }
 
-.disabled-label{
+.disabled-label {
     opacity: 58.62%;
 }
 
-input[type="text"]:disabled{
+input[type="text"]:disabled {
     background-color: #222;
     cursor: not-allowed;
 }
@@ -64,7 +64,7 @@ input[type="text"]:disabled{
     top: 8px;
 }
 
-.color{
+.color {
     display: flex;
     align-items: center;
 }
@@ -82,25 +82,27 @@ input[type="number"] {
 
 input[type="color"] {
     margin-left: 6px;
-	border: none;
-	padding: 0;
+    border: none;
+    padding: 0;
     border-radius: .3em;
-}
-input[type="color"]::-webkit-color-swatch-wrapper {
-    border-radius: .3em;
-	padding: 0;
-}
-input[type="color"]::-webkit-color-swatch {
-    border-radius: .3em;
-	border: none;
 }
 
-a{
+input[type="color"]::-webkit-color-swatch-wrapper {
+    border-radius: .3em;
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border-radius: .3em;
+    border: none;
+}
+
+a {
     text-decoration: none;
     color: #22b9ff;
 }
 
-select{
+select {
     font-size: 14px;
     color: white;
     background-color: #3a3a3a;
@@ -108,7 +110,7 @@ select{
     outline: none;
 }
 
-button{
+button {
     background: #404040;
     font-family: inherit;
     font-size: 14px;
@@ -118,21 +120,22 @@ button{
     outline: none;
 }
 
-button:hover, button:focus{
+button:hover,
+button:focus {
     background: #333333;
 }
 
-button:active{
+button:active {
     background: #202020;
 }
 
-button:disabled{
-    color:#9c9c9c;
+button:disabled {
+    color: #9c9c9c;
     background-color: #222;
     cursor: not-allowed;
 }
 
-a:hover{
+a:hover {
     text-decoration: underline;
     color: #3bc1ff;
 }
@@ -141,14 +144,43 @@ a:hover{
     background-color: #2a2a2a;
 }
 
-b{
+b {
     user-select: text;
 }
 
-#load{
+#load {
     image-rendering: auto;
 }
 
-#test-canvas{
+#test-canvas {
     display: none;
+}
+
+#lang-select {
+    position: absolute;
+    left: 8px;
+    text-align: left;
+}
+
+#space {
+    display: block;
+    height: 32px;
+}
+
+#go-up{
+    bottom: 7px;
+    position: relative;
+}
+
+@media screen and (min-width:472px) {
+    #space {
+        display: none;
+    }
+
+    #lang-select {
+        position: absolute;
+        left: initial;
+        right: 8px;
+        text-align: right;
+    }
 }
