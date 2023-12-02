@@ -3824,7 +3824,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillRect(8, 31, canvas.width - 16, canvas.height - 39)
 
         let cross = assets["cross"];
-        await loadImage(ctx, cross, canvas.width - 24, 1, null, null, crossDisabled ? .5 : 1);
+        await loadImage(ctx, cross, canvas.width - 38, 1, null, null, crossDisabled ? .5 : 1);
 
         let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
