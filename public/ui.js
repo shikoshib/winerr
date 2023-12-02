@@ -141,14 +141,14 @@ function getSysInfo(sys) {
 
 // when you load the page, windows 1.0 is set by default
 async function getDefInfo() {
-    let e = await fetch("/err/info?sys=win1");
+    let e = await fetch("/info?sys=win1");
     getSysInfo(await e.json());
 }
 getDefInfo();
 
 // once you select the os, the settings are getting tweaked a bit with the getSysInfo() function
 sys.addEventListener("change", async (e) => {
-    let req = await fetch("/err/info?sys=" + e.target.value);
+    let req = await fetch("/info?sys=" + e.target.value);
     let info = await req.json();
     if (info != -1) {
         getSysInfo(info);
