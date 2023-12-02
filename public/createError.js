@@ -126,7 +126,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.antialias = 'none';
         ctx.quality = 'best';
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
 
         ctx.fillStyle = "#ffffff";
@@ -482,7 +482,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = "#000000";
         ctx.fillRect(0, 19, canvas.width, 1);
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         let iconY = 37;
         if (longestLine.lines >= 3) iconY = (longestLine.lines / 2 * lineHeight) + 14;
@@ -886,7 +886,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = gradient;
         ctx.fillRect(3, 3, canvas.width - 6, 18);
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 13, 32, 34, 34);
 
@@ -1280,7 +1280,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = gradient;
         ctx.fillRect(3, 3, canvas.width - 6, 18);
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 13, 32, 34, 34);
 
@@ -1723,7 +1723,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         await drawBitmaps(ctx, title, 13, 5, true)
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 14, 33, 34, 34)
 
@@ -2129,7 +2129,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         let y = 43;
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 12, 39, 34, 34)
 
@@ -2539,7 +2539,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = "#e9e9e9";
         ctx.fillRect(3, 23, canvas.width, canvas.height);
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 13, 34, 34, 34)
 
@@ -2985,7 +2985,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = "white";
         ctx.fillRect(8, 30, canvas.width - 16, canvas.height - 38)
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 17, 41);
 
@@ -3392,7 +3392,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = "white";
         ctx.fillRect(21, 42, canvas.width - 46, canvas.height - 68)
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 30, 51)
 
@@ -3826,7 +3826,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let cross = assets["cross"];
         await loadImage(ctx, cross, canvas.width - 24, 1, null, null, crossDisabled ? .5 : 1);
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 17, 40)
 
@@ -4232,7 +4232,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         await loadImage(ctx, cross, canvas.width - 47, 26, null, null, ctx.globalAlpha)
         ctx.globalAlpha = 1;
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 28, 57, 32, 32)
 
@@ -4629,7 +4629,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let cross = assets[crossDisabled ? "cross-disabled" : "cross"];
         await loadImage(ctx, cross, canvas.width - 69, 42)
 
-        let iconReq = await fetch(`/err/icon?sys=${system}&id=${iconID}`);
+        let iconReq = await fetch(`/icon?sys=${system}&id=${iconID}`);
         let icon = await iconReq.text();
         await loadImage(ctx, icon, 57, 73, 32, 32)
 
