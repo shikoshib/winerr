@@ -934,7 +934,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + btnWidth - 3, canvas.height - 55)
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText + 1, canvas.height - 39);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText + 1, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 32, false, ctx.globalAlpha);
@@ -971,7 +971,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + btn1Width - 3, canvas.height - 55)
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 39);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
@@ -992,7 +992,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + 5 + btn1Width + btn2Width - 3, canvas.height - 55)
                     if (button2.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 39);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
@@ -1034,7 +1034,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + btn1Width - 3, canvas.height - 55)
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 39);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
@@ -1055,7 +1055,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + 5 + btn1Width + btn2Width - 3, canvas.height - 55)
                     if (button2.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 39);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
@@ -1076,7 +1076,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + 10 + btn1Width + btn2Width + btn3Width - 3, canvas.height - 55)
                     if (button3.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3 + 1, canvas.height - 39);
+                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3 + 1, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 32, false, ctx.globalAlpha);
@@ -1351,7 +1351,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     await loadImage(ctx, btnRightSide, btnX + 11 + textWidth, canvas.height - 55);
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + 3 + xToCenterText, canvas.height - 39);
+                        await drawBitmaps(ctx, button1.name, btnX + 3 + xToCenterText, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, btnX + 2 + xToCenterText, canvas.height - 32, false, ctx.globalAlpha);
@@ -1390,7 +1390,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, xToPlaceBtns + 3 + xToCenterText1, canvas.height - 39);
+                        await drawBitmaps(ctx, button1.name, xToPlaceBtns + 3 + xToCenterText1, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, xToPlaceBtns + 2 + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
@@ -1412,7 +1412,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button2.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button2.name, xToPlaceBtns + 3 + btn1Width + 5 + xToCenterText2, canvas.height - 39);
+                        await drawBitmaps(ctx, button2.name, xToPlaceBtns + 3 + btn1Width + 5 + xToCenterText2, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button2.name, xToPlaceBtns + 2 + btn1Width + 5 + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
@@ -1456,7 +1456,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button1.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button1.name, xToPlaceBtns + 3 + xToCenterText1, canvas.height - 39);
+                        await drawBitmaps(ctx, button1.name, xToPlaceBtns + 3 + xToCenterText1, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button1.name, xToPlaceBtns + 2 + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
@@ -1478,7 +1478,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button2.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button2.name, xToPlaceBtns + 3 + 5 + btn1Width + xToCenterText2, canvas.height - 39);
+                        await drawBitmaps(ctx, button2.name, xToPlaceBtns + 3 + 5 + btn1Width + xToCenterText2, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button2.name, xToPlaceBtns + 2 + 5 + btn1Width + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
@@ -1500,7 +1500,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     if (button3.disabled) {
                         drawWhiteText = true;
-                        await drawBitmaps(ctx, button3.name, xToPlaceBtns + 3 + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 39);
+                        await drawBitmaps(ctx, button3.name, xToPlaceBtns + 3 + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 31);
                         drawWhiteText = false;
                         ctx.globalAlpha = .32;
                         await drawBitmaps(ctx, button3.name, xToPlaceBtns + 2 + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 32, false, ctx.globalAlpha);
