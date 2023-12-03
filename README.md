@@ -16,4 +16,4 @@ You can try it out at https://shikoshib.ru/err.
 
 * shikoshib (me) - web design, programming, error message assets
 * [NickHammerich](https://github.com/nickhammerich) - icons, error message assets, testing
-* [DimaYastrebovYT](https://github.com/dimayastrebovyt) - testing, Ukrainian translation
+* [DimaYastrebovYT](https://github.com/dimayastrebovyt) - testing, Ukrainian translation, financial support lol
