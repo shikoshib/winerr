@@ -1,7 +1,7 @@
 # winerr
 A fast and accurate Windows fake error messages generator that works in your browser.
 
-You can try it out at https://shikoshib.ru/err.
+You can try it out at https://shikoshib.ru/winerr.
 
 ## How to install (Windows)
 1. Download [Node.js](https://nodejs.org/en/download) if you haven't already.
