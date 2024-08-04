@@ -1,0 +1,40 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" width="400px" height="400px" viewBox="0 0 400 400">
+<defs>
+<g id="_______1_0_Layer0_2_FILL">
+<path fill="#000000" stroke="none" d="
+M 400 558.25
+Q 387.05 558.25 377.9 567.4 368.75 576.55 368.75 589.5 368.75 602.45 377.9 611.6 387.05 620.75 400 620.75 412.95 620.75 422.1 611.6 431.25 602.45 431.25 589.5 431.25 576.55 422.1 567.4 412.95 558.25 400 558.25 Z"/>
+</g>
+
+<path id="_______1_0_Layer0_0_1_STROKES" stroke="#000000" stroke-width="50" stroke-linejoin="round" stroke-linecap="round" fill="none" d="
+M 133.7 697.3
+L 666.25 697.3
+Q 687 697.3 701.6 682.65 716.25 668 716.25 647.3 716.25 634.65 710.3 623.6
+L 444 129.05
+Q 437.15 116.3 424.95 109.35 413.45 102.75 400 102.75 386.5 102.75 375 109.35 362.8 116.3 355.95 129.05
+L 89.65 623.6
+Q 79.85 641.85 85.8 661.65 91.75 681.5 110 691.3 121 697.3 133.7 697.3 Z"/>
+
+<path id="_______1_0_Layer0_1_1_STROKES" stroke="#000000" stroke-width="50" stroke-linejoin="round" stroke-linecap="round" fill="none" d="
+M 391 305.1
+L 400 495.95 408.95 305.4
+Q 409.1 301.7 406.6 298.95 404.1 296.2 400.4 296.05
+L 399.9 296.05
+Q 396.2 296.05 393.6 298.7 390.95 301.4 391 305.1 Z"/>
+</defs>
+
+<g transform="matrix( 0.584747314453125, 0, 0, 0.584747314453125, 15.05,26.2) ">
+<g transform="matrix( 1, 0, 0, 1, -83.55,-102.75) ">
+<use xlink:href="#_______1_0_Layer0_0_1_STROKES"/>
+</g>
+
+<g transform="matrix( 1, 0, 0, 1, -83.55,-102.75) ">
+<use xlink:href="#_______1_0_Layer0_1_1_STROKES"/>
+</g>
+
+<g transform="matrix( 1, 0, 0, 1, -83.55,-102.75) ">
+<use xlink:href="#_______1_0_Layer0_2_FILL"/>
+</g>
+</g>
+</svg>

@@ -1,0 +1,18 @@
+{
+  "name": "winerr",
+  "version": "1.0.0",
+  "description": "A fast and accurate Windows fake error messages generator baesd on HTML5 Canvas",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "shikoshib",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2"
+  }
+}

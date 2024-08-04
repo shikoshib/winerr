@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="((lang))">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="website.css">
+    <meta name="description"
+        content="This is an accurate and fast Windows error message generator that works on the web!">
+    <meta name="theme-color" content="#CA0A0A">
+    <meta property="og:title" content="Windows Error Message Generator" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:description"
+        content="This is an accurate and fast Windows error message generator that works on the web!" />
+    <meta property="og:site_name" content="shikoshib">
+    <script src="pako.min.js"></script>
+    <link rel="shortcut icon" href="/svg/winerr.svg" type="image/x-icon">
+    <title>((title))</title>
+    <style>
+        body {
+            overflow-y: hidden;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+    </style>
+    <script>
+        let version = `((version))`;
+        let iconsLength = Number(`((icons-length))`);
+        let pleaseWait = `((please-wait))`;
+        let loadingAssets = `((loading-assets))`;
+        let extractingAssets = `((extracting-assets))`;
+        let generating = "((generating))";
+        let done = "((done))";
+        let colorPickerStr = "((color-picker))";
+        let init = "((init))";
+        let browserWarn = `((browser-warn))`;
+        let warning = `((attention))`;
+        let warningWidth = `((warning-width))`;
+    </script>
+</head>
+
+<body>
+    <div id="winerr-bg"></div>
+    <header>
+        <div class="navbar">
+            <a href="/">
+                <div class="sksb-icon"></div>
+                <span class="sksb-name">shikoshib</span>
+            </a>
+        </div>
+    </header>
+    <canvas id="canvas" class="core"></canvas>
+    <canvas id="test-canvas" class="core"></canvas>
+    <div id="modal-overlay"></div>
+    <div class="modal-wrapper">
+        <div class="modal">
+            <div class="modal-title-wrapper title-warn">
+                <img src="./svg/hourglass.svg" class="modal-icon hourglass">
+                <span class="modal-title">((please-wait))</span>
+                <div class="modal-space"></div>
+                <img src="./svg/cross.svg" class="modal-cross">
+            </div>
+            <div class="modal-content">((init))</div>
+        </div>
+    </div>
+
+    <div class=" lang-wrapper">
+        <select id="lang-select" onchange='
+    
+        let langElem = document.querySelector("#lang-select");
+        let chosenLang = langElem.value;
+
+        var expirationDate = new Date();
+        expirationDate.setFullYear(expirationDate.getFullYear() + 100);
+        document.cookie=`winerrLang=${chosenLang}; expires=${expirationDate.toUTCString()}; path=/`;
+        location.reload();
+            '>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="ro">Română</option>
+            <option value="ru">Русский</option>
+            <option value="uk">Українська</option>
+            <option value="ja">日本語</option>
+        </select>
+    </div>
+    <div class="legacy-wrapper">
+        <input type="checkbox" id="wlg" name="wlg">
+        <label for="wlg">((legacy))</label>
+    </div>
+    <main class="winerr">
+        <div class="controls">
+            <div class="winerr-cards-container">
+                <div class="generate-wrapper">
+                    <button class="generate">((btn-generate))</button>
+                </div>
+                <div class="card-winerr">
+                    <div class="selector">
+                        <label for="os">((os-select)):</label>
+                        <select name="os" id="os">
+                            <option value="win1">Windows 1.0/2.0</option>
+                            <option value="win31">Windows 3.1</option>
+                            <option value="win95">Windows 95</option>
+                            <option value="win98">Windows 98</option>
+                            <option value="win2k">Windows 2000</option>
+                            <option value="winwh">Windows Whistler</option>
+                            <option value="winxp">Windows XP</option>
+                            <option value="winlh-4093">Windows Longhorn build 4093</option>
+                            <option value="winvista">Windows Vista/7 (Basic)</option>
+                            <option value="win7">Windows Vista/7 (Aero)</option>
+                            <option value="win8">Windows 8/8.1</option>
+                            <option value="win10">Windows 10</option>
+                            <option value="win11">Windows 11</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-winerr selectors-long">
+                    <div class="selector">
+                        <label for="err-title">((err-title)):</label>
+                        <input type="text" id="err-title" name="err-title">
+                    </div>
+                    <div class="selector">
+                        <label for="err-desc">((err-content)):</label>
+                        <textarea type="text" id="err-desc" name="err-desc"></textarea>
+                    </div>
+                    <div class="selector">
+                        <label for="icon">((icon-id)):</label>
+                        <input type="number" id="icon" min="1" max="8" value="1"> <small><a
+                                href="/winerr/icons">((icon-ids))</a></small>
+                    </div>
+                </div>
+                <div class="card-winerr selectors-long">
+                    <div class="selector">
+                        <label for="btn1">((btn1)):</label>
+                        <input type="text" id="btn1" name="btn1">
+                    </div>
+                    <div class="selector">
+                        <div class="btn1dis">
+                            <input type="checkbox" id="btn1-dis" name="btn1-dis">
+                            <label id="btn1dis-label" for="btn1-dis">((btn-disabled))</label>
+                        </div>
+                        <div class="btn1rec">
+                            <input type="checkbox" id="btn1-rec" name="btn1-rec">
+                            <label id="btn1rec-label" for="btn1-rec">((btn-recommended))</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-winerr selectors-long">
+                    <div class="selector">
+                        <label for="btn2">((btn2)):</label>
+                        <input type="text" id="btn2" name="btn2">
+                    </div>
+                    <div class="selector">
+                        <div class="btn2dis">
+                            <input type="checkbox" id="btn2-dis" name="btn2-dis">
+                            <label id="btn2dis-label" for="btn2-dis">((btn-disabled))</label>
+                        </div>
+                        <div class="btn2rec">
+                            <input type="checkbox" id="btn2-rec" name="btn2-rec">
+                            <label id="btn2rec-label" l for="btn2-rec">((btn-recommended))</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-winerr selectors-long">
+                    <div class="selector">
+                        <label for="btn3">((btn3)):</label>
+                        <input type="text" id="btn3" name="btn3" disabled>
+                    </div>
+                    <div class="selector">
+                        <div class="btn3dis">
+                            <input type="checkbox" id="btn3-dis" name="btn3-dis" disabled>
+                            <label id="btn3dis-label" for="btn3-dis" class="disabled-label">((btn-disabled))</label>
+                        </div>
+                        <div class="btn3rec">
+                            <input type="checkbox" id="btn3-rec" name="btn3-rec" disabled>
+                            <label id="btn3rec-label" for="btn3-rec" class="disabled-label">((btn-recommended))</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-winerr selectors-long">
+                    <div class="selector">
+                        <div>
+                            ((settings))
+                        </div>
+                        <div class="cross-selector">
+                            <input type="checkbox" id="cross" disabled>
+                            <label for="cross" class="disabled-label">((x-dis))</label>
+                        </div>
+                        <div class="frame-color-wrapper color-wrapper disabled-color">
+                            <span class="color-label" title="((win8only))">((frame-color)):</span>
+                            <span class="color-prev disabled-color-prev" id="frame-color"></span>
+                        </div>
+                        <div class="primary-gradient-color-wrapper color-wrapper disabled-color">
+                            <span class="color-label" title="((win9xonly))">((gradient-primary)):</span>
+                            <span class="color-prev disabled-color-prev" id="primary-gradient-color"></span>
+                        </div>
+                        <div class="secondary-gradient-color-wrapper color-wrapper disabled-color">
+                            <span class="color-label" title="((win9xonly))">((gradient-sec)):</span>
+                            <span class="color-prev disabled-color-prev" id="secondary-gradient-color"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <span>© 2024 shikoshib</span>
+    </footer>
+    <script>
+        const wlgCheckbox = document.querySelector("#wlg");
+        wlgCheckbox.addEventListener("click", () => {
+            const expirationDate = new Date();
+            expirationDate.setFullYear(expirationDate.getFullYear() + 100);
+            document.cookie = `wlg=1; expires=${expirationDate.toUTCString()}; path=/`;
+            location.reload();
+        })
+    </script>
+    <script src="./createError.js"></script>
+    <script src="./ui.js"></script>
+</body>
+
+</html>
