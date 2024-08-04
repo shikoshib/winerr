@@ -16,6 +16,6 @@ You can try it out at https://shikoshib.ru/winerr.
 
 * shikoshib (me) - web design, programming, error message assets, Russian translation, Japanese translation
 * [NickHammerich](https://github.com/nickhammerich) - icons, error message assets, testing
-* [DimaYastrebovYT](https://github.com/dimayastrebovyt) - testing, Ukrainian translation, financial support lol
+* DmytroYastrubiv - testing, Ukrainian translation, financial support lol
 * mirunaii - Romanian translation
 * El asadero - Spanish translation
