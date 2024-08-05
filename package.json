@@ -1,7 +1,7 @@
 {
   "name": "winerr",
   "version": "1.0.0",
-  "description": "A fast and accurate Windows fake error messages generator baesd on HTML5 Canvas",
+  "description": "A fast and accurate Windows fake error messages generator based on HTML5 Canvas",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
