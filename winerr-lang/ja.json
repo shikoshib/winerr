@@ -17,7 +17,7 @@
     "frame-color": "フレームの色",
     "title": "winerr - Windowsエラーメッセージジェネレータ",
     "choose-lang": "言語を選択...",
-    "loading-assets": "アセットを読み込んでいます...",
+    "loading-assets": "アセットをダウンロード中...",
     "extracting-assets": "アセットを抽出しています...",
     "gradient-primary": "原色",
     "gradient-sec": "二次色",
@@ -29,5 +29,6 @@
     "dl-btn": "ダウンロード",
     "legacy": "Legacyモード",
     "browser-warn": "お使いのブラウザがMozilla Firefoxであることが検出されました。このブラウザ向けにエラー生成を修正しようとしましたが、まだ正常に機能しない可能性があります。この問題を解決するために<a href=\"https://google.com/chrome\">Google Chrome</a>に切り替えることを強くお勧めします。",
-    "attention": "警告！"
+    "attention": "警告！",
+    "discord": "俺のDiscordサーバーに遊びに来てね！"
 }
