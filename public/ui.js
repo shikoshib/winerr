@@ -220,7 +220,7 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
     let charsInfo;
     let initFontFace = fontface;
     for (const char of chars) {
-        // This things may look intimidating, but in reality it just checks what OS is
+        // This thing may look intimidating, but in reality it just checks what OS is
         // selected and if the text has Chinese or Japanese characters. Windows 95 through
         // Longhorn use SimSun, while Vista through 11 use MS UI Gothic. If the text doesn't
         // contain any Chinese/Japanese characters, we just use the regular font assigned for
