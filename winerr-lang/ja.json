@@ -24,11 +24,8 @@
     "please-wait": "待ってください...",
     "init": "初期化中...",
     "settings": "追加設定:",
-    "win8only": "Windows 8/8.1専用",
-    "win9xonly": "Windows 95、98、Memphis、2000専用",
+    "win8only": "Windows 8/8.1専用。",
+    "win9xonly": "Windows 95、98、2000専用。",
     "dl-btn": "ダウンロード",
-    "legacy": "Legacyモード",
-    "browser-warn": "お使いのブラウザがMozilla Firefoxであることが検出されました。このブラウザ向けにエラー生成を修正しようとしましたが、まだ正常に機能しない可能性があります。この問題を解決するために<a href=\"https://google.com/chrome\">Google Chrome</a>に切り替えることを強くお勧めします。",
-    "attention": "警告！",
-    "discord": "俺のDiscordサーバーに遊びに来てね！"
+    "attention": "警告！"
 }

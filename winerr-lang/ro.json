@@ -25,9 +25,7 @@
     "init": "Inițializăm...",
     "settings": "Setări suplimentare:",
     "win8only": "Doar pentru Windows 8/8.1.",
-    "win9xonly": "Doar pentru Windows 95, 98, Memphis și 2000.",
+    "win9xonly": "Doar pentru Windows 95, 98 și 2000.",
     "dl-btn": "Descărcare",
-    "legacy": "Modul Legacy",
-    "browser-warn": "Se detectează că browserul dvs. este Mozilla Firefox. Cu toate că am încercat să remediez generarea erorilor pentru acest browser, este posibil să nu funcționeze corect încă. Vă recomand să treceți la <a href=\"https://google.com/chrome\">Google Chrome</a>, deoarece își face treaba foarte bine.",
     "attention": "Atenție!"
 }

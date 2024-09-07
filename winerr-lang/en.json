@@ -25,9 +25,7 @@
     "init": "Initializing...",
     "settings": "Additional settings:",
     "win8only": "Only for Windows 8/8.1.",
-    "win9xonly": "Only for Windows 95, 98, Memphis and 2000.",
+    "win9xonly": "Only for Windows 95, 98 and 2000.",
     "dl-btn": "Download",
-    "legacy": "Legacy mode",
-    "browser-warn": "It is detected that your browser is Mozilla Firefox. Although I attempted to fix error generation for this browser, it may still not work properly. I highly recommend you to switch to <a href=\"https://google.com/chrome\">Google Chrome</a>, as it gets the job done very well.",
     "attention": "Warning!"
 }

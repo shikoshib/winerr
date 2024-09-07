@@ -25,9 +25,7 @@
     "init": "Iniciando...",
     "settings": "Configuracion adicional:",
     "win8only": "Solo para Windows 8/8.1.",
-    "win9xonly": "Solo para Windows 95, 98, Memphis o 2000.",
+    "win9xonly": "Solo para Windows 95, 98 o 2000.",
     "dl-btn": "Descargar",
-    "legacy": "Modo Legacy",
-    "browser-warn": "Fue detectado que tu buscador es Mozilla Firefox. Intentamos solucionar el error de generacion para tu buscador. puede que siga sin funcionar, recomendamos que cambie a <a href=\"https://google.com/chrome\">Google Chrome</a>, ya que tiene mejor eficiencia.",
     "attention": "Advertencia!"
 }
