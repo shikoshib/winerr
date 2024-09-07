@@ -216,7 +216,7 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
     // Windows 1.0 uses Fixedsys, which is a monospaced font. It essentially
     // means that every character has the same width. So we can safely multiply
     // the content's length by 8 (the width of a character in Fixedsys).
-    if (sys.value == "win1") return chars.length;
+    if (sys.value == "win1") return chars.length * 8;
     let charsInfo;
     let initFontFace = fontface;
     for (const char of chars) {
