@@ -4,9 +4,9 @@ const zlib = require("zlib");
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
+const Canvas = require("canvas");
 
 async function buildSS() {
-    const Canvas = require("canvas");
     let dirs = ["win1", "win2k", "win7", "win8", "win10", "win11", "win31", "win95", "win98", "winlh-4093", "winvista", "winwh", "winxp"];
     let canvasWidth = 2048;
     for (let dir of dirs) {
@@ -18,6 +18,7 @@ async function buildSS() {
         let rowTallestHeight = 0;
         let rowHeight = 0;
         let rowNumber = 0;
+
         for (let file of fs.readdirSync(__dirname + `/public/assets/${dir}`)) {
             let y = 0;
             let err = false;
@@ -36,11 +37,13 @@ async function buildSS() {
                     err = true;
                     return;
                 }
+
                 if (rowTallestHeight <= img.height) rowTallestHeight = img.height;
                 y = rowHeight;
                 ctx.drawImage(img, rowWidth, y);
                 return y;
             }
+
             if (file == "assets.json") {
                 let assets = require(__dirname + `/public/assets/${dir}/assets.json`);
                 for (let key of Object.keys(assets)) {
@@ -59,6 +62,7 @@ async function buildSS() {
                 }
                 continue;
             }
+
             if (file == "icons.json") {
                 let assets = require(__dirname + `/public/assets/${dir}/icons.json`);
                 for (let icon of assets) {
@@ -77,6 +81,7 @@ async function buildSS() {
                 }
             }
         }
+
         fs.writeFileSync(__dirname + `/build/windows/${dir}_assets.json`, JSON.stringify(infoObj));
         if (!rowHeight) widestRow = rowWidth;
         let height = rowHeight + rowTallestHeight;
@@ -85,8 +90,9 @@ async function buildSS() {
         await Canvas.loadImage(canvas.toBuffer()).then(img => {
             finalCtx.drawImage(img, 0, 0)
         })
+
         fs.writeFileSync(__dirname + `/build/windows/${dir}_assets.png`, finalCanvas.toBuffer());
-        console.log(`[WINERR BUILD] ${dir} done`)
+        console.log(`${dir} done`)
     }
 }
 
@@ -138,89 +144,29 @@ async function build() {
 
         fs.writeFileSync(__dirname + "/build/latestver.txt", winerrAssetsVersion);
 
-        console.log("[WINERR BUILD] ✅ BUILD DONE")
+        console.log("✅ BUILD DONE")
     } else {
-        console.log("[WINERR BUILD] BUILD SKIPPED");
+        console.log("BUILD SKIPPED");
     }
 }
 
 build().then(() => {
     let gzipArr = [];
     for (let name of ["assets", "fonts", "sysInfo"]) {
-        const file = JSON.parse(fs.readFileSync(__dirname + `/build/${name}.json`).toString());
-
-        function compress() {
-            if (name == "sysInfo") {
-                let str = "";
-                const toInt = {
-                    true: "1",
-                    false: "0"
-                }
-                Object.keys(file).forEach(key => {
-                    const os = file[key];
-                    str += `${key}~${toInt[os.button3Allowed]}~${toInt[os.cross]}~${toInt[os.gradient]}~${toInt[os.recolor]}|`;
-                })
-                return str;
-            }
-
-            if (name == "fonts") {
-                let str = "";
-                Object.keys(file).forEach(fn => {
-                    const font = file[fn];
-                    let fontStr = fn + "[";
-                    for (let style of Object.keys(font)) {
-                        let styleStr = "";
-                        for (let color of Object.keys(font[style])) {
-                            let colorStr = color + "|";
-                            for (let char of Object.keys(font[style][color].info)) {
-                                const charInfo = font[style][color].info[char];
-                                colorStr += `${char}:${charInfo.x}~${charInfo.y}~${charInfo.w}~${charInfo.h}|`;
-                            }
-                            colorStr += `src:${font[style][color].src}~;~`;
-                            styleStr += colorStr;
-                        }
-                        fontStr += `${style}~|~${styleStr}~:~`;
-                    }
-                    str += fontStr + `,`;
-                })
-                return str;
-            }
-
-            if (name == "assets") {
-                let str = "";
-                Object.keys(file).forEach(sn => {
-                    const os = file[sn];
-                    let osStr = "";
-                    for (let asset of Object.keys(os.assets)) {
-                        const assetInfo = os.assets[asset];
-                        osStr += `${asset}:${assetInfo.x}~${assetInfo.y}~${assetInfo.w}~${assetInfo.h}|`;
-                    }
-                    osStr += `src:${os.src}`;
-                    str += `${sn}~:~${osStr};`;
-                })
-                return str;
-            }
-        }
-
-        gzipArr.push(zlib.gzipSync(compress()).toString("base64"));
+        const file = fs.readFileSync(__dirname + `/build/${name}.json`).toString();
+        gzipArr.push(zlib.gzipSync(file).toString("base64"));
     }
 
     fs.writeFileSync(__dirname + "/build/gzip", gzipArr.join("~"));
 
-    app.use(express.json({ limit: "4mb" }));
     app.use(express.static(__dirname + "/public"));
     app.use(cookieParser());
 
-    app.use((req, res, next) => {
-        res.removeHeader("X-Powered-By");
-        res.set("Access-Control-Allow-Origin", "*");
-        res.set("X-Frame-Options", "DENY");
-        next();
-    })
-
+    // The actual pages are defined in router.js
     const router = require("./router");
     app.use("/", router);
 
-    app.listen(3004)
+    // Start the server
+    app.listen(3004);
     console.log("✅ Server running at http://localhost:3004/");
 });

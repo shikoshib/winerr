@@ -47,7 +47,7 @@
         <div class="navbar">
             <a href="/">
                 <div class="sksb-icon"></div>
-                <span class="sksb-name">shikoshib</span>
+                <span class="sksb-name">winerr</span>
             </a>
         </div>
     </header>
@@ -68,10 +68,10 @@
 
     <div class=" lang-wrapper">
         <select id="lang-select" onchange='
-    
         let langElem = document.querySelector("#lang-select");
         let chosenLang = langElem.value;
 
+        // Set the language cookie for 100 years
         var expirationDate = new Date();
         expirationDate.setFullYear(expirationDate.getFullYear() + 100);
         document.cookie=`winerrLang=${chosenLang}; expires=${expirationDate.toUTCString()}; path=/`;
@@ -84,10 +84,6 @@
             <option value="uk">Українська</option>
             <option value="ja">日本語</option>
         </select>
-    </div>
-    <div class="legacy-wrapper">
-        <input type="checkbox" id="wlg" name="wlg">
-        <label for="wlg">((legacy))</label>
     </div>
     <main class="winerr">
         <div class="controls">
@@ -127,7 +123,7 @@
                     <div class="selector">
                         <label for="icon">((icon-id)):</label>
                         <input type="number" id="icon" min="1" max="8" value="1"> <small><a
-                                href="/winerr/icons">((icon-ids))</a></small>
+                                href="./icons">((icon-ids))</a></small>
                     </div>
                 </div>
                 <div class="card-winerr selectors-long">
@@ -207,15 +203,6 @@
     <footer class="footer">
         <span>© 2024 shikoshib</span>
     </footer>
-    <script>
-        const wlgCheckbox = document.querySelector("#wlg");
-        wlgCheckbox.addEventListener("click", () => {
-            const expirationDate = new Date();
-            expirationDate.setFullYear(expirationDate.getFullYear() + 100);
-            document.cookie = `wlg=1; expires=${expirationDate.toUTCString()}; path=/`;
-            location.reload();
-        })
-    </script>
     <script src="./createError.js"></script>
     <script src="./ui.js"></script>
 </body>
