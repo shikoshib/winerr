@@ -46,188 +46,20 @@ a:hover {
 .sksb-icon {
     width: 32px;
     height: 32px;
-    background-image: url("./icon64.png");
+    background-image: url("./svg/winerr.svg");
     background-size: contain;
     position: relative;
     left: 8px;
     top: 8px;
-    box-shadow: 0 0 12px rgba(77, 160, 214, .375);
 }
 
 .sksb-name {
     color: #fff;
-    text-shadow: rgba(255, 255, 255, .375) 0px 0 10px;
     font-weight: 600;
     position: relative;
     left: 48px;
     bottom: 17px;
     transition: all .125s;
-}
-
-.sksb-name:hover {
-    text-shadow: rgba(220, 220, 220, .375) 0px 0 10px;
-    color: #dcdcdc;
-}
-
-#bg {
-    z-index: -100;
-    filter: blur(16px);
-    position: relative;
-    display: inline-block;
-    width: 100%;
-    min-height: var(--welcome-text-h);
-    opacity: 10%;
-    background-position: center;
-    background-size: cover;
-    background-attachment: fixed;
-    background-image: url("./icon720.png");
-}
-
-.welcome-text {
-    position: absolute;
-    top: 48px;
-    width: 100%;
-    height: var(--welcome-text-h);
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    gap: 40px;
-}
-
-#hi {
-    font-size: 96px;
-    font-weight: 600;
-    text-shadow: rgba(0, 0, 0, .6) 0px 0 20px;
-}
-
-#line {
-    width: 4px;
-    height: 128px;
-    background: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, .325), rgba(255, 255, 255, 0));
-}
-
-#welcome-info {
-    font-size: 18px;
-    font-weight: 500;
-    text-shadow: rgba(0, 0, 0, .4) 0px 0 20px;
-}
-
-.content-container {
-    gap: 32px;
-    left: 16px;
-    top: 32px;
-    position: relative;
-    flex-direction: column;
-    display: flex;
-    justify-content: center;
-    box-shadow: 0 0 20px rgba(17, 17, 17, .5);
-}
-
-.main-content {
-    display: flex;
-    justify-content: center;
-    background: #111111;
-    height: min-content;
-}
-
-.projects-title,
-.socials-title {
-    text-align: center;
-    position: relative;
-    font-size: 48px;
-    font-weight: 600;
-}
-
-.cards-container {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(3, 288px);
-    height: min-content;
-}
-
-.cards-container a {
-    color: white;
-    height: min-content
-}
-
-.card-image {
-    position: relative;
-    width: 32px;
-    height: 32px;
-    border-radius: 100%;
-}
-
-.cards-container a {
-    text-decoration: none;
-}
-
-.card-title {
-    position: relative;
-    left: 40px;
-    font-weight: 600;
-    bottom: 29px;
-}
-
-.card-line {
-    position: relative;
-    bottom: 12px;
-    width: 100%;
-    background: #2a2a2a;
-    height: 2px;
-}
-
-.card-content {
-    text-align: center;
-}
-
-.card {
-    padding: 8px;
-    box-shadow: 0 0 8px rgba(25, 25, 25, .5);
-    border-radius: 8px;
-    background: #191919;
-    width: 240px;
-    transition: all .175s;
-}
-
-.card:hover {
-    background: #232323;
-    box-shadow: 0 0 8px rgba(35, 35, 35, .5);
-}
-
-.socials .card {
-    height: 32px;
-}
-
-.card-yt {
-    box-shadow: 0 0 8px rgba(255, 0, 0, .5);
-    background: #ff0000;
-}
-
-.card-yt:hover {
-    box-shadow: 0 0 8px rgba(255, 20, 20, 0.75);
-    background: #ff1414;
-}
-
-.card-ng {
-    box-shadow: 0 0 8px rgba(255, 181, 14, 0.325);
-    background: #ffb50e;
-}
-
-.card-ng .card-title{color:#000;}
-
-.card-ng:hover {
-    box-shadow: 0 0 8px rgba(255, 194, 53, 0.5);
-    background: #ffc235;
-}
-
-.card-ds {
-    box-shadow: 0 0 8px rgba(88, 101, 242, 0.325);
-    background: #5865f2;
-}
-
-.card-ds:hover {
-    box-shadow: 0 0 8px rgba(121, 131, 248, 0.5);
-    background: #7983f8;
 }
 
 .footer {
@@ -304,7 +136,7 @@ input {
 }
 
 textarea {
-    resize: none;
+    resize: vertical;
     height: 72px;
     border: 0;
     background: #111;
@@ -313,7 +145,6 @@ textarea {
     padding: 8px;
     border-radius: 8px;
     box-shadow: 0 0 4px rgb(118, 118, 118, .325);
-    transition: all .175s linear;
     font-family: inherit;
 }
 
@@ -599,50 +430,6 @@ input[type="checkbox"]:disabled {
     top: 80px;
     right: 16px;
     position: absolute;
-}
-
-.legacy-wrapper {
-    z-index: 3;
-    top: 14px;
-    right: 16px;
-    position: absolute;
-}
-
-@media screen and (min-height:845px) {
-    :root {
-        --welcome-text-h: calc(100vh - 582px);
-    }
-}
-
-@media screen and (max-width:870px) {
-    .cards-container {
-        justify-content: center;
-        gap: 32px;
-        grid-template-columns: repeat(1, 240px);
-    }
-
-    .content-container {
-        left: 0;
-    }
-
-    .projects-title,
-    .socials-title {
-        width: 300px;
-    }
-
-    #line {
-        display: none;
-    }
-
-    .welcome-text {
-        flex-direction: column;
-        gap: 24px;
-    }
-
-    #welcome-info {
-        text-align: center;
-        width: 280px;
-    }
 }
 
 @media screen and (max-width:900px) {

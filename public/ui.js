@@ -20,52 +20,72 @@ async function load() {
     let savedVersion = localStorage.getItem("version");
     let gzipRes = '';
     let iconsGzip = "";
+
+    // Check if the last downloaded version matches the actual newest one.
+    // If it does, start downloading an update. If it doesn't, just load
+    // the cached assets and move on.
     if (savedVersion != version) {
         modalContent.innerHTML = loadingAssets;
 
+        // Send the request to start downloading resources
         const reqResources = await fetch("/resources");
         reader = reqResources.body.getReader();
 
         let receivedLength = 0;
 
+        // This loop over here tracks how much data was downloaded, and
+        // displays it as a percentage
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
             receivedLength += value.length;
+
+            // Divide the downloaded data size out by the full data size
+            // (provided by the server), multiply it by 100 to make it a
+            // percentage and leave only 2 decimal places
             const percentage = ((receivedLength / iconsLength) * 100).toFixed(2);
             gzipRes += new TextDecoder().decode(value);
             modalContent.innerHTML = `${loadingAssets.replace("...", "")}: ${(receivedLength / 1048576).toFixed(2)} MB / ${(iconsLength / 1048576).toFixed(2)} MB (${percentage}%)`;
         }
 
+        // Save the fonts and system info to localStorage, because it
+        // doesn't take as much as space as icons
         localStorage.setItem("fonts", gzipRes.split("~")[1]);
         localStorage.setItem("sysInfo", gzipRes.split("~")[2]);
-        localStorage.setItem("version", version);
+        localStorage.setItem("version", version); // Save this too to track any available updates
 
+        // Considering that winerr is quite a versatile tool, it's
+        // obvious that I need to have a lot of icons and the size
+        // is gonna be huge. So I have to use IndexedDB to store
+        // icons. The limitations may vary depending on the browser,
+        // but for winerr, it's gonna do just fine.
         iconsGzip = gzipRes.split("~")[0];
-
-        const request = indexedDB.open("assetsdb", 1);
+        const request = indexedDB.open("assetsdb", 1); // Create a database
 
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
             let objectStore = db.createObjectStore("assets");
-            objectStore.createIndex("assets", "assets");
+            objectStore.createIndex("assets", "assets"); // In short, create a space in the database to store assets in
 
             objectStore.transaction.oncomplete = (event) => {
                 const objStore = db
                     .transaction("assets", "readwrite")
                     .objectStore("assets");
-                objStore.add(iconsGzip, "assets");
+                objStore.add(iconsGzip, "assets"); // Add the assets
             };
         }
     } else {
+        // No update available
         async function loadIcons() {
             return new Promise((resolve, reject) => {
+                // Load the existing database
                 const request = indexedDB.open("assetsdb");
 
                 request.onsuccess = function (event) {
                     const db = event.target.result;
 
+                    // Load the space the assets are stored in
                     const transaction = db.transaction(["assets"], "readonly");
                     const objectStore = transaction.objectStore("assets");
                     const getRequest = objectStore.get("assets");
@@ -88,121 +108,43 @@ async function load() {
 
         iconsGzip = await loadIcons();
     }
+
     const sysInfoGzip = localStorage.getItem("sysInfo");
     const assetsObjGzip = iconsGzip;
     const fontsObjGzip = localStorage.getItem("fonts");
     modalContent.innerHTML = extractingAssets;
 
+    // Here comes the extracting process. winerr uses Gzip compression to reduce
+    // the assets size, but of course, it requires a few additional steps. In
+    // this exact case, I use the pako library to un-gzip the encoded chunk.
+
+    // Starting off with system data.
     const gzippedSysData = atob(sysInfoGzip);
     const sysDataArray = Uint8Array.from(gzippedSysData, c => c.charCodeAt(0));
-    let sysString = new TextDecoder().decode(pako.ungzip(sysDataArray));
+    systems = JSON.parse(new TextDecoder().decode(pako.ungzip(sysDataArray)));
 
-    for (const os of sysString.split("|")) {
-        const split = os.split("~");
-        const toBoolean = {
-            "0": false,
-            "1": true
-        };
-        if (!split[0]) continue;
-        systems[split[0]] = {
-            button3Allowed: toBoolean[split[1]],
-            cross: toBoolean[split[2]],
-            gradient: toBoolean[split[3]],
-            recolor: toBoolean[split[4]]
-        };
-    }
-
+    // Then assets and icons.
     const gzippedAssetsData = atob(assetsObjGzip);
     const assetsDataArray = Uint8Array.from(gzippedAssetsData, c => c.charCodeAt(0));
-    let assetsStr = new TextDecoder().decode(pako.ungzip(assetsDataArray));
+    assetsArray = JSON.parse(new TextDecoder().decode(pako.ungzip(assetsDataArray)));
 
-    for (const os of assetsStr.split(";")) {
-        const split = os.split("~:~");
-        if (!split[0]) continue;
-        assetsArray[split[0]] = {};
-        let assets = {};
-        for (let asset of split[1].split("|")) {
-            if (asset.split(":")[0] == "src") {
-                assetsArray[split[0]].src = asset.split(":")[1];
-                continue;
-            }
-            const coords = asset.split(":")[1].split("~");
-            assets[asset.split(":")[0]] = {
-                x: Number(coords[0]),
-                y: Number(coords[1]),
-                w: Number(coords[2]),
-                h: Number(coords[3])
-            };
-        }
-        assetsArray[split[0]].assets = assets;
-    }
-
+    // Lastly, fonts.
     const gzippedFontsData = atob(fontsObjGzip);
     const fontsDataArray = Uint8Array.from(gzippedFontsData, c => c.charCodeAt(0));
-    let fontsStr = new TextDecoder().decode(pako.ungzip(fontsDataArray));
+    fonts = JSON.parse(new TextDecoder().decode(pako.ungzip(fontsDataArray)));
 
-    for (const font of fontsStr.split(",")) {
-        const split = font.split("[");
-        if (!split[0]) continue;
-        fonts[split[0]] = {};
-        for (const style of split[1].split("~:~")) {
-            const styleSplit = style.split("~|~");
-            if (!styleSplit[0]) continue;
-            fonts[split[0]][styleSplit[0]] = {};
+    // Once the extracting process is over, the modal window gets closed.
+    modal.style.translate = "0 -32px";
+    modal.style.opacity = 0;
 
-            for (const color of styleSplit[1].split("~;~")) {
-                const colorSplit = color.split("|");
-                if (!colorSplit[0]) continue;
-                fonts[split[0]][styleSplit[0]][colorSplit[0]] = {};
-                let colorAssets = {};
+    overlay.style.opacity = 0;
+    overlay.style.pointerEvents = "none";
+    document.querySelector("body").style.overflowY = "visible";
 
-                for (const asset of colorSplit) {
-                    if (!asset.includes(":")) continue;
-                    const assetSplit = asset.split(":");
-                    if (assetSplit[0] == "src") {
-                        fonts[split[0]][styleSplit[0]][colorSplit[0]].src = asset.split(":")[1].split("~")[0];
-                        continue;
-                    }
-
-                    const coords = assetSplit[1].split("~");
-                    colorAssets[assetSplit[0]] = {
-                        x: Number(coords[0]),
-                        y: Number(coords[1]),
-                        w: Number(coords[2]),
-                        h: Number(coords[3])
-                    }
-                }
-
-                fonts[split[0]][styleSplit[0]][colorSplit[0]].info = colorAssets;
-            }
-        }
-    }
-
-    // Due to technical issues that are out of my control, Mozilla Firefox
-    // has an issue when some assets don't get placed on the canvas. To
-    // encourage people to switch to Google Chrome (which gets the job done
-    // the best), a little warning is displayed.
-    if (/Firefox/.test(navigator.userAgent)) {
-        modalContent.innerHTML = `<span>${browserWarn}</span>`;
-        modalCross.style.display = "inline-block";
-        modalIcon.classList.remove("hourglass");
-        modalIcon.src = "./svg/warn.svg";
-        modal.style.maxWidth = "320px";
-        root.style.setProperty("--space-width", `210px`);
-        modalTitle.innerHTML = warning;
-    } else {
-        modal.style.translate = "0 -32px";
-        modal.style.opacity = 0;
-
-        overlay.style.opacity = 0;
-        overlay.style.pointerEvents = "none";
-        document.querySelector("body").style.overflowY = "visible";
-
-        setTimeout(() => {
-            modalWrapper.style.display = "none";
-            overlay.style.display = "none";
-        }, 375);
-    }
+    setTimeout(() => {
+        modalWrapper.style.display = "none";
+        overlay.style.display = "none";
+    }, 375);
 }
 
 load();
@@ -262,22 +204,27 @@ function isCJ(text) {
 // Calculate the width of a string of text in pixels
 function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) {
     let fontface = sysFontObj[sys.value];
+
     if (isLarge) fontface = "SegoeUI_11pt";
     if (vgasysr) fontface = "vgasysr"
     if (sys.value == "winxp" && isBold) fontface = "TrebuchetMS";
+
     let chars = content.split("");
     if (chars[chars.length - 1] == "") chars.pop();
     let charsWidth = 0;
-    if (sys.value == "win1") {
-        for (let char of chars) {
-            charsWidth += 8;
-        }
-        return charsWidth;
-    }
+
+    // Windows 1.0 uses Fixedsys, which is a monoscaped font. It essentially
+    // means that every character has the same width. So we can safely multiply
+    // the content's length by 8 (the width of a character in Fixedsys).
+    if (sys.value == "win1") return chars.length;
     let charsInfo;
     let initFontFace = fontface;
     for (const char of chars) {
-        // CJ
+        // This things may look intimidating, but in reality it just checks what OS is
+        // selected and if the text has Chinese or Japanese characters. Windows 95 through
+        // Longhorn use SimSun, while Vista through 11 use MS UI Gothic. If the text doesn't
+        // contain any Chinese/Japanese characters, we just use the regular font assigned for
+        // basic characters.
         if (["win95", "win98", "win2k", "winwh", "winxp", "winlh-4093"].includes(sys.value) && !isBold && isCJ(char)) {
             fontface = "SimSun";
             charsInfo = fonts["SimSun"]["regular"]["black"].info;
@@ -288,6 +235,8 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
             fontface = initFontFace;
             charsInfo = fonts[fontface][isBold ? "bold" : "regular"][Object.keys(fonts[fontface][isBold ? "bold" : "regular"])[0]].info;
         }
+
+        // Slight font offsets
         let addPx = 1;
         if (fontface == "TrebuchetMS") addPx = 0;
         if (fontface == "SegoeUI_11pt") addPx = 2;
@@ -296,16 +245,20 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
     return charsWidth;
 }
 
+// The following code is triggered every time the OS value is changed
 sys.addEventListener("change", async (e) => {
     const sysname = e.target.value;
-
     let sysInfo = systems[sysname];
 
+    // Windows Vista/7 (Basic) (codename "winvista") has the same icons as Windows
+    // Vista/7 (Aero) (codename "win7").
     let iconSys = sysname;
     if (iconSys == "winvista") iconSys = "win7";
     let iconsCount = Object.keys(assetsArray[iconSys].assets).filter(i => i.startsWith("i-")).length;
     icon.max = iconsCount;
 
+    // If adding the third button is allowed (every OS except for Windows 1.0),
+    // enable the input fields for Button 3. If not, do the opposite.
     if (sysInfo.button3Allowed) {
         btn3Elem.disabled = false;
         document.querySelector("#btn3dis-label").classList.remove("disabled-label");
@@ -320,6 +273,8 @@ sys.addEventListener("change", async (e) => {
         btn3RecElem.disabled = true;
     }
 
+    // If disabling the cross (X) button is allowed (every OS except for Windows
+    // 1.0 and 3.1), enable the checkbox. If not, do the opposite.
     if (sysInfo.cross) {
         document.querySelector(".cross-selector label").classList.remove("disabled-label");
         cross.disabled = false;
@@ -328,6 +283,8 @@ sys.addEventListener("change", async (e) => {
         cross.disabled = true;
     }
 
+    // If recoloring the window frame is allowed (only in Windows 8/8.1), enable
+    // the color wrapper. If not, do the opposite.
     if (sysInfo.recolor) {
         document.querySelector(".frame-color-wrapper").classList.remove("disabled-color");
         document.querySelector("#frame-color").classList.remove("disabled-color-prev");
@@ -336,13 +293,17 @@ sys.addEventListener("change", async (e) => {
         document.querySelector("#frame-color").classList.add("disabled-color-prev");
     }
 
+    // If recoloring the gradient is allowed (only in Windows 95, 98 and 2000), enable
+    // the color wrappers. If not, do the opposite.
     if (sysInfo.gradient) {
+        // Default colors in each of the abovementioned OS'es (encoded in RGB)
         let colors = {
             "win95": { p: "0,0,128", s: "0,0,128" },
             "win98": { p: "0,0,128", s: "16,132,208" },
             "win2k": { p: "10,36,106", s: "166,202,240" }
         };
 
+        // Setting the default colors
         root.style.setProperty("--primary-gradient-color", colors[sysname].p);
         root.style.setProperty("--secondary-gradient-color", colors[sysname].s);
 
@@ -360,6 +321,12 @@ sys.addEventListener("change", async (e) => {
     }
 });
 
+// Windows error messages can't have more than one recommended button,
+// so we have to disable the "recommended" checkbox on other buttons.
+// Furthermore, the recommended button can't be marked as disabled at
+// the same time.
+
+// Doing this process for Button 1
 btn1RecElem.addEventListener("click", (e) => {
     if (e.target.checked) {
         document.querySelector("#btn1dis-label").classList.add("disabled-label");
@@ -387,6 +354,7 @@ btn1RecElem.addEventListener("click", (e) => {
     }
 });
 
+// Doing this process for Button 2
 btn2RecElem.addEventListener("click", (e) => {
     if (e.target.checked) {
         document.querySelector("#btn2dis-label").classList.add("disabled-label");
@@ -414,6 +382,7 @@ btn2RecElem.addEventListener("click", (e) => {
     }
 });
 
+// Doing this process for Button 3
 btn3RecElem.addEventListener("click", (e) => {
     if (e.target.checked) {
         document.querySelector("#btn3dis-label").classList.add("disabled-label");
@@ -437,6 +406,7 @@ btn3RecElem.addEventListener("click", (e) => {
     }
 });
 
+// Once the "Generate!" button is hit, this code executes
 let generateBtn = document.querySelector(".generate");
 generateBtn.addEventListener("click", async () => {
     generateBtn.disabled = true;
@@ -452,17 +422,42 @@ generateBtn.addEventListener("click", async () => {
         overlay.style.opacity = 1;
         document.querySelector("body").style.overflowY = "hidden";
 
+        // Getting the content input fields for later use
         let titleElem = document.querySelector("#err-title");
         let contentElem = document.querySelector("#err-desc");
         let btn1Elem = document.querySelector("#btn1");
         let btn2Elem = document.querySelector("#btn2");
 
         try {
-            let estart = performance.now();
-            await createError(sys.value, titleElem.value, contentElem.value, Math.trunc(Number(icon.value)), { name: btn1Elem.value, disabled: btn1DisElem.checked, rec: btn1RecElem.checked }, { name: btn2Elem.value, disabled: btn2DisElem.checked, rec: btn2RecElem.checked }, { name: btn3Elem.value, disabled: btn3DisElem.checked, rec: btn3RecElem.checked }, cross.checked, `rgb(${getComputedStyle(root).getPropertyValue("--frame-color")})`, `rgb(${getComputedStyle(root).getPropertyValue("--primary-gradient-color")})`, `rgb(${getComputedStyle(root).getPropertyValue("--secondary-gradient-color")})`);
-            let efinish = performance.now();
-            console.log(efinish - estart);
+            let eStart = performance.now();
+            await createError(sys.value,
+                titleElem.value,
+                contentElem.value,
+                Math.trunc(Number(icon.value)),
+                {
+                    name: btn1Elem.value,
+                    disabled: btn1DisElem.checked,
+                    rec: btn1RecElem.checked
+                }, {
+                name: btn2Elem.value,
+                disabled: btn2DisElem.checked,
+                rec: btn2RecElem.checked
+            }, {
+                name: btn3Elem.value,
+                disabled: btn3DisElem.checked,
+                rec: btn3RecElem.checked
+            }, cross.checked,
+                `rgb(${getComputedStyle(root).getPropertyValue("--frame-color")})`,
+                `rgb(${getComputedStyle(root).getPropertyValue("--primary-gradient-color")})`,
+                `rgb(${getComputedStyle(root).getPropertyValue("--secondary-gradient-color")})`);
+            let eFinish = performance.now();
+
+            // This line over here tracks how much time it took to generate an
+            // error message (in milliseconds) and prints the number into the
+            // console. To convert it to seconds, simply divide it by 1000.
+            console.log(eFinish - eStart);
         } catch (e) {
+            // In case any error happens
             console.error(e);
             modalCross.style.display = "inline-block";
             modalTitleWrapper.classList.add("title-error");
@@ -492,7 +487,7 @@ generateBtn.addEventListener("click", async () => {
                 modalIcon.src = checkB64;
                 modalIcon.classList.remove("hourglass");
                 modalContent.style.justifyContent = "center";
-                
+
                 // Windows Longhorn and 7 use glow effects for titles. On some browsers
                 // the title for these OS'es doesn't get drawn on canvas for some reason,
                 // so I render the title on a separate canvas with effects, render it to
@@ -548,22 +543,33 @@ function closeModal() {
         modalCross.style.display = "none";
 
         overlay.style.display = "none";
-
-        if (/Firefox/.test(navigator.userAgent)) modal.style.maxWidth = "inherit";
     }, 375);
 }
 
+// Allowing to close the modal window (the one that contains
+// the generated error) by simply clicking the cross button.
 modalCross.addEventListener("click", closeModal);
+
+// This event listener allows to close the modal window by
+// hitting the Esc key.
 document.addEventListener("keydown", (e) => {
-    if (e.code == "Escape" && modalCross.style.display != "none") {
+
+    // We have to make sure that the modal window is allowed
+    // to be closed (because there are some cases where it's
+    // not, such as downloading assets).
+    const nullishModalCross = ["", "none"].includes(modalCross.style.display) ? true : false;
+    if (e.code == "Escape" && !nullishModalCross) {
         closeModal();
     }
 })
 
+// Color picker handlers (frame, primary gradient and secondary gradient colors)
 let colorPickers = document.querySelectorAll(".color-prev");
 for (let colorPicker of colorPickers) {
     colorPicker.addEventListener("click", (e) => {
+        // If the color picker is disabled, we don't want it to do anything when clicking
         if (e.target.classList.contains("disabled-color-prev")) return;
+
         modalWrapper.style.display = "flex";
         overlay.style.display = "block";
 
@@ -605,11 +611,17 @@ for (let colorPicker of colorPickers) {
 
             let hexElem = document.querySelector(`#${e.target.id}-hex`);
 
+            // Parsing HEX
             hexElem.addEventListener("input", (evt) => {
                 let value = evt.target.value;
+
+                // If any of the characters don't match this regex (i.e.
+                // can't be used for writing HEX color code), remove those.
                 const hexRegex = /[^0-9a-fA-F]/g;
                 value = value.replace(hexRegex, "");
                 evt.target.value = value;
+
+                // Converting HEX to RGB
                 if (value.length == 6) {
                     let rHex = value.slice(0, 2);
                     let gHex = value.slice(2, 4);
@@ -625,6 +637,7 @@ for (let colorPicker of colorPickers) {
                 }
             })
 
+            // Converting RGB to HEX
             for (let cElem of [rElem, gElem, bElem]) {
                 cElem.addEventListener("input", (evt) => {
                     if (evt.target.value > 255) evt.target.value = 255;
