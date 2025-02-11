@@ -2,7 +2,7 @@
 A fast and accurate Windows fake error messages generator based on HTML5 Canvas.
 
 ## How to install (Windows)
-1. Download [Node.js](https://nodejs.org/en/download) if you haven't already.
+1. Download [Node.js](https://nodejs.org/en/download) if you haven't already. I recommend installing the LTS version.
 2. Unzip all of the repository files in any directory.
 3. Open this folder in `cmd` or PowerShell.
 4. Run `npm i` to install all of the packages.
@@ -15,3 +15,5 @@ A fast and accurate Windows fake error messages generator based on HTML5 Canvas.
 * shikoshib - web design, programming, error message assets
 * [NickHammerich](https://github.com/nickhammerich) - icons, error message assets, testing
 * DmytroYastrubiv - testing, financial support lol
+
+[Translation credits](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
