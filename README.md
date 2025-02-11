@@ -1,3 +1,6 @@
+<div style="text-align: center">
+  <strong>English</strong> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ru.md">Русский</a>
+</div>
 # winerr
 A fast and accurate Windows fake error messages generator based on HTML5 Canvas.
 
@@ -17,3 +20,4 @@ A fast and accurate Windows fake error messages generator based on HTML5 Canvas.
 * DmytroYastrubiv - testing, financial support lol
 
 [Translation credits](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
+
