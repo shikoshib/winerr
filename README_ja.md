@@ -3,7 +3,7 @@
 </div>
 
 # winerr（ウィネール）
-Windowsエラーメッセージの高速で正確な生成ツールです。
+Windowsエラーメッセージの高速で正確な生成ツールです。HTML5 Canvasを使って作成されました。
 
 ## インストール仕方（Windows）
 1. [Node.js](https://nodejs.org/en/download)が既にインストールされていないならば、ダウンロードしてください。
