@@ -3,7 +3,7 @@
 </div>
 
 # winerr
-Быстрый и точный генератор ошибок Windows при помощи HTML5 Canvas.
+Быстрый и точный генератор ошибок Windows, созданный при помощи HTML5 Canvas.
 
 ## Установка (Windows)
 1. Скачайте [Node.js](https://nodejs.org/en/download), если вас его ещё нет. Рекомендую устанавливать LTS-версию.
