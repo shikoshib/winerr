@@ -18,6 +18,6 @@
 
 * shikoshib - веб-дизайн, программирование, ресурсы для ошибок
 * [NickHammerich](https://github.com/nickhammerich) - иконки, ресурсы для ошибок, тестирование
-* DmytroYastrubiv - тестирование, финансовая поддержка
+* DmytroYastrubiv - тестирование
 
 [Список переводчиков](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
