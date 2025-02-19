@@ -21,3 +21,6 @@ Windowsエラーメッセージの高速で正確な生成ツールです。HTML
 * DmytroYastrubiv - テスト
 
 [翻訳者一覧](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
+
+---
+[シコシブ](https://github.com/shikoshib)による翻訳
