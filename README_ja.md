@@ -18,7 +18,7 @@ Windowsエラーメッセージの高速で正確な生成ツールです。HTML
 
 * shikoshib - ウェブデザイン、プログラミング、アセット
 * [NickHammerich](https://github.com/nickhammerich) - アイコン、アセット、テスト
-* DmytroYastrubiv - テスト
+* [DmytroYastrubiv](https://github.com/DimaYastrebov) - テスト
 
 [翻訳者一覧](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
 
