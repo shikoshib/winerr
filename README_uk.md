@@ -1,5 +1,5 @@
 <div style="text-align: center">
-  <a href="https://github.com/shikoshib/winerr/blob/main/README.md">English</a> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ru.md">Русский</a> | <strong>Україньска</strong> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ja.md">日本語</a>
+  <a href="https://github.com/shikoshib/winerr/blob/main/README.md">English</a> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ru.md">Русский</a> | <strong>Українська</strong> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ja.md">日本語</a>
 </div>
 
 # winerr
