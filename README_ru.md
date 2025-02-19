@@ -21,3 +21,6 @@
 * DmytroYastrubiv - тестирование
 
 [Список переводчиков](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
+
+---
+Переведено [shikoshib](https://github.com/shikoshib)
