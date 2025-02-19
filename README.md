@@ -1,5 +1,5 @@
 <div style="text-align: center">
-  <strong>English</strong> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ru.md">Русский</a> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ja.md">日本語</a>
+  <strong>English</strong> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ru.md">Русский</a> | <a href="https://github.com/shikoshib/winerr/blob/main/README_uk.md">Україньска</a> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ja.md">日本語</a>
 </div>
 
 # winerr
@@ -18,7 +18,7 @@ A fast and accurate Windows fake error messages generator based on HTML5 Canvas.
 
 * shikoshib - web design, programming, error message assets
 * [NickHammerich](https://github.com/nickhammerich) - icons, error message assets, testing
-* DmytroYastrubiv - testing
+* [DmytroYastrubiv](https://github.com/DimaYastrebov) - testing
 
 [Translation credits](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
 
