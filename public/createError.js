@@ -80,6 +80,15 @@ async function createError(system, title, content, iconID, button1, button2, but
         }
     }
 
+    function jpProcess(text) {
+        return text
+            .replaceAll("（", "(")
+            .replaceAll("）", ")")
+            .replaceAll("：", " : ")
+            .replaceAll("／", "/")
+            .replaceAll("・", " ∙ ");
+    }
+
 
     async function win1() {
         if (button2) {
@@ -683,13 +692,13 @@ async function createError(system, title, content, iconID, button1, button2, but
 
     async function win9x() {
         let symbolCodes = fonts["MSSansSerif"]["regular"]["black"];
-        title = title.replaceAll(" ", " ");
+        title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar) title = title.replaceAll(char, "□");
+            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
-        content = content.replaceAll(" ", " ")
+        content = jpProcess(content.replaceAll(" ", " "));
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
@@ -711,16 +720,20 @@ async function createError(system, title, content, iconID, button1, button2, but
         let MSSansSerifBold = new Image();
         await loadImageCallback(MSSansSerifBold, fonts["MSSansSerif"]["bold"]["white"].src);
 
-        let SimSun;
-        let SimSunWhite;
+        let MSUIGothic;
+        let MSUIGothicWhite;
+        let MSUIGothicBold;
 
-        for (const text of [content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
+        for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
-                SimSun = new Image();
-                await loadImageCallback(SimSun, fonts["SimSun"]["regular"]["black"].src);
+                MSUIGothic = new Image();
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
 
-                SimSunWhite = new Image();
-                await loadImageCallback(SimSunWhite, fonts["SimSun"]["regular"]["white"].src);
+                MSUIGothicWhite = new Image();
+                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+
+                MSUIGothicBold = new Image();
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
                 break;
             } else {
                 continue;
@@ -745,11 +758,11 @@ async function createError(system, title, content, iconID, button1, button2, but
             for (let char of chars) {
                 if (isCJ(char)) {
                     if (!isBold) {
-                        spriteSheet = whiteText ? SimSunWhite : SimSun;
-                        symbolsData = fonts["SimSun"]["regular"][txtColor].info;
+                        spriteSheet = whiteText ? MSUIGothicWhite : MSUIGothic;
+                        symbolsData = fonts["MSUIGothic"]["regular"][txtColor].info;
                     } else {
-                        char = "□"
-                        symbolsData = isBold ? fonts["MSSansSerif"]["bold"]["white"].info : fonts["MSSansSerif"]["regular"][txtColor].info;
+                        spriteSheet = MSUIGothicBold;
+                        symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
                     }
                 } else {
                     if (isBold) {
@@ -768,7 +781,11 @@ async function createError(system, title, content, iconID, button1, button2, but
                 ctx.globalAlpha = a;
                 ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+
+                let punctuationOffset = 0;
+                if (char == "、") punctuationOffset = 5;
+                if (char == "。" || char == "々") punctuationOffset = 3;
+                charsWidth += charData.w + 1 + punctuationOffset;
             }
         }
 
@@ -810,7 +827,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight;
+            testY += lineHeight + (isCJ(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -879,7 +896,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 1, y);
-            y += lineHeight;
+            y += lineHeight + (isCJ(line) ? 3 : 0);
         }
 
         let frameTop = assets["icon-frame-top"];
@@ -1109,12 +1126,13 @@ async function createError(system, title, content, iconID, button1, button2, but
 
     async function win2k() {
         let symbolCodes = fonts["Tahoma"]["regular"]["black"];
-        title = title.replaceAll(" ", " ")
+        title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar) title = title.replaceAll(char, "□")
+            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□")
         })
-        content = content.replaceAll(" ", " ")
+
+        content = jpProcess(content.replaceAll(" ", " "));
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
@@ -1133,16 +1151,20 @@ async function createError(system, title, content, iconID, button1, button2, but
         let TahomaBold = new Image();
         await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"]["white"].src);
 
-        let SimSun;
-        let SimSunWhite;
+        let MSUIGothic;
+        let MSUIGothicWhite;
+        let MSUIGothicBold;
 
-        for (const text of [content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
+        for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
-                SimSun = new Image();
-                await loadImageCallback(SimSun, fonts["SimSun"]["regular"]["black"].src);
+                MSUIGothic = new Image();
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
 
-                SimSunWhite = new Image();
-                await loadImageCallback(SimSunWhite, fonts["SimSun"]["regular"]["white"].src);
+                MSUIGothicWhite = new Image();
+                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+
+                MSUIGothicBold = new Image();
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
                 break;
             } else {
                 continue;
@@ -1167,11 +1189,11 @@ async function createError(system, title, content, iconID, button1, button2, but
             for (let char of chars) {
                 if (isCJ(char)) {
                     if (!isBold) {
-                        spriteSheet = whiteText ? SimSunWhite : SimSun;
-                        symbolsData = fonts["SimSun"]["regular"][txtColor].info;
+                        spriteSheet = whiteText ? MSUIGothicWhite : MSUIGothic;
+                        symbolsData = fonts["MSUIGothic"]["regular"][txtColor].info;
                     } else {
-                        char = "□"
-                        symbolsData = isBold ? fonts["Tahoma"]["bold"]["white"].info : fonts["MSSansSerif"]["regular"][txtColor].info;
+                        spriteSheet = MSUIGothicBold;
+                        symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
                     }
                 } else {
                     if (isBold) {
@@ -1188,9 +1210,13 @@ async function createError(system, title, content, iconID, button1, button2, but
                 }
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
+                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+
+                let punctuationOffset = 0;
+                if (char == "、") punctuationOffset = 5;
+                if (char == "。" || char == "々") punctuationOffset = 3;
+                charsWidth += charData.w + 1 + punctuationOffset;
             }
         }
 
@@ -1198,7 +1224,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let testY = 41;
         const lineHeight = 13;
 
-        const maxWidth = 324;
+        const maxWidth = 306;
         const subtexts = content.split("\n");
         const lines = [];
         for (let text of subtexts) {
@@ -1236,7 +1262,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight;
+            testY += lineHeight + (isCJ(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -1248,7 +1274,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let canvasWidth = 120;
         let canvasHeight = testY + 46;
         if (longestLineW > 41) canvasWidth = longestLineW + 88;
-        if (longestLineW > 324) canvasWidth = 392;
+        if (longestLineW > 306) canvasWidth = 392;
         if (lines.length <= 1 && button1.name) canvasHeight = testY + 67;
         if (lines.length <= 1 && !button1.name) canvasHeight = testY + 35;
         if (lines.length > 1 && !button1.name) canvasHeight = testY + 14;
@@ -1324,7 +1350,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 2, y + 2);
-            y += lineHeight;
+            y += lineHeight + (isCJ(line) ? 3 : 0);;
         }
 
         for (let i = 1; i <= title.length; i++) {
@@ -1360,7 +1386,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 3, canvas.height - 37, textWidth + 3, 23);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btnWidth - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 33);
+                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 33, false, 1, true);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 2, canvas.height - 37, textWidth + 5, 23);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
@@ -1398,7 +1424,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 3, canvas.height - 37, btn1TextWidth + 3, 23);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btn1Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33);
+                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33, false, 1, true);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 2, canvas.height - 37, btn1TextWidth + 5, 23);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
@@ -1419,7 +1445,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + btn1Width + 4 + 3, canvas.height - 37, btn2TextWidth + 3, 23);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX + btn1Width + 4, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btn1Width + 4 + btn2Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button2.name, btnX + btn1Width + 4 + xToCenterText2, canvas.height - 33);
+                    await drawBitmaps(ctx, button2.name, btnX + btn1Width + 4 + xToCenterText2, canvas.height - 33, false, 1, true);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + btn1Width + 4 + 2, canvas.height - 37, btn2TextWidth + 5, 23);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX + btn1Width + 4, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
@@ -1462,7 +1488,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 3, canvas.height - 37, btn1TextWidth + 3, 23);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btn1Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33);
+                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33, false, 1, true);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 2, canvas.height - 37, btn1TextWidth + 5, 23);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
@@ -1483,7 +1509,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + btn1Width + 4 + 3, canvas.height - 37, btn2TextWidth + 3, 23);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX + btn1Width + 4, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btn1Width + 4 + btn2Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button2.name, btnX + btn1Width + 4 + xToCenterText2, canvas.height - 33);
+                    await drawBitmaps(ctx, button2.name, btnX + btn1Width + 4 + xToCenterText2, canvas.height - 33, false, 1, true);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + btn1Width + 4 + 2, canvas.height - 37, btn2TextWidth + 5, 23);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX + btn1Width + 4, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
@@ -1504,7 +1530,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + btn1Width + 4 + btn2Width + 4 + 3, canvas.height - 37, btn3TextWidth + 3, 23);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX + btn1Width + btn2Width + 4 + 4, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btn1Width + 4 + btn2Width + 4 + btn3Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button3.name, btnX + 8 + btn1Width + btn2Width + xToCenterText3, canvas.height - 32);
+                    await drawBitmaps(ctx, button3.name, btnX + 8 + btn1Width + btn2Width + xToCenterText3, canvas.height - 32, false, 1, true);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + btn1Width + 4 + btn2Width + 4 + 2, canvas.height - 37, btn3TextWidth + 5, 23);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX + btn1Width + btn2Width + 4 + 4, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
@@ -1530,13 +1556,13 @@ async function createError(system, title, content, iconID, button1, button2, but
 
     async function winwh() {
         let symbolCodes = fonts["Tahoma"]["regular"]["black"];
-        title = title.replaceAll(" ", " ");
+        title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar) title = title.replaceAll(char, "□");
+            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
-        content = content.replaceAll(" ", " ");
+        content = jpProcess(content.replaceAll(" ", " "));
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
@@ -1553,16 +1579,20 @@ async function createError(system, title, content, iconID, button1, button2, but
         let TahomaBold = new Image();
         await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"]["white"].src);
 
-        let SimSun;
-        let SimSunWhite;
+        let MSUIGothic;
+        let MSUIGothicWhite;
+        let MSUIGothicBold;
 
-        for (const text of [content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
+        for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
-                SimSun = new Image();
-                await loadImageCallback(SimSun, fonts["SimSun"]["regular"]["black"].src);
+                MSUIGothic = new Image();
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
 
-                SimSunWhite = new Image();
-                await loadImageCallback(SimSunWhite, fonts["SimSun"]["regular"]["white"].src);
+                MSUIGothicWhite = new Image();
+                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+
+                MSUIGothicBold = new Image();
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
                 break;
             } else {
                 continue;
@@ -1587,11 +1617,11 @@ async function createError(system, title, content, iconID, button1, button2, but
             for (let char of chars) {
                 if (isCJ(char)) {
                     if (!isBold) {
-                        spriteSheet = whiteText ? SimSunWhite : SimSun;
-                        symbolsData = fonts["SimSun"]["regular"][txtColor].info;
+                        spriteSheet = whiteText ? MSUIGothicWhite : MSUIGothic;
+                        symbolsData = fonts["MSUIGothic"]["regular"][txtColor].info;
                     } else {
-                        char = "□"
-                        symbolsData = isBold ? fonts["Tahoma"]["bold"]["white"].info : fonts["MSSansSerif"]["regular"][txtColor].info;
+                        spriteSheet = MSUIGothicBold;
+                        symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
                     }
                 } else {
                     if (isBold) {
@@ -1606,11 +1636,16 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     symbolsData = isBold ? fonts["Tahoma"]["bold"]["white"].info : fonts["Tahoma"]["regular"][txtColor].info;
                 }
+
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
+                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+
+                let punctuationOffset = 0;
+                if (char == "、") punctuationOffset = 5;
+                if (char == "。" || char == "々") punctuationOffset = 3;
+                charsWidth += charData.w + 1 + punctuationOffset;
             }
         }
 
@@ -1620,7 +1655,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let testY = 32;
         const lineHeight = 13;
 
-        const maxWidth = 407;
+        const maxWidth = 400;
         const subtexts = content.split("\n");
         const lines = [];
         for (let text of subtexts) {
@@ -1658,7 +1693,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight;
+            testY += lineHeight + (isCJ(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -1670,7 +1705,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let canvasWidth = 144;
         let canvasHeight = testY + 15;
         if (longestLineW > 65) canvasWidth = longestLineW + 79;
-        if (longestLineW > 407) canvasWidth = 486;
+        if (longestLineW > 400) canvasWidth = 486;
         if (lines.length > 1 && !button1.name) canvasHeight = testY + 19;
         if (lines.length <= 1 && !button1.name) canvasHeight = testY + 36;
         if (lines.length > 1 && button1.name) canvasHeight = testY + 57;
@@ -1768,7 +1803,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 2, y + 2);
-            y += lineHeight;
+            y += lineHeight + (isCJ(line) ? 3 : 0);
         }
 
         let btnLeftSide = assets["btn-left-side"];
@@ -1960,14 +1995,14 @@ async function createError(system, title, content, iconID, button1, button2, but
 
     async function winxp() {
         let TMSCodes = fonts["TrebuchetMS"]["bold"]["white"];
-        title = title.replaceAll(" ", " ")
+        title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = TMSCodes.info[char.charCodeAt(0)];
-            if (!arrayChar) title = title.replaceAll(char, "□");
+            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
         let symbolCodes = fonts["Tahoma"]["regular"]["black"];
-        content = content.replaceAll(" ", " ")
+        content = jpProcess(content.replaceAll(" ", " "));
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
@@ -1985,16 +2020,20 @@ async function createError(system, title, content, iconID, button1, button2, but
         let TrebuchetMS = new Image();
         await loadImageCallback(TrebuchetMS, TMSCodes.src);
 
-        let SimSun;
-        let SimSunWhite;
+        let MSUIGothic;
+        let MSUIGothicWhite;
+        let MSUIGothicBold;
 
-        for (const text of [content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
+        for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
-                SimSun = new Image();
-                await loadImageCallback(SimSun, fonts["SimSun"]["regular"]["black"].src);
+                MSUIGothic = new Image();
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
 
-                SimSunWhite = new Image();
-                await loadImageCallback(SimSunWhite, fonts["SimSun"]["regular"]["white"].src);
+                MSUIGothicWhite = new Image();
+                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+
+                MSUIGothicBold = new Image();
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
                 break;
             } else {
                 continue;
@@ -2008,17 +2047,21 @@ async function createError(system, title, content, iconID, button1, button2, but
             let symbolsData = symbolCodes.info;
             for (let char of chars) {
                 if (isCJ(char)) {
-                    spriteSheet = SimSun;
-                    symbolsData = fonts["SimSun"]["regular"]["black"].info;
+                    spriteSheet = MSUIGothic;
+                    symbolsData = fonts["MSUIGothic"]["regular"]["black"].info;
                 } else {
                     spriteSheet = Tahoma;
                     symbolsData = symbolCodes.info;
                 }
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
+                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+
+                let punctuationOffset = 0;
+                if (char == "、") punctuationOffset = 5;
+                if (char == "。" || char == "々") punctuationOffset = 3;
+                charsWidth += charData.w + 1 + punctuationOffset;
             }
         }
 
@@ -2060,7 +2103,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight;
+            testY += lineHeight + (isCJ(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -2074,7 +2117,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         if (longestLineW > 41) canvasWidth = longestLineW + 88;
         if (longestLineW > 410) canvasWidth = 491;
         if (lines.length > 1 && button1.name) canvasHeight = testY + 53;
-        if (lines.length <= 1 && button1.name) canvasHeight = testY + 53;
+        if (lines.length <= 1 && button1.name) canvasHeight = testY + 67;
         if (lines.length <= 1 && !button1.name) canvasHeight = testY + 32;
         if (lines.length > 1 && !button1.name) canvasHeight = testY + 40;
 
@@ -2117,7 +2160,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         canvas = document.getElementById("canvas");
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
         ctx.imageSmoothingEnabled = false;
         ctx.fillStyle = "#ece9d8";
@@ -2151,10 +2194,40 @@ async function createError(system, title, content, iconID, button1, button2, but
         async function drawTitle(ctx, content, x, y) {
             let chars = content.split("");
             let charsWidth = 0;
+            let spriteSheet;
+            let symbolsData;
             for (const char of chars) {
-                let charData = TMSCodes.info[char.charCodeAt(0)];
-                ctx.drawImage(TrebuchetMS, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
-                charsWidth += charData.w;
+                if (isCJ(char)) {
+                    spriteSheet = MSUIGothicBold;
+                    symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
+                } else {
+                    spriteSheet = TrebuchetMS;
+                    symbolsData = TMSCodes.info;
+                }
+
+                let charData = symbolsData[char.charCodeAt(0)];
+                let yOffset = isCJ(char) ? 3 : 0;
+                let xOffset = isCJ(char) ? 1 : 0;
+
+                if (isCJ(char)) {
+                    const charCanvas = document.createElement("canvas");
+                    const charCtx = charCanvas.getContext("2d", { willReadFrequently: true });
+                    charCanvas.width = charData.w;
+                    charCanvas.height = charData.h;
+
+                    charCtx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, 0, 0, charData.w, charData.h);
+
+                    ctx.fillStyle = "rgb(10,24,131)";
+                    for (let i = 0; i < charCanvas.height; i++) {
+                        for (let j = 0; j < charCanvas.width; j++) {
+                            const charImgData = charCtx.getImageData(j, i, 1, 1);
+                            if (charImgData.data[3] == 0) continue;
+                            ctx.fillRect(x + charsWidth + 1 + j + xOffset, y + 1 + i + yOffset, 1, 1);
+                        }
+                    }
+                }
+                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth + xOffset, y + yOffset, charData.w, charData.h);
+                charsWidth += charData.w + (isCJ(char) ? 1 : 0);
             }
         }
 
@@ -2168,7 +2241,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 2, y - 3);
-            y += lineHeight;
+            y += lineHeight + (isCJ(line) ? 3 : 0);
         }
         await drawTitle(ctx, title, 7, 7);
 
@@ -2355,13 +2428,13 @@ async function createError(system, title, content, iconID, button1, button2, but
 
     async function winlh() {
         let symbolCodes = fonts["Tahoma"]["regular"]["black"];
-        title = title.replaceAll(" ", " ");
+        title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar) title = title.replaceAll(char, "□");
+            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
-        content = content.replaceAll(" ", " ");
+        content = jpProcess(content.replaceAll(" ", " "));
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
@@ -2383,16 +2456,20 @@ async function createError(system, title, content, iconID, button1, button2, but
         let testCanvas = document.getElementById("test-canvas");
         const testCtx = testCanvas.getContext("2d");
 
-        let SimSun;
-        let SimSunWhite;
+        let MSUIGothic;
+        let MSUIGothicWhite;
+        let MSUIGothicBold;
 
-        for (const text of [content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
+        for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
-                SimSun = new Image();
-                await loadImageCallback(SimSun, fonts["SimSun"]["regular"]["black"].src);
+                MSUIGothic = new Image();
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
 
-                SimSunWhite = new Image();
-                await loadImageCallback(SimSunWhite, fonts["SimSun"]["regular"]["white"].src);
+                MSUIGothicWhite = new Image();
+                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+
+                MSUIGothicBold = new Image();
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
                 break;
             } else {
                 continue;
@@ -2417,11 +2494,11 @@ async function createError(system, title, content, iconID, button1, button2, but
             for (let char of chars) {
                 if (isCJ(char)) {
                     if (!isBold) {
-                        spriteSheet = whiteText ? SimSunWhite : SimSun;
-                        symbolsData = fonts["SimSun"]["regular"][txtColor].info;
+                        spriteSheet = whiteText ? MSUIGothicWhite : MSUIGothic;
+                        symbolsData = fonts["MSUIGothic"]["regular"][txtColor].info;
                     } else {
-                        char = "□"
-                        symbolsData = isBold ? fonts["Tahoma"]["bold"]["white"].info : fonts["Tahoma"]["regular"][txtColor].info;
+                        spriteSheet = MSUIGothicBold;
+                        symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
                     }
                 } else {
                     if (isBold) {
@@ -2436,11 +2513,16 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                     symbolsData = isBold ? fonts["Tahoma"]["bold"]["white"].info : fonts["Tahoma"]["regular"][txtColor].info;
                 }
+
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
+                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+
+                let punctuationOffset = 0;
+                if (char == "、") punctuationOffset = 5;
+                if (char == "。" || char == "々") punctuationOffset = 3;
+                charsWidth += charData.w + 1 + punctuationOffset;
             }
         }
 
@@ -2448,7 +2530,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let testY = 32;
         const lineHeight = 13;
 
-        const maxWidth = 286;
+        const maxWidth = 280;
         const subtexts = content.split("\n");
         const lines = [];
         for (let text of subtexts) {
@@ -2486,7 +2568,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight;
+            testY += lineHeight + (isCJ(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -2498,7 +2580,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let canvasWidth = 120;
         let canvasHeight = testY + 60;
         if (longestLineW > 41) canvasWidth = longestLineW + 78;
-        if (longestLineW > 286) canvasWidth = 364;
+        if (longestLineW > 280) canvasWidth = 364;
         if (lines.length <= 1 && button1.name) canvasHeight = testY + 77;
         if (lines.length <= 1 && !button1.name) canvasHeight = testY + 35;
         if (lines.length > 1 && !button1.name) canvasHeight = testY + 19;
@@ -2557,17 +2639,31 @@ async function createError(system, title, content, iconID, button1, button2, but
         let frameRight = assets["frame-right-side"];
         let frameBottomLeftCorner = assets["frame-bottom-left-corner"];
         let frameBottomRightCorner = assets["frame-bottom-right-corner"];
-        let frameTop = assets["frame-top"];
         let frameBottom = assets["frame-bottom"];
 
         ctx.drawImage(assetsSS, frameLeftCorner.x, frameLeftCorner.y, frameLeftCorner.w, frameLeftCorner.h, 0, 0, frameLeftCorner.w, frameLeftCorner.h);
         ctx.drawImage(assetsSS, frameRightCorner.x, frameRightCorner.y, frameRightCorner.w, frameRightCorner.h, canvas.width - 20, 0, frameRightCorner.w, frameRightCorner.h);
-        ctx.drawImage(assetsSS, frameTop.x, frameTop.y, frameTop.w, frameTop.h, 20, 0, canvas.width - 40, 23);
         ctx.drawImage(assetsSS, frameBottomLeftCorner.x, frameBottomLeftCorner.y, frameBottomLeftCorner.w, frameBottomLeftCorner.h, 0, canvas.height - 3, frameBottomLeftCorner.w, frameBottomLeftCorner.h);
         ctx.drawImage(assetsSS, frameLeft.x, frameLeft.y, frameLeft.w, frameLeft.h, 0, 23, 3, canvas.height - 25);
         ctx.drawImage(assetsSS, frameRight.x, frameRight.y, frameRight.w, frameRight.h, canvas.width - 3, 23, 3, canvas.height - 25);
         ctx.drawImage(assetsSS, frameBottomRightCorner.x, frameBottomRightCorner.y, frameBottomRightCorner.w, frameBottomRightCorner.h, canvas.width - 3, canvas.height - 3, frameBottomRightCorner.w, frameBottomRightCorner.h);
         ctx.drawImage(assetsSS, frameBottom.x, frameBottom.y, frameBottom.w, frameBottom.h, 3, canvas.height - 3, canvas.width - 5, 3);
+
+        ctx.fillStyle = "#1a1f1f";
+        ctx.fillRect(20, 0, canvas.width - 40, 1);
+
+        let gradient = ctx.createLinearGradient(20, 0, canvas.width - 20, 0);
+        gradient.addColorStop(0, "#525251");
+        gradient.addColorStop(.47, "#a7a5a7");
+        gradient.addColorStop(.53, "#a7a5a7");
+        gradient.addColorStop(1, "#525251");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(20, 1, canvas.width - 40, 22);
+
+        ctx.fillStyle = "#fff";
+        ctx.globalAlpha = .18;
+        ctx.fillRect(20, 1, canvas.width - 40, 1);
+        ctx.globalAlpha = 1;
 
         for (let i = 1; i <= title.length; i++) {
             let chunkWidth = testBitmaps(title.slice(0, i), true);
@@ -2582,7 +2678,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         whiteText = false;
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 2, y + 2);
-            y += lineHeight;
+            y += lineHeight + (isCJ(line) ? 3 : 0);
         }
 
         let btnLeft = assets["btn-left-side"];
@@ -2777,13 +2873,13 @@ async function createError(system, title, content, iconID, button1, button2, but
 
     async function winvista() {
         let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
-        title = title.replaceAll(" ", " ").replaceAll("！", "! ").replaceAll("？", "? ").replaceAll("（", " (").replaceAll("）", ") ").replaceAll("．", ". ");
+        title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
-        content = content.replaceAll(" ", " ").replaceAll("！", "! ").replaceAll("？", "? ").replaceAll("（", " (").replaceAll("）", ") ").replaceAll("．", ". ");
+        content = content.replaceAll(" ", " ");
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
@@ -2794,12 +2890,12 @@ async function createError(system, title, content, iconID, button1, button2, but
         let SegoeUI = new Image();
         await loadImageCallback(SegoeUI, symbolCodes.src);
 
-        let MSUIGothic;
+        let Meiryo;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
-                MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
+                Meiryo = new Image();
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
                 break;
             } else {
                 continue;
@@ -2814,13 +2910,24 @@ async function createError(system, title, content, iconID, button1, button2, but
             let chars = content.split("");
             let charsWidth = 0;
             for (const char of chars) {
-                let spriteSheet = isCJ(char) ? MSUIGothic : SegoeUI;
-                let symbolsData = isCJ(char) ? fonts["MSUIGothic"]["regular"]["black"] : symbolCodes;
+                let spriteSheet = isCJ(char) ? Meiryo : SegoeUI;
+                let symbolsData = isCJ(char) ? fonts["Meiryo"]["regular"]["black"] : symbolCodes;
                 let charData = symbolsData.info[char.charCodeAt(0)];
+                let xOffset = isCJ(char) ? 2 : 0;
+                let yOffset = isCJ(char) ? -1 : 0;
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, isCJ(char) ? charData.w : 18, isCJ(char) ? charData.h : 16, x + charsWidth, y, isCJ(char) ? charData.w : 18, isCJ(char) ? charData.h : 16);
+                ctx.drawImage(
+                    spriteSheet,
+                    charData.x,
+                    charData.y,
+                    isCJ(char) ? charData.w : 18,
+                    isCJ(char) ? charData.h : 16,
+                    x + charsWidth + xOffset,
+                    y + yOffset,
+                    isCJ(char) ? charData.w : 18,
+                    isCJ(char) ? charData.h : 16);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
@@ -3171,27 +3278,13 @@ async function createError(system, title, content, iconID, button1, button2, but
         const testCtx = testCanvas.getContext("2d");
 
         let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
-        title = title.replaceAll(" ", " ")
-            .replaceAll("！", "!  ")
-            .replaceAll("？", "?  ")
-            .replaceAll("（", " (")
-            .replaceAll("）", ") ")
-            .replaceAll("．", ". ")
-            .replaceAll("。", "。  ")
-            .replaceAll("、", "、  ");
+        title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
-        content = content.replaceAll(" ", " ")
-            .replaceAll("！", "!  ")
-            .replaceAll("？", "?  ")
-            .replaceAll("（", " (")
-            .replaceAll("）", ") ")
-            .replaceAll("．", ". ")
-            .replaceAll("。", "。  ")
-            .replaceAll("、", "、  ");
+        content = content.replaceAll(" ", " ");
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
@@ -3202,12 +3295,12 @@ async function createError(system, title, content, iconID, button1, button2, but
         let SegoeUI = new Image();
         await loadImageCallback(SegoeUI, symbolCodes.src);
 
-        let MSUIGothic;
+        let Meiryo;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
-                MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
+                Meiryo = new Image();
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
                 break;
             } else {
                 continue;
@@ -3218,11 +3311,11 @@ async function createError(system, title, content, iconID, button1, button2, but
             let chars = content.split("");
             let charsWidth = 0;
             for (const char of chars) {
-                let spriteSheet = isCJ(char) ? MSUIGothic : SegoeUI;
-                let symbolsData = isCJ(char) ? fonts["MSUIGothic"]["regular"]["black"] : symbolCodes;
+                let spriteSheet = isCJ(char) ? Meiryo : SegoeUI;
+                let symbolsData = isCJ(char) ? fonts["Meiryo"]["regular"]["black"] : symbolCodes;
                 let charData = symbolsData.info[char.charCodeAt(0)];
-                let xOffset = isCJ(char) ? 3 : 0;
-                let yOffset = isCJ(char) ? 2 : 0;
+                let xOffset = isCJ(char) ? 2 : 0;
+                let yOffset = isCJ(char) ? -1 : 0;
                 ctx.globalAlpha = a;
                 ctx.drawImage(
                     spriteSheet,
@@ -3235,7 +3328,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     isCJ(char) ? charData.w : 18,
                     isCJ(char) ? charData.h : 16);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
@@ -3588,22 +3681,15 @@ async function createError(system, title, content, iconID, button1, button2, but
         let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
         let SegoeUILargeInfo = fonts["SegoeUI_11pt"]["regular"]["black"];
         title = title.replaceAll(" ", " ");
-        title.split("").forEach(char => {
-            let arrayChar = SegoeUILargeInfo.info[char.charCodeAt(0)];
+        _.split(title, "").forEach(char => {
+            let arrayChar = fonts["EMOJI_8"]["regular"]["black"].info[char] ? fonts["EMOJI_8"]["regular"]["black"] : SegoeUILargeInfo.info[char.charCodeAt(0)];
             if (!arrayChar) title = title.replaceAll(char, "□");
         })
 
-        content = content.replaceAll(" ", " ")
-            .replaceAll("！", "!  ")
-            .replaceAll("？", "?  ")
-            .replaceAll("（", " (")
-            .replaceAll("）", ") ")
-            .replaceAll("．", ". ")
-            .replaceAll("。", "。  ")
-            .replaceAll("、", "、  ");
-        content.split("").forEach(char => {
+        content = content.replaceAll(" ", " ");
+        _.split(content, "").forEach(char => {
             if (char == "\n") return;
-            let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+            let arrayChar = fonts["EMOJI_8"]["regular"]["black"].info[char] ? fonts["EMOJI_8"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
         })
 
@@ -3613,45 +3699,77 @@ async function createError(system, title, content, iconID, button1, button2, but
         let SegoeUILarge = new Image();
         await loadImageCallback(SegoeUILarge, SegoeUILargeInfo.src);
 
-        let MSUIGothic;
+        let Meiryo;
+        let EmojiSS;
 
         for (const text of [content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
-                MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
+                Meiryo = new Image();
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
                 break;
-            } else {
-                continue;
+            }
+
+            if (emojiRegex().exec(text)) {
+                EmojiSS = new Image();
+                await loadImageCallback(EmojiSS, fonts["EMOJI_8"]["regular"]["black"].src);
+                break;
             }
         }
 
         async function drawBitmaps(ctx, content, x, y, a) {
-            let chars = content.split("");
+            let chars = _.split(content, "");
             let charsWidth = 0;
             for (const char of chars) {
-                let spriteSheet = isCJ(char) ? MSUIGothic : SegoeUI;
-                let symbolsData = isCJ(char) ? fonts["MSUIGothic"]["regular"]["black"] : symbolCodes;
-                let charData = symbolsData.info[char.charCodeAt(0)];
-                let xOffset = isCJ(char) ? 3 : 0;
-                let yOffset = isCJ(char) ? 2 : 0;
+                let spriteSheet;
+                let symbolsData;
+
+                let charW;
+                let charH;
+
+                if (isCJ(char)) {
+                    spriteSheet = Meiryo;
+                    symbolsData = fonts["Meiryo"]["regular"]["black"];
+                } else if (emojiRegex().exec(char)) {
+                    spriteSheet = EmojiSS;
+                    symbolsData = fonts["EMOJI_8"]["regular"]["black"];
+                } else {
+                    spriteSheet = SegoeUI;
+                    symbolsData = symbolCodes;
+                }
+
+                let charData = symbolsData.info[spriteSheet == EmojiSS ? char : char.charCodeAt(0)];
+
+                if (isCJ(char)) {
+                    charW = charData.w;
+                    charH = charData.h;
+                } else if (emojiRegex().exec(char)) {
+                    charW = charData.w;
+                    charH = charData.h;
+                } else {
+                    charW = 18;
+                    charH = 16;
+                }
+
+                let xOffset = isCJ(char) ? 2 : 0;
+                let yOffset = isCJ(char) ? -1 : 0;
                 ctx.globalAlpha = a;
                 ctx.drawImage(
                     spriteSheet,
                     charData.x,
                     charData.y,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16,
+                    charW,
+                    charH,
                     x + charsWidth + xOffset,
                     y + yOffset,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16);
+                    charW,
+                    charH);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
         async function drawTitle(ctx, content, x, y) {
-            let chars = content.split("");
+            let chars = _.split(content, "");
             let charsWidth = 0;
             let symbolsData = SegoeUILargeInfo;
             for (const char of chars) {
@@ -3967,71 +4085,93 @@ async function createError(system, title, content, iconID, button1, button2, but
 
     async function win10() {
         let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
-        title = title.replaceAll(" ", " ").replaceAll(" ", " ")
-            .replaceAll("！", "!  ")
-            .replaceAll("？", "?  ")
-            .replaceAll("（", " (")
-            .replaceAll("）", ") ")
-            .replaceAll("．", ". ")
-            .replaceAll("。", "。  ")
-            .replaceAll("、", "、  ");
-        title.split("").forEach(char => {
-            let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+        title = title.replaceAll(" ", " ");
+        _.split(title, "").forEach(char => {
+            let arrayChar = fonts["EMOJI_10"]["regular"]["black"].info[char] ? fonts["EMOJI_10"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
-        content = content.replaceAll(" ", " ").replaceAll(" ", " ")
-            .replaceAll("！", "!  ")
-            .replaceAll("？", "?  ")
-            .replaceAll("（", " (")
-            .replaceAll("）", ") ")
-            .replaceAll("．", ". ")
-            .replaceAll("。", "。  ")
-            .replaceAll("、", "、  ");
-        let chars = content.split("");
+        content = content.replaceAll(" ", " ");
+        let chars = _.split(content, "");
         chars.forEach(char => {
             if (char == "\n") return;
-            let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+            let arrayChar = fonts["EMOJI_10"]["regular"]["black"].info[char] ? fonts["EMOJI_10"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
         })
 
         let SegoeUI = new Image();
         await loadImageCallback(SegoeUI, symbolCodes.src);
 
-        let MSUIGothic;
+        let Meiryo;
+        let EmojiSS;
 
-        for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
-                MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
-                break;
-            } else {
-                continue;
+        let allText = "";
+        for (const section of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
+            allText += section;
+        }
+        allText = allText.replaceAll("\n", "");
+
+        for (const char of _.split(allText, "")) {
+            if (isCJ(char) && !Meiryo) {
+                Meiryo = new Image();
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
+            }
+
+            if (emojiRegex().exec(char) && !EmojiSS) {
+                EmojiSS = new Image();
+                await loadImageCallback(EmojiSS, fonts["EMOJI_10"]["regular"]["black"].src);
             }
         }
 
         async function drawBitmaps(ctx, content, x, y, a) {
-            let chars = content.split("");
+            let chars = _.split(content, "");
             let charsWidth = 0;
             for (const char of chars) {
-                let spriteSheet = isCJ(char) ? MSUIGothic : SegoeUI;
-                let symbolsData = isCJ(char) ? fonts["MSUIGothic"]["regular"]["black"] : symbolCodes;
-                let charData = symbolsData.info[char.charCodeAt(0)];
-                let xOffset = isCJ(char) ? 3 : 0;
-                let yOffset = isCJ(char) ? 2 : 0;
+                let spriteSheet;
+                let symbolsData;
+
+                let charW;
+                let charH;
+
+                if (isCJ(char)) {
+                    spriteSheet = Meiryo;
+                    symbolsData = fonts["Meiryo"]["regular"]["black"];
+                } else if (emojiRegex().exec(char)) {
+                    spriteSheet = EmojiSS;
+                    symbolsData = fonts["EMOJI_10"]["regular"]["black"];
+                } else {
+                    spriteSheet = SegoeUI;
+                    symbolsData = symbolCodes;
+                }
+
+                let charData = symbolsData.info[spriteSheet == EmojiSS ? char : char.charCodeAt(0)];
+
+                if (isCJ(char)) {
+                    charW = charData.w;
+                    charH = charData.h;
+                } else if (emojiRegex().exec(char)) {
+                    charW = charData.w;
+                    charH = charData.h;
+                } else {
+                    charW = 18;
+                    charH = 16;
+                }
+
+                let xOffset = isCJ(char) || emojiRegex().exec(char) ? 2 : 0;
+                let yOffset = isCJ(char) ? -1 : 0;
                 ctx.globalAlpha = a;
                 ctx.drawImage(
                     spriteSheet,
                     charData.x,
                     charData.y,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16,
+                    charW,
+                    charH,
                     x + charsWidth + xOffset,
                     y + yOffset,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16);
+                    charW,
+                    charH);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
@@ -4160,10 +4300,10 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         ctx.fillRect(18, 17, canvas.width - 40, canvas.height - 41)
 
-        for (let i = 1; i <= title.length; i++) {
-            let chunkWidth = testBitmaps(title.slice(0, i));
+        for (let i = 1; i <= _.split(title, "").length; i++) {
+            let chunkWidth = testBitmaps(_.slice(_.split(title, ""), 0, i).join(""));
             if (chunkWidth + 95 > canvas.width) {
-                title = `${title.slice(0, i).trim()}...`;
+                title = `${_.slice(_.split(title, ""), 0, i).join("").trim()}...`;
                 break;
             }
         }
@@ -4362,71 +4502,93 @@ async function createError(system, title, content, iconID, button1, button2, but
 
     async function win11() {
         let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
-        title = title.replaceAll(" ", " ")
-            .replaceAll("！", "!  ")
-            .replaceAll("？", "?  ")
-            .replaceAll("（", " (")
-            .replaceAll("）", ") ")
-            .replaceAll("．", ". ")
-            .replaceAll("。", "。  ")
-            .replaceAll("、", "、  ");
-        title.split("").forEach(char => {
-            let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+        title = title.replaceAll(" ", " ");
+        _.split(title, "").forEach(char => {
+            let arrayChar = fonts["EMOJI_11"]["regular"]["black"].info[char] ? fonts["EMOJI_11"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
-        content = content.replaceAll(" ", " ")
-            .replaceAll("！", "!  ")
-            .replaceAll("？", "?  ")
-            .replaceAll("（", " (")
-            .replaceAll("）", ") ")
-            .replaceAll("．", ". ")
-            .replaceAll("。", "。  ")
-            .replaceAll("、", "、  ");
-        let chars = content.split("");
+        content = content.replaceAll(" ", " ");
+        let chars = _.split(content, "");
         chars.forEach(char => {
             if (char == "\n") return;
-            let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+            let arrayChar = fonts["EMOJI_11"]["regular"]["black"].info[char] ? fonts["EMOJI_11"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
         })
 
         let SegoeUI = new Image();
         await loadImageCallback(SegoeUI, symbolCodes.src);
 
-        let MSUIGothic;
+        let Meiryo;
+        let EmojiSS;
 
-        for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
-                MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
-                break;
-            } else {
-                continue;
+        let allText = "";
+        for (const section of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
+            allText += section;
+        }
+        allText = allText.replaceAll("\n", "");
+
+        for (const char of _.split(allText, "")) {
+            if (isCJ(char) && !Meiryo) {
+                Meiryo = new Image();
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
+            }
+
+            if (emojiRegex().exec(char) && !EmojiSS) {
+                EmojiSS = new Image();
+                await loadImageCallback(EmojiSS, fonts["EMOJI_11"]["regular"]["black"].src);
             }
         }
 
         async function drawBitmaps(ctx, content, x, y, a) {
-            let chars = content.split("");
+            let chars = _.split(content, "");
             let charsWidth = 0;
             for (const char of chars) {
-                let spriteSheet = isCJ(char) ? MSUIGothic : SegoeUI;
-                let symbolsData = isCJ(char) ? fonts["MSUIGothic"]["regular"]["black"] : symbolCodes;
-                let charData = symbolsData.info[char.charCodeAt(0)];
-                let xOffset = isCJ(char) ? 3 : 0;
-                let yOffset = isCJ(char) ? 2 : 0;
+                let spriteSheet;
+                let symbolsData;
+
+                let charW;
+                let charH;
+
+                if (isCJ(char)) {
+                    spriteSheet = Meiryo;
+                    symbolsData = fonts["Meiryo"]["regular"]["black"];
+                } else if (emojiRegex().exec(char)) {
+                    spriteSheet = EmojiSS;
+                    symbolsData = fonts["EMOJI_11"]["regular"]["black"];
+                } else {
+                    spriteSheet = SegoeUI;
+                    symbolsData = symbolCodes;
+                }
+
+                let charData = symbolsData.info[spriteSheet == EmojiSS ? char : char.charCodeAt(0)];
+
+                if (isCJ(char)) {
+                    charW = charData.w;
+                    charH = charData.h;
+                } else if (emojiRegex().exec(char)) {
+                    charW = charData.w;
+                    charH = charData.h;
+                } else {
+                    charW = 18;
+                    charH = 16;
+                }
+
+                let xOffset = isCJ(char) || emojiRegex().exec(char) ? 2 : 0;
+                let yOffset = isCJ(char) ? -1 : 0;
                 ctx.globalAlpha = a;
                 ctx.drawImage(
                     spriteSheet,
                     charData.x,
                     charData.y,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16,
+                    charW,
+                    charH,
                     x + charsWidth + xOffset,
                     y + yOffset,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16);
+                    charW,
+                    charH);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
@@ -4554,10 +4716,10 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = button1.name ? "rgb(240,240,240)" : "#ffffff";
         ctx.fillRect(54, canvas.height - 87, canvas.width - 110, 7);
 
-        for (let i = 1; i <= title.length; i++) {
-            let chunkWidth = testBitmaps(title.slice(0, i));
-            if (chunkWidth + 145 > canvas.width) {
-                title = `${title.slice(0, i).trim()}...`;
+        for (let i = 1; i <= _.split(title, "").length; i++) {
+            let chunkWidth = testBitmaps(_.slice(_.split(title, ""), 0, i).join(""));
+            if (chunkWidth + 95 > canvas.width) {
+                title = `${_.slice(_.split(title, ""), 0, i).join("").trim()}...`;
                 break;
             }
         }

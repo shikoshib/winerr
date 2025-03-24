@@ -11,6 +11,122 @@ const errorCanvas = document.getElementById("canvas");
 
 const root = document.documentElement;
 
+const jpPunctuation = ["！", "？", "（", "）", "．", "。", "、"];
+
+let sys = document.querySelector("#os");
+let icon = document.querySelector("#icon");
+let titleElem = document.querySelector("#err-title");
+let contentElem = document.querySelector("#err-desc");
+let btn1Elem = document.querySelector("#btn1");
+let btn1DisElem = document.querySelector("#btn1-dis");
+let btn2DisElem = document.querySelector("#btn2-dis");
+let btn2Elem = document.querySelector("#btn2");
+let btn1RecElem = document.querySelector("#btn1-rec");
+let btn2RecElem = document.querySelector("#btn2-rec");
+let btn3Elem = document.querySelector("#btn3");
+let btn3DisElem = document.querySelector("#btn3-dis");
+let btn3RecElem = document.querySelector("#btn3-rec");
+let cross = document.querySelector("#cross");
+
+function saveToLocalStorage() {
+    return localStorage.setItem("bak", JSON.stringify({
+        os: sys.value,
+        icon: Math.trunc(Number(icon.value)),
+        title: titleElem.value,
+        content: contentElem.value,
+        button1: {
+            title: btn1Elem.value,
+            disabled: btn1DisElem.checked,
+            rec: btn1RecElem.checked
+        },
+        button2: {
+            title: btn2Elem.value,
+            disabled: btn2DisElem.checked,
+            rec: btn2RecElem.checked
+        },
+        button3: {
+            title: btn3Elem.value,
+            disabled: btn3DisElem.checked,
+            rec: btn3RecElem.checked
+        },
+        cross: cross.checked
+    }));
+}
+
+// If any input value in the form changes (e.g. title, or button settings), the entire error info gets autosaved into localStorage
+for (let inputElem of [sys, icon, titleElem, contentElem, btn1Elem, btn1DisElem, btn1RecElem, btn2Elem, btn2DisElem, btn2RecElem, btn3Elem, btn3DisElem, btn3RecElem, cross]) {
+    inputElem.addEventListener("change", () => {
+        saveToLocalStorage();
+    });
+}
+
+// Loading the error backup
+function loadBackup() {
+    if (!localStorage.getItem("bak")) return;
+    const backup = JSON.parse(localStorage.getItem("bak"));
+
+    sys.value = backup.os;
+    icon.value = backup.icon;
+    titleElem.value = backup.title;
+    contentElem.value = backup.content;
+
+    btn1Elem.value = backup.button1.title;
+    btn1DisElem.checked = backup.button1.disabled;
+    btn1RecElem.checked = backup.button1.rec;
+
+    btn2Elem.value = backup.button2.title;
+    btn2DisElem.checked = backup.button2.disabled;
+    btn2RecElem.checked = backup.button2.rec;
+
+    let iconSys = backup.os;
+    if (iconSys == "winvista") iconSys = "win7";
+    let iconsCount = Object.keys(assetsArray[iconSys].assets).filter(i => i.startsWith("i-")).length;
+    icon.max = iconsCount;
+
+    const sysInfo = systems[backup.os];
+
+    if (sysInfo.button3Allowed) {
+        btn3Elem.disabled = false;
+        document.querySelector("#btn3dis-label").classList.remove("disabled-label");
+        btn3DisElem.disabled = false;
+        document.querySelector("#btn3rec-label").classList.remove("disabled-label");
+        btn3RecElem.disabled = false;
+
+        btn3Elem.value = backup.button3.title;
+        btn3DisElem.checked = backup.button3.disabled;
+        btn3RecElem.checked = backup.button3.rec;
+    }
+
+    if (sysInfo.cross) {
+        document.querySelector(".cross-selector label").classList.remove("disabled-label");
+        cross.disabled = false;
+
+        cross.checked = backup.cross;
+    }
+
+    if (sysInfo.recolor) {
+        document.querySelector(".frame-color-wrapper").classList.remove("disabled-color");
+        document.querySelector("#frame-color").classList.remove("disabled-color-prev");
+    }
+
+    if (sysInfo.gradient) {
+        let colors = {
+            "win95": { p: "0,0,128", s: "0,0,128" },
+            "win98": { p: "0,0,128", s: "16,132,208" },
+            "win2k": { p: "10,36,106", s: "166,202,240" }
+        };
+
+        root.style.setProperty("--primary-gradient-color", colors[backup.os].p);
+        root.style.setProperty("--secondary-gradient-color", colors[backup.os].s);
+
+        document.querySelector(".primary-gradient-color-wrapper").classList.remove("disabled-color");
+        document.querySelector("#primary-gradient-color").classList.remove("disabled-color-prev");
+
+        document.querySelector(".secondary-gradient-color-wrapper").classList.remove("disabled-color");
+        document.querySelector("#secondary-gradient-color").classList.remove("disabled-color-prev");
+    }
+}
+
 let BGobj = {};
 let assetsArray = {};
 let fonts = {};
@@ -20,6 +136,7 @@ async function load() {
     let savedVersion = localStorage.getItem("version");
     let gzipRes = '';
     let iconsGzip = "";
+    let fontsGzip = "";
 
     // Check if the last downloaded version matches the actual newest one.
     // If it does, start downloading an update. If it doesn't, just load
@@ -49,9 +166,8 @@ async function load() {
             modalContent.innerHTML = `${loadingAssets.replace("...", "")}: ${(receivedLength / 1048576).toFixed(2)} MB / ${(iconsLength / 1048576).toFixed(2)} MB (${percentage}%)`;
         }
 
-        // Save the fonts and system info to localStorage, because it
+        // Save various OS info to localStorage, because it
         // doesn't take as much as space as icons
-        localStorage.setItem("fonts", gzipRes.split("~")[1]);
         localStorage.setItem("sysInfo", gzipRes.split("~")[2]);
         localStorage.setItem("version", version); // Save this too to track any available updates
 
@@ -61,6 +177,7 @@ async function load() {
         // icons. The limitations may vary depending on the browser,
         // but for winerr, it's gonna do just fine.
         iconsGzip = gzipRes.split("~")[0];
+        fontsGzip = gzipRes.split("~")[1];
         const request = indexedDB.open("assetsdb", 1); // Create a database
 
         request.onupgradeneeded = (event) => {
@@ -73,6 +190,7 @@ async function load() {
                     .transaction("assets", "readwrite")
                     .objectStore("assets");
                 objStore.add(iconsGzip, "assets"); // Add the assets
+                objStore.add(fontsGzip, "fonts"); // Add the fonts
             };
         }
     } else {
@@ -106,12 +224,42 @@ async function load() {
             });
         }
 
+        async function loadFonts() {
+            return new Promise((resolve, reject) => {
+                // Load the existing database
+                const request = indexedDB.open("assetsdb");
+
+                request.onsuccess = function (event) {
+                    const db = event.target.result;
+
+                    // Load the space the assets are stored in
+                    const transaction = db.transaction(["assets"], "readonly");
+                    const objectStore = transaction.objectStore("assets");
+                    const getRequest = objectStore.get("fonts");
+
+                    getRequest.onsuccess = function (event) {
+                        const gz = event.target.result;
+                        resolve(gz);
+                    };
+
+                    getRequest.onerror = function (event) {
+                        reject(event.target.error);
+                    };
+                };
+
+                request.onerror = function (event) {
+                    reject(event.target.error);
+                };
+            });
+        }
+
         iconsGzip = await loadIcons();
+        fontsGzip = await loadFonts();
     }
 
     const sysInfoGzip = localStorage.getItem("sysInfo");
     const assetsObjGzip = iconsGzip;
-    const fontsObjGzip = localStorage.getItem("fonts");
+    const fontsObjGzip = fontsGzip;
     modalContent.innerHTML = extractingAssets;
 
     // Here comes the extracting process. winerr uses Gzip compression to reduce
@@ -145,20 +293,11 @@ async function load() {
         modalWrapper.style.display = "none";
         overlay.style.display = "none";
     }, 375);
+
+    loadBackup();
 }
 
 load();
-
-let sys = document.querySelector("#os");
-let icon = document.querySelector("#icon");
-let btn1DisElem = document.querySelector("#btn1-dis");
-let btn2DisElem = document.querySelector("#btn2-dis");
-let btn1RecElem = document.querySelector("#btn1-rec");
-let btn2RecElem = document.querySelector("#btn2-rec");
-let btn3Elem = document.querySelector("#btn3");
-let btn3DisElem = document.querySelector("#btn3-dis");
-let btn3RecElem = document.querySelector("#btn3-rec");
-let cross = document.querySelector("#cross");
 
 let sysFontObj = {
     "win1": "Fixedsys",
@@ -209,7 +348,7 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
     if (vgasysr) fontface = "vgasysr"
     if (sys.value == "winxp" && isBold) fontface = "TrebuchetMS";
 
-    let chars = content.split("");
+    let chars = _.split(content, "");
     if (chars[chars.length - 1] == "") chars.pop();
     let charsWidth = 0;
 
@@ -222,25 +361,34 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
     for (const char of chars) {
         // This thing may look intimidating, but in reality it just checks what OS is
         // selected and if the text has Chinese or Japanese characters. Windows 95 through
-        // Longhorn use SimSun, while Vista through 11 use MS UI Gothic. If the text doesn't
+        // Longhorn use MS UI Gothic, while Vista through 11 use Meiryo. If the text doesn't
         // contain any Chinese/Japanese characters, we just use the regular font assigned for
         // basic characters.
-        if (["win95", "win98", "win2k", "winwh", "winxp", "winlh-4093"].includes(sys.value) && !isBold && isCJ(char)) {
-            fontface = "SimSun";
-            charsInfo = fonts["SimSun"]["regular"]["black"].info;
-        } else if (["winvista", "win7", "win8", "win10", "win11"].includes(sys.value) && !isBold && isCJ(char)) {
+        if (["win95", "win98", "win2k", "winwh", "winxp", "winlh-4093"].includes(sys.value) && isCJ(char)) {
             fontface = "MSUIGothic";
-            charsInfo = fonts["MSUIGothic"]["regular"]["black"].info;
+            charsInfo = fonts["MSUIGothic"][isBold ? "bold" : "regular"]["white"].info;
+        } else if (["winvista", "win7", "win8", "win10", "win11"].includes(sys.value) && isCJ(char)) {
+            fontface = "Meiryo";
+            charsInfo = fonts["Meiryo"]["regular"]["black"].info;
         } else if (!isCJ(char)) {
             fontface = initFontFace;
             charsInfo = fonts[fontface][isBold ? "bold" : "regular"][Object.keys(fonts[fontface][isBold ? "bold" : "regular"])[0]].info;
         }
 
+        const charWidth = emojiRegex().exec(char) ? 14 : charsInfo[char.charCodeAt(0)].w;
+
         // Slight font offsets
         let addPx = 1;
         if (fontface == "TrebuchetMS") addPx = 0;
         if (fontface == "SegoeUI_11pt") addPx = 2;
-        charsWidth += charsInfo[char.charCodeAt(0)].w + addPx;
+
+        let punctuationOffset = 0;
+        if (jpPunctuation.includes(char) && fontface == "Meiryo") punctuationOffset = 6;
+        if (jpPunctuation.includes(char) && fontface == "MSUIGothic") {
+            if (char == "、") punctuationOffset = 5;
+            if (char == "。" || char == "々") punctuationOffset = 3;
+        }
+        charsWidth += charWidth + addPx + punctuationOffset;
     }
     return charsWidth;
 }
@@ -422,12 +570,6 @@ generateBtn.addEventListener("click", async () => {
         overlay.style.opacity = 1;
         document.querySelector("body").style.overflowY = "hidden";
 
-        // Getting the content input fields for later use
-        let titleElem = document.querySelector("#err-title");
-        let contentElem = document.querySelector("#err-desc");
-        let btn1Elem = document.querySelector("#btn1");
-        let btn2Elem = document.querySelector("#btn2");
-
         try {
             let eStart = performance.now();
             await createError(sys.value,
@@ -452,10 +594,7 @@ generateBtn.addEventListener("click", async () => {
                 `rgb(${getComputedStyle(root).getPropertyValue("--secondary-gradient-color")})`);
             let eFinish = performance.now();
 
-            // This line over here tracks how much time it took to generate an
-            // error message (in milliseconds) and prints the number into the
-            // console. To convert it to seconds, simply divide it by 1000.
-            console.log(eFinish - eStart);
+            console.log(`Took ${(eFinish - eStart).toFixed(1)} ms to generate`);
         } catch (e) {
             // In case any error happens
             console.error(e);
@@ -478,9 +617,6 @@ generateBtn.addEventListener("click", async () => {
             img.src = errorB64;
             img.onload = () => {
                 modalCross.style.display = "inline-block";
-                let widthNoPadding = img.width > 248 ? img.width : 248;
-                let spaceWidth = widthNoPadding - 16 - 54 - 16 - 12;
-                root.style.setProperty("--space-width", `${spaceWidth}px`);
                 modalTitleWrapper.classList.add("title-success");
                 modalTitleWrapper.classList.remove("title-warn");
                 modalTitle.innerHTML = done;
@@ -539,7 +675,6 @@ function closeModal() {
         modalIcon.src = "./svg/hourglass.svg";
         modalIcon.classList.add("hourglass");
         modalContent.style.justifyContent = "left";
-        root.style.setProperty("--space-width", `91px`);
         modalCross.style.display = "none";
 
         overlay.style.display = "none";

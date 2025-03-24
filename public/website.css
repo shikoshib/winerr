@@ -201,6 +201,7 @@ textarea {
     border-radius: 8px;
     box-shadow: 0 0 8px rgba(0, 0, 0, .5);
     gap: 4px;
+    justify-content: space-between;
 }
 
 .modal-icon {
