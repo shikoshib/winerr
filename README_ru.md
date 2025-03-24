@@ -1,5 +1,5 @@
 <div style="text-align: center">
-  <a href="https://github.com/shikoshib/winerr/blob/main/README.md">English</a> | <strong>Русский</strong> | <a href="https://github.com/shikoshib/winerr/blob/main/README_uk.md">Українська</a> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ja.md">日本語</a>
+  <a href="https://github.com/shikoshib/winerr/blob/main/README.md">English</a> | <strong>Русский</strong> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ja.md">日本語</a>
 </div>
 
 # winerr
@@ -18,9 +18,6 @@
 
 * shikoshib - веб-дизайн, программирование, ресурсы для ошибок
 * [NickHammerich](https://github.com/nickhammerich) - иконки, ресурсы для ошибок, тестирование
-* [DmytroYastrubiv](https://github.com/DimaYastrebov) - тестирование
+* DmytroYastrubiv - тестирование
 
 [Список переводчиков](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
-
----
-Переведено [shikoshib](https://github.com/shikoshib)

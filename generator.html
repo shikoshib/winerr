@@ -5,16 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="website.css">
-    <meta name="description"
-        content="This is an accurate and fast Windows error message generator that works on the web!">
     <meta name="theme-color" content="#CA0A0A">
-    <meta property="og:title" content="Windows Error Message Generator" />
-    <meta property="og:type" content="website" />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:description"
-        content="This is an accurate and fast Windows error message generator that works on the web!" />
-    <meta property="og:site_name" content="shikoshib">
+    <script src="emoji-regex.js"></script>
     <script src="pako.min.js"></script>
+    <script src="lodash.js"></script>
     <link rel="shortcut icon" href="/svg/winerr.svg" type="image/x-icon">
     <title>((title))</title>
     <style>
@@ -57,9 +51,10 @@
     <div class="modal-wrapper">
         <div class="modal">
             <div class="modal-title-wrapper title-warn">
-                <img src="./svg/hourglass.svg" class="modal-icon hourglass">
-                <span class="modal-title">((please-wait))</span>
-                <div class="modal-space"></div>
+                <div>
+                    <img src="./svg/hourglass.svg" class="modal-icon hourglass">
+                    <span class="modal-title">((please-wait))</span>
+                </div>
                 <img src="./svg/cross.svg" class="modal-cross">
             </div>
             <div class="modal-content">((init))</div>

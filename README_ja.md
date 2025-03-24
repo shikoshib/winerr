@@ -1,5 +1,5 @@
 <div style="text-align: center">
-  <a href="https://github.com/shikoshib/winerr/blob/main/README.md">English</a> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ru.md">Русский</a> | <a href="https://github.com/shikoshib/winerr/blob/main/README_uk.md">Українська</a> | <strong>日本語</strong>
+  <a href="https://github.com/shikoshib/winerr/blob/main/README.md">English</a> | <a href="https://github.com/shikoshib/winerr/blob/main/README_ru.md">Русский</a> | <strong>日本語</strong>
 </div>
 
 # winerr（ウィネール）
@@ -18,9 +18,6 @@ Windowsエラーメッセージの高速で正確な生成ツールです。HTML
 
 * shikoshib - ウェブデザイン、プログラミング、アセット
 * [NickHammerich](https://github.com/nickhammerich) - アイコン、アセット、テスト
-* [DmytroYastrubiv](https://github.com/DimaYastrebov) - テスト
+* DmytroYastrubiv - テスト
 
 [翻訳者一覧](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
-
----
-[シコシブ](https://github.com/shikoshib)による翻訳
