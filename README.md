@@ -18,7 +18,7 @@ A fast and accurate Windows fake error messages generator based on HTML5 Canvas.
 
 * shikoshib - web design, programming, error message assets
 * [NickHammerich](https://github.com/nickhammerich) - icons, error message assets, testing
-* DmytroYastrubiv - testing
+* [DmytroYastrubiv](https://github.com/DimaYastrebov) - testing
 
 [Translation credits](https://github.com/shikoshib/winerr/tree/main/winerr-lang)
 
