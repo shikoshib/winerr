@@ -364,23 +364,25 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
         // Longhorn use MS UI Gothic, while Vista through 11 use Meiryo. If the text doesn't
         // contain any Chinese/Japanese characters, we just use the regular font assigned for
         // basic characters.
-        if (["win95", "win98", "win2k", "winwh", "winxp", "winlh-4093"].includes(sys.value) && isCJ(char)) {
+        if (sys.value == "win31" && isCJ(char)) {
+            fontface = "MSGothic";
+            charsInfo = fonts["MSGothic"]["regular"].info;
+        } else if (["win95", "win98", "win2k", "winwh", "winxp", "winlh-4093"].includes(sys.value) && isCJ(char)) {
             fontface = "MSUIGothic";
-            charsInfo = fonts["MSUIGothic"][isBold ? "bold" : "regular"]["white"].info;
+            charsInfo = fonts["MSUIGothic"][isBold ? "bold" : "regular"].info;
         } else if (["winvista", "win7", "win8", "win10", "win11"].includes(sys.value) && isCJ(char)) {
             fontface = "Meiryo";
-            charsInfo = fonts["Meiryo"]["regular"]["black"].info;
+            charsInfo = fonts["Meiryo"]["regular"].info;
         } else if (!isCJ(char)) {
             fontface = initFontFace;
-            charsInfo = fonts[fontface][isBold ? "bold" : "regular"][Object.keys(fonts[fontface][isBold ? "bold" : "regular"])[0]].info;
+            charsInfo = fonts[fontface][isBold ? "bold" : "regular"].info;
         }
 
         const charWidth = emojiRegex().exec(char) ? 14 : charsInfo[char.charCodeAt(0)].w;
 
         // Slight font offsets
         let addPx = 1;
-        if (fontface == "TrebuchetMS") addPx = 0;
-        if (fontface == "SegoeUI_11pt") addPx = 2;
+        if (fontface == "SegoeUI_11pt" || fontface == "MSGothic") addPx = 2;
 
         let punctuationOffset = 0;
         if (jpPunctuation.includes(char) && fontface == "Meiryo") punctuationOffset = 6;
@@ -431,9 +433,18 @@ sys.addEventListener("change", async (e) => {
         cross.disabled = true;
     }
 
-    // If recoloring the window frame is allowed (only in Windows 8/8.1), enable
+    // If recoloring the window frame is allowed (only in Windows 1.0 and 8/8.1), enable
     // the color wrapper. If not, do the opposite.
     if (sysInfo.recolor) {
+        // Default colors in each of the abovementioned OS'es (encoded in RGB)
+        let colors = {
+            "win1": "87,87,255",
+            "win8": "240,200,105"
+        };
+
+        // Setting the default color
+        root.style.setProperty("--frame-color", colors[sysname]);
+
         document.querySelector(".frame-color-wrapper").classList.remove("disabled-color");
         document.querySelector("#frame-color").classList.remove("disabled-color-prev");
     } else {

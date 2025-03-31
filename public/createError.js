@@ -89,6 +89,25 @@ async function createError(system, title, content, iconID, button1, button2, but
             .replaceAll("・", " ∙ ");
     }
 
+    function drawColorBitmap(ctx, spriteSheet, x, y, charsWidth, fillStyle, charData) {
+        const charCanvas = document.createElement("canvas");
+        const charCtx = charCanvas.getContext("2d", { willReadFrequently: true });
+        charCanvas.width = charData.w;
+        charCanvas.height = charData.h;
+
+        charCtx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, 0, 0, charData.w, charData.h);
+
+        ctx.fillStyle = fillStyle;
+
+        for (let i = 0; i < charCanvas.height; i++) {
+            for (let j = 0; j < charCanvas.width; j++) {
+                const charImgData = charCtx.getImageData(j, i, 1, 1);
+                if (charImgData.data[3] == 0) continue;
+                ctx.globalAlpha = charImgData.data[3] / 255;
+                ctx.fillRect(x + charsWidth + j, y + i, 1, 1);
+            }
+        }
+    }
 
     async function win1() {
         if (button2) {
@@ -98,7 +117,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        let symbolCodes = fonts["Fixedsys"]["bold"]["black"];
+        let symbolCodes = fonts["Fixedsys"]["bold"];
         title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
@@ -118,22 +137,22 @@ async function createError(system, title, content, iconID, button1, button2, but
         let testY = 47;
         const lineHeight = 16;
 
-        let FixedsysBlack = new Image();
-        await loadImageCallback(FixedsysBlack, fonts["Fixedsys"]["bold"]["black"].src);
-
-        let FixedsysWhite = new Image();
-        await loadImageCallback(FixedsysWhite, fonts["Fixedsys"]["bold"]["white"].src);
+        let Fixedsys = new Image();
+        await loadImageCallback(Fixedsys, fonts["Fixedsys"]["bold"].src);
 
         async function drawBitmaps(ctx, content, x, y, a) {
             let chars = content.split("");
             let charsWidth = 0;
-            let textColor = whiteText ? "white" : "black";
-            let spriteSheet = whiteText ? FixedsysWhite : FixedsysBlack;
-            let symbolsData = fonts["Fixedsys"]["bold"][textColor].info;
+            let symbolsData = fonts["Fixedsys"]["bold"].info;
             for (const char of chars) {
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
+                if (whiteText) {
+                    drawColorBitmap(ctx, Fixedsys, x, y, charsWidth, "white", charData);
+                } else {
+                    ctx.drawImage(Fixedsys, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
+                }
+
                 ctx.globalAlpha = 1;
                 charsWidth += 8;
             }
@@ -216,8 +235,11 @@ async function createError(system, title, content, iconID, button1, button2, but
         const ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
 
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 2, canvas.width, canvas.height);
+        ctx.fillRect(2, 2, canvas.width - 4, canvas.height - 4);
 
         let x = 60;
         let y = 47;
@@ -227,13 +249,8 @@ async function createError(system, title, content, iconID, button1, button2, but
             y += lineHeight;
         }
 
-        ctx.fillStyle = "#5757ff";
-        ctx.fillRect(2, 2, canvas.width, 14);
-
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 4;
-        ctx.rect(0, 0, canvas.width, canvas.height);
-        ctx.stroke();
+        ctx.fillStyle = color;
+        ctx.fillRect(2, 2, canvas.width - 4, 14);
 
         ctx.fillStyle = "#000000";
         ctx.fillRect(0, 16, canvas.width, 2);
@@ -367,21 +384,20 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win31() {
-        let vgasysr = fonts["vgasysr"]["bold"]["white"];
+        let vgasysr = fonts["vgasysr"]["bold"];
         title = title.replaceAll(" ", " ")
         title.split("").forEach(char => {
             let arrayChar = vgasysr.info[char.charCodeAt(0)];
-            if (!arrayChar) title = title.replaceAll(char, "?");
+            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "?");
         });
 
-
-        let symbolCodes = fonts["MSSansSerif"]["bold"]["black"];
+        let symbolCodes = fonts["MSSansSerif"]["bold"];
         content = content.replaceAll(" ", " ")
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar) content = content.replaceAll(char, "?");
+            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "?");
         })
 
         let x = 69;
@@ -394,27 +410,41 @@ async function createError(system, title, content, iconID, button1, button2, but
         let vgasysrSS = new Image();
         await loadImageCallback(vgasysrSS, vgasysr.src);
 
+        let MSGothic;
+
+        for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
+            if (isCJ(text)) {
+                MSGothic = new Image();
+                await loadImageCallback(MSGothic, fonts["MSGothic"]["regular"].src);
+                break;
+            } else {
+                continue;
+            }
+        }
+
         async function drawBitmaps(ctx, content, x, y, a) {
             let chars = content.split("");
             let charsWidth = 0;
-            let symbolsData = fonts["MSSansSerif"]["bold"]["black"].info;
+            let symbolsData;
             for (const char of chars) {
+                symbolsData = isCJ(char) ? fonts["MSGothic"]["regular"].info : symbolCodes.info;
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(MSSansSerif, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
+                ctx.drawImage(isCJ(char) ? MSGothic : MSSansSerif, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1;
+                charsWidth += charData.w + (isCJ(char) ? 2 : 1);
             }
         }
 
         async function drawTitle(ctx, content, x, y) {
             let chars = content.split("");
             let charsWidth = 0;
-            let symbolsData = fonts["vgasysr"]["bold"]["white"].info;
+            let symbolsData;
             for (const char of chars) {
+                symbolsData = isCJ(char) ? fonts["MSGothic"]["regular"].info : vgasysr.info;
                 let charData = symbolsData[char.charCodeAt(0)];
-                ctx.drawImage(vgasysrSS, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
-                charsWidth += charData.w + 1;
+                drawColorBitmap(ctx, isCJ(char) ? MSGothic : vgasysrSS, x, y, charsWidth, "white", charData);
+                charsWidth += charData.w + (isCJ(char) ? 2 : 1);
             }
         }
 
@@ -456,7 +486,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight;
+            testY += lineHeight + (isCJ(line) ? 7 : 0);
             const lineWidth = testBitmaps(line, true);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -540,7 +570,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x, y);
-            y += lineHeight;
+            y += lineHeight + (isCJ(line) ? 7 : 0);
         }
 
         for (let i = 1; i <= title.length; i++) {
@@ -691,7 +721,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win9x() {
-        let symbolCodes = fonts["MSSansSerif"]["regular"]["black"];
+        let symbolCodes = fonts["MSSansSerif"]["regular"];
         title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
@@ -714,26 +744,19 @@ async function createError(system, title, content, iconID, button1, button2, but
         let MSSansSerif = new Image();
         await loadImageCallback(MSSansSerif, symbolCodes.src);
 
-        let MSSansSerifWhite = new Image();
-        await loadImageCallback(MSSansSerifWhite, fonts["MSSansSerif"]["regular"]["white"].src);
-
         let MSSansSerifBold = new Image();
-        await loadImageCallback(MSSansSerifBold, fonts["MSSansSerif"]["bold"]["white"].src);
+        await loadImageCallback(MSSansSerifBold, fonts["MSSansSerif"]["bold"].src);
 
         let MSUIGothic;
-        let MSUIGothicWhite;
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
                 MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
-
-                MSUIGothicWhite = new Image();
-                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
 
                 MSUIGothicBold = new Image();
-                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"].src);
                 break;
             } else {
                 continue;
@@ -743,43 +766,40 @@ async function createError(system, title, content, iconID, button1, button2, but
         async function drawBitmaps(ctx, content, x, y, isBold = false, a) {
             let chars = content.split("");
             let charsWidth = 0;
-            let txtColor = whiteText ? "white" : "black";
             let spriteSheet;
             if (isBold) {
                 spriteSheet = MSSansSerifBold;
             } else {
-                if (txtColor == "white") {
-                    spriteSheet = MSSansSerifWhite;
-                } else if (txtColor == "black") {
-                    spriteSheet = MSSansSerif;
-                }
+                spriteSheet = MSSansSerif;
             }
             let symbolsData;
             for (let char of chars) {
                 if (isCJ(char)) {
                     if (!isBold) {
-                        spriteSheet = whiteText ? MSUIGothicWhite : MSUIGothic;
-                        symbolsData = fonts["MSUIGothic"]["regular"][txtColor].info;
+                        spriteSheet = MSUIGothic;
+                        symbolsData = fonts["MSUIGothic"]["regular"].info;
                     } else {
                         spriteSheet = MSUIGothicBold;
-                        symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
+                        symbolsData = fonts["MSUIGothic"]["bold"].info;
                     }
                 } else {
                     if (isBold) {
                         spriteSheet = MSSansSerifBold;
                     } else {
-                        if (txtColor == "white") {
-                            spriteSheet = MSSansSerifWhite;
-                        } else if (txtColor == "black") {
-                            spriteSheet = MSSansSerif;
-                        }
+                        spriteSheet = MSSansSerif;
                     }
 
-                    symbolsData = isBold ? fonts["MSSansSerif"]["bold"]["white"].info : fonts["MSSansSerif"]["regular"][txtColor].info;
+                    symbolsData = isBold ? fonts["MSSansSerif"]["bold"].info : fonts["MSSansSerif"]["regular"].info;
                 }
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
+
+                if (whiteText) {
+                    drawColorBitmap(ctx, spriteSheet, x, y + (isCJ(char) ? 1 : 0), charsWidth, "white", charData);
+                } else {
+                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+                }
+
                 ctx.globalAlpha = 1;
 
                 let punctuationOffset = 0;
@@ -933,7 +953,9 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
+        whiteText = true;
         await drawBitmaps(ctx, title, 6, 5, true)
+        whiteText = false;
 
         let crossImg = crossDisabled ? assets["cross-disabled"] : assets["cross"];
         ctx.drawImage(assetsSS, crossImg.x, crossImg.y, crossImg.w, crossImg.h, canvas.width - 21, 5, crossImg.w, crossImg.h);
@@ -1125,7 +1147,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win2k() {
-        let symbolCodes = fonts["Tahoma"]["regular"]["black"];
+        let symbolCodes = fonts["Tahoma"]["regular"];
         title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
@@ -1145,26 +1167,19 @@ async function createError(system, title, content, iconID, button1, button2, but
         let Tahoma = new Image();
         await loadImageCallback(Tahoma, symbolCodes.src);
 
-        let TahomaWhite = new Image();
-        await loadImageCallback(TahomaWhite, fonts["Tahoma"]["regular"]["white"].src);
-
         let TahomaBold = new Image();
-        await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"]["white"].src);
+        await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"].src);
 
         let MSUIGothic;
-        let MSUIGothicWhite;
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
                 MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
-
-                MSUIGothicWhite = new Image();
-                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
 
                 MSUIGothicBold = new Image();
-                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"].src);
                 break;
             } else {
                 continue;
@@ -1174,43 +1189,41 @@ async function createError(system, title, content, iconID, button1, button2, but
         async function drawBitmaps(ctx, content, x, y, isBold = false, a) {
             let chars = content.split("");
             let charsWidth = 0;
-            let txtColor = whiteText ? "white" : "black";
             let spriteSheet;
             if (isBold) {
                 spriteSheet = TahomaBold;
             } else {
-                if (txtColor == "white") {
-                    spriteSheet = TahomaWhite;
-                } else if (txtColor == "black") {
-                    spriteSheet = Tahoma;
-                }
+                spriteSheet = Tahoma;
             }
             let symbolsData;
             for (let char of chars) {
                 if (isCJ(char)) {
                     if (!isBold) {
-                        spriteSheet = whiteText ? MSUIGothicWhite : MSUIGothic;
-                        symbolsData = fonts["MSUIGothic"]["regular"][txtColor].info;
+                        spriteSheet = MSUIGothic;
+                        symbolsData = fonts["MSUIGothic"]["regular"].info;
                     } else {
                         spriteSheet = MSUIGothicBold;
-                        symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
+                        symbolsData = fonts["MSUIGothic"]["bold"].info;
                     }
                 } else {
                     if (isBold) {
                         spriteSheet = TahomaBold;
                     } else {
-                        if (txtColor == "white") {
-                            spriteSheet = TahomaWhite;
-                        } else if (txtColor == "black") {
-                            spriteSheet = Tahoma;
-                        }
+                        spriteSheet = Tahoma;
                     }
 
-                    symbolsData = isBold ? fonts["Tahoma"]["bold"]["white"].info : fonts["Tahoma"]["regular"][txtColor].info;
+                    symbolsData = isBold ? fonts["Tahoma"]["bold"].info : fonts["Tahoma"]["regular"].info;
                 }
+
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+
+                if (whiteText) {
+                    drawColorBitmap(ctx, spriteSheet, x, y + (isCJ(char) ? 1 : 0), charsWidth, "white", charData);
+                } else {
+                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+                }
+
                 ctx.globalAlpha = 1;
 
                 let punctuationOffset = 0;
@@ -1361,7 +1374,9 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
+        whiteText = true;
         await drawBitmaps(ctx, title, 5, 5, true);
+        whiteText = false;
 
         let crossImgSrc = crossDisabled ? assets["cross-disabled"] : assets["cross"];
         ctx.drawImage(assetsSS, crossImgSrc.x, crossImgSrc.y, crossImgSrc.w, crossImgSrc.h, canvas.width - 21, 5, crossImgSrc.w, crossImgSrc.h);
@@ -1555,7 +1570,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function winwh() {
-        let symbolCodes = fonts["Tahoma"]["regular"]["black"];
+        let symbolCodes = fonts["Tahoma"]["regular"];
         title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
@@ -1573,26 +1588,19 @@ async function createError(system, title, content, iconID, button1, button2, but
         let Tahoma = new Image();
         await loadImageCallback(Tahoma, symbolCodes.src);
 
-        let TahomaWhite = new Image();
-        await loadImageCallback(TahomaWhite, fonts["Tahoma"]["regular"]["white"].src);
-
         let TahomaBold = new Image();
-        await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"]["white"].src);
+        await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"].src);
 
         let MSUIGothic;
-        let MSUIGothicWhite;
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
                 MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
-
-                MSUIGothicWhite = new Image();
-                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
 
                 MSUIGothicBold = new Image();
-                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"].src);
                 break;
             } else {
                 continue;
@@ -1602,44 +1610,41 @@ async function createError(system, title, content, iconID, button1, button2, but
         async function drawBitmaps(ctx, content, x, y, isBold = false, a) {
             let chars = content.split("");
             let charsWidth = 0;
-            let txtColor = whiteText ? "white" : "black";
             let spriteSheet;
             if (isBold) {
                 spriteSheet = TahomaBold;
             } else {
-                if (txtColor == "white") {
-                    spriteSheet = TahomaWhite;
-                } else if (txtColor == "black") {
-                    spriteSheet = Tahoma;
-                }
+                spriteSheet = Tahoma;
             }
             let symbolsData;
             for (let char of chars) {
                 if (isCJ(char)) {
                     if (!isBold) {
-                        spriteSheet = whiteText ? MSUIGothicWhite : MSUIGothic;
-                        symbolsData = fonts["MSUIGothic"]["regular"][txtColor].info;
+                        spriteSheet = MSUIGothic;
+                        symbolsData = fonts["MSUIGothic"]["regular"].info;
                     } else {
                         spriteSheet = MSUIGothicBold;
-                        symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
+                        symbolsData = fonts["MSUIGothic"]["bold"].info;
                     }
                 } else {
                     if (isBold) {
                         spriteSheet = TahomaBold;
                     } else {
-                        if (txtColor == "white") {
-                            spriteSheet = TahomaWhite;
-                        } else if (txtColor == "black") {
-                            spriteSheet = Tahoma;
-                        }
+                        spriteSheet = Tahoma;
                     }
 
-                    symbolsData = isBold ? fonts["Tahoma"]["bold"]["white"].info : fonts["Tahoma"]["regular"][txtColor].info;
+                    symbolsData = isBold ? fonts["Tahoma"]["bold"].info : fonts["Tahoma"]["regular"].info;
                 }
 
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+
+                if (whiteText) {
+                    drawColorBitmap(ctx, spriteSheet, x, y + (isCJ(char) ? 1 : 0), charsWidth, "white", charData);
+                } else {
+                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+                }
+
                 ctx.globalAlpha = 1;
 
                 let punctuationOffset = 0;
@@ -1795,7 +1800,9 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        await drawBitmaps(ctx, title, 13, 5, true)
+        whiteText = true;
+        await drawBitmaps(ctx, title, 13, 5, true);
+        whiteText = false;
 
         ctx.drawImage(assetsSS, iconInfo.x, iconInfo.y, iconInfo.w, iconInfo.h, 14, 33, 34, 34);
 
@@ -1994,14 +2001,14 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function winxp() {
-        let TMSCodes = fonts["TrebuchetMS"]["bold"]["white"];
+        let TMSCodes = fonts["TrebuchetMS"]["bold"];
         title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = TMSCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
-        let symbolCodes = fonts["Tahoma"]["regular"]["black"];
+        let symbolCodes = fonts["Tahoma"]["regular"];
         content = jpProcess(content.replaceAll(" ", " "));
         let chars = content.split("");
         chars.forEach(char => {
@@ -2021,19 +2028,15 @@ async function createError(system, title, content, iconID, button1, button2, but
         await loadImageCallback(TrebuchetMS, TMSCodes.src);
 
         let MSUIGothic;
-        let MSUIGothicWhite;
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
                 MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
-
-                MSUIGothicWhite = new Image();
-                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
 
                 MSUIGothicBold = new Image();
-                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"].src);
                 break;
             } else {
                 continue;
@@ -2048,7 +2051,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             for (let char of chars) {
                 if (isCJ(char)) {
                     spriteSheet = MSUIGothic;
-                    symbolsData = fonts["MSUIGothic"]["regular"]["black"].info;
+                    symbolsData = fonts["MSUIGothic"]["regular"].info;
                 } else {
                     spriteSheet = Tahoma;
                     symbolsData = symbolCodes.info;
@@ -2199,7 +2202,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             for (const char of chars) {
                 if (isCJ(char)) {
                     spriteSheet = MSUIGothicBold;
-                    symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
+                    symbolsData = fonts["MSUIGothic"]["bold"].info;
                 } else {
                     spriteSheet = TrebuchetMS;
                     symbolsData = TMSCodes.info;
@@ -2209,25 +2212,13 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let yOffset = isCJ(char) ? 3 : 0;
                 let xOffset = isCJ(char) ? 1 : 0;
 
-                if (isCJ(char)) {
-                    const charCanvas = document.createElement("canvas");
-                    const charCtx = charCanvas.getContext("2d", { willReadFrequently: true });
-                    charCanvas.width = charData.w;
-                    charCanvas.height = charData.h;
+                drawColorBitmap(ctx, spriteSheet, x + xOffset + 1, y + yOffset + 1, charsWidth, "#0a1883", charData);
+                drawColorBitmap(ctx, spriteSheet, x + xOffset, y + yOffset, charsWidth, "white", charData);
 
-                    charCtx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, 0, 0, charData.w, charData.h);
-
-                    ctx.fillStyle = "rgb(10,24,131)";
-                    for (let i = 0; i < charCanvas.height; i++) {
-                        for (let j = 0; j < charCanvas.width; j++) {
-                            const charImgData = charCtx.getImageData(j, i, 1, 1);
-                            if (charImgData.data[3] == 0) continue;
-                            ctx.fillRect(x + charsWidth + 1 + j + xOffset, y + 1 + i + yOffset, 1, 1);
-                        }
-                    }
-                }
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth + xOffset, y + yOffset, charData.w, charData.h);
-                charsWidth += charData.w + (isCJ(char) ? 1 : 0);
+                let punctuationOffset = 0;
+                if (char == "、") punctuationOffset = 5;
+                if (char == "。" || char == "々") punctuationOffset = 3;
+                charsWidth += charData.w + 1 + punctuationOffset;
             }
         }
 
@@ -2427,7 +2418,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function winlh() {
-        let symbolCodes = fonts["Tahoma"]["regular"]["black"];
+        let symbolCodes = fonts["Tahoma"]["regular"];
         title = jpProcess(title.replaceAll(" ", " "));
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
@@ -2447,29 +2438,22 @@ async function createError(system, title, content, iconID, button1, button2, but
         let Tahoma = new Image();
         await loadImageCallback(Tahoma, symbolCodes.src);
 
-        let TahomaWhite = new Image();
-        await loadImageCallback(TahomaWhite, fonts["Tahoma"]["regular"]["white"].src);
-
         let TahomaBold = new Image();
-        await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"]["white"].src);
+        await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"].src);
 
         let testCanvas = document.getElementById("test-canvas");
         const testCtx = testCanvas.getContext("2d");
 
         let MSUIGothic;
-        let MSUIGothicWhite;
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
                 MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"]["black"].src);
-
-                MSUIGothicWhite = new Image();
-                await loadImageCallback(MSUIGothicWhite, fonts["MSUIGothic"]["regular"]["white"].src);
+                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
 
                 MSUIGothicBold = new Image();
-                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"]["white"].src);
+                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"].src);
                 break;
             } else {
                 continue;
@@ -2479,44 +2463,41 @@ async function createError(system, title, content, iconID, button1, button2, but
         async function drawBitmaps(ctx, content, x, y, isBold = false, a) {
             let chars = content.split("");
             let charsWidth = 0;
-            let txtColor = whiteText ? "white" : "black";
             let spriteSheet;
             if (isBold) {
                 spriteSheet = TahomaBold;
             } else {
-                if (txtColor == "white") {
-                    spriteSheet = TahomaWhite;
-                } else if (txtColor == "black") {
-                    spriteSheet = Tahoma;
-                }
+                spriteSheet = Tahoma;
             }
             let symbolsData;
             for (let char of chars) {
                 if (isCJ(char)) {
                     if (!isBold) {
-                        spriteSheet = whiteText ? MSUIGothicWhite : MSUIGothic;
-                        symbolsData = fonts["MSUIGothic"]["regular"][txtColor].info;
+                        spriteSheet = MSUIGothic;
+                        symbolsData = fonts["MSUIGothic"]["regular"].info;
                     } else {
                         spriteSheet = MSUIGothicBold;
-                        symbolsData = fonts["MSUIGothic"]["bold"]["white"].info;
+                        symbolsData = fonts["MSUIGothic"]["bold"].info;
                     }
                 } else {
                     if (isBold) {
                         spriteSheet = TahomaBold;
                     } else {
-                        if (txtColor == "white") {
-                            spriteSheet = TahomaWhite;
-                        } else if (txtColor == "black") {
-                            spriteSheet = Tahoma;
-                        }
+                        spriteSheet = Tahoma;
                     }
 
-                    symbolsData = isBold ? fonts["Tahoma"]["bold"]["white"].info : fonts["Tahoma"]["regular"][txtColor].info;
+                    symbolsData = isBold ? fonts["Tahoma"]["bold"].info : fonts["Tahoma"]["regular"].info;
                 }
 
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+
+                if (whiteText) {
+                    drawColorBitmap(ctx, spriteSheet, x, y + (isCJ(char) ? 1 : 0), charsWidth, "white", charData);
+                } else {
+                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+                }
+
                 ctx.globalAlpha = 1;
 
                 let punctuationOffset = 0;
@@ -2867,12 +2848,16 @@ async function createError(system, title, content, iconID, button1, button2, but
         whiteText = true;
         await drawBitmaps(testCtx, title, 6, 6, true)
         await drawBitmaps(testCtx, title, 6, 6, true)
+
+        testCtx.shadowBlur = 0;
+
+        await drawBitmaps(testCtx, title, 6, 6, true)
     }
 
 
 
     async function winvista() {
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
+        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
         title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
@@ -2895,7 +2880,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
                 Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
                 break;
             } else {
                 continue;
@@ -2911,7 +2896,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             let charsWidth = 0;
             for (const char of chars) {
                 let spriteSheet = isCJ(char) ? Meiryo : SegoeUI;
-                let symbolsData = isCJ(char) ? fonts["Meiryo"]["regular"]["black"] : symbolCodes;
+                let symbolsData = isCJ(char) ? fonts["Meiryo"]["regular"] : symbolCodes;
                 let charData = symbolsData.info[char.charCodeAt(0)];
                 let xOffset = isCJ(char) ? 2 : 0;
                 let yOffset = isCJ(char) ? -1 : 0;
@@ -3277,7 +3262,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let testCanvas = document.getElementById("test-canvas");
         const testCtx = testCanvas.getContext("2d");
 
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
+        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
         title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
@@ -3300,7 +3285,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
                 Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
                 break;
             } else {
                 continue;
@@ -3312,7 +3297,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             let charsWidth = 0;
             for (const char of chars) {
                 let spriteSheet = isCJ(char) ? Meiryo : SegoeUI;
-                let symbolsData = isCJ(char) ? fonts["Meiryo"]["regular"]["black"] : symbolCodes;
+                let symbolsData = isCJ(char) ? fonts["Meiryo"]["regular"] : symbolCodes;
                 let charData = symbolsData.info[char.charCodeAt(0)];
                 let xOffset = isCJ(char) ? 2 : 0;
                 let yOffset = isCJ(char) ? -1 : 0;
@@ -3678,18 +3663,18 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win8() {
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
-        let SegoeUILargeInfo = fonts["SegoeUI_11pt"]["regular"]["black"];
+        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
+        let SegoeUILargeInfo = fonts["SegoeUI_11pt"]["regular"];
         title = title.replaceAll(" ", " ");
         _.split(title, "").forEach(char => {
-            let arrayChar = fonts["EMOJI_8"]["regular"]["black"].info[char] ? fonts["EMOJI_8"]["regular"]["black"] : SegoeUILargeInfo.info[char.charCodeAt(0)];
+            let arrayChar = fonts["EMOJI_8"]["regular"].info[char] ? fonts["EMOJI_8"]["regular"] : SegoeUILargeInfo.info[char.charCodeAt(0)];
             if (!arrayChar) title = title.replaceAll(char, "□");
         })
 
         content = content.replaceAll(" ", " ");
         _.split(content, "").forEach(char => {
             if (char == "\n") return;
-            let arrayChar = fonts["EMOJI_8"]["regular"]["black"].info[char] ? fonts["EMOJI_8"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
+            let arrayChar = fonts["EMOJI_8"]["regular"].info[char] ? fonts["EMOJI_8"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
         })
 
@@ -3705,13 +3690,13 @@ async function createError(system, title, content, iconID, button1, button2, but
         for (const text of [content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
             if (isCJ(text)) {
                 Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
                 break;
             }
 
             if (emojiRegex().exec(text)) {
                 EmojiSS = new Image();
-                await loadImageCallback(EmojiSS, fonts["EMOJI_8"]["regular"]["black"].src);
+                await loadImageCallback(EmojiSS, fonts["EMOJI_8"]["regular"].src);
                 break;
             }
         }
@@ -3728,10 +3713,10 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                 if (isCJ(char)) {
                     spriteSheet = Meiryo;
-                    symbolsData = fonts["Meiryo"]["regular"]["black"];
+                    symbolsData = fonts["Meiryo"]["regular"];
                 } else if (emojiRegex().exec(char)) {
                     spriteSheet = EmojiSS;
-                    symbolsData = fonts["EMOJI_8"]["regular"]["black"];
+                    symbolsData = fonts["EMOJI_8"]["regular"];
                 } else {
                     spriteSheet = SegoeUI;
                     symbolsData = symbolCodes;
@@ -4084,10 +4069,10 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win10() {
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
+        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
         title = title.replaceAll(" ", " ");
         _.split(title, "").forEach(char => {
-            let arrayChar = fonts["EMOJI_10"]["regular"]["black"].info[char] ? fonts["EMOJI_10"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
+            let arrayChar = fonts["EMOJI_10"]["regular"].info[char] ? fonts["EMOJI_10"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
@@ -4095,7 +4080,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let chars = _.split(content, "");
         chars.forEach(char => {
             if (char == "\n") return;
-            let arrayChar = fonts["EMOJI_10"]["regular"]["black"].info[char] ? fonts["EMOJI_10"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
+            let arrayChar = fonts["EMOJI_10"]["regular"].info[char] ? fonts["EMOJI_10"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
         })
 
@@ -4114,12 +4099,12 @@ async function createError(system, title, content, iconID, button1, button2, but
         for (const char of _.split(allText, "")) {
             if (isCJ(char) && !Meiryo) {
                 Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
             }
 
             if (emojiRegex().exec(char) && !EmojiSS) {
                 EmojiSS = new Image();
-                await loadImageCallback(EmojiSS, fonts["EMOJI_10"]["regular"]["black"].src);
+                await loadImageCallback(EmojiSS, fonts["EMOJI_10"]["regular"].src);
             }
         }
 
@@ -4135,10 +4120,10 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                 if (isCJ(char)) {
                     spriteSheet = Meiryo;
-                    symbolsData = fonts["Meiryo"]["regular"]["black"];
+                    symbolsData = fonts["Meiryo"]["regular"];
                 } else if (emojiRegex().exec(char)) {
                     spriteSheet = EmojiSS;
-                    symbolsData = fonts["EMOJI_10"]["regular"]["black"];
+                    symbolsData = fonts["EMOJI_10"]["regular"];
                 } else {
                     spriteSheet = SegoeUI;
                     symbolsData = symbolCodes;
@@ -4501,10 +4486,10 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win11() {
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"]["black"];
+        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
         title = title.replaceAll(" ", " ");
         _.split(title, "").forEach(char => {
-            let arrayChar = fonts["EMOJI_11"]["regular"]["black"].info[char] ? fonts["EMOJI_11"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
+            let arrayChar = fonts["EMOJI_11"]["regular"].info[char] ? fonts["EMOJI_11"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
         })
 
@@ -4512,7 +4497,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let chars = _.split(content, "");
         chars.forEach(char => {
             if (char == "\n") return;
-            let arrayChar = fonts["EMOJI_11"]["regular"]["black"].info[char] ? fonts["EMOJI_11"]["regular"]["black"] : symbolCodes.info[char.charCodeAt(0)];
+            let arrayChar = fonts["EMOJI_11"]["regular"].info[char] ? fonts["EMOJI_11"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
         })
 
@@ -4531,12 +4516,12 @@ async function createError(system, title, content, iconID, button1, button2, but
         for (const char of _.split(allText, "")) {
             if (isCJ(char) && !Meiryo) {
                 Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"]["black"].src);
+                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
             }
 
             if (emojiRegex().exec(char) && !EmojiSS) {
                 EmojiSS = new Image();
-                await loadImageCallback(EmojiSS, fonts["EMOJI_11"]["regular"]["black"].src);
+                await loadImageCallback(EmojiSS, fonts["EMOJI_11"]["regular"].src);
             }
         }
 
@@ -4552,10 +4537,10 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                 if (isCJ(char)) {
                     spriteSheet = Meiryo;
-                    symbolsData = fonts["Meiryo"]["regular"]["black"];
+                    symbolsData = fonts["Meiryo"]["regular"];
                 } else if (emojiRegex().exec(char)) {
                     spriteSheet = EmojiSS;
-                    symbolsData = fonts["EMOJI_11"]["regular"]["black"];
+                    symbolsData = fonts["EMOJI_11"]["regular"];
                 } else {
                     spriteSheet = SegoeUI;
                     symbolsData = symbolCodes;
