@@ -110,19 +110,21 @@ async function build() {
             if (!filename.includes(".json")) continue;
             let fontFile = require(__dirname + `/build/fonts/${filename}`);
             let fontName = filename.split("-")[0];
-            let fontColor = filename.split("-")[1];
-            let fontStyle = filename.split("-")[2].split(".")[0];
+            let fontStyle = filename.split("-")[1].split(".")[0];
+
             if (fontName != recentFont && recentFont != "") {
                 fontsObj[recentFont] = fontObj;
                 fontObj = {};
             }
+
             recentFont = fontName;
             if (!fontObj[fontStyle]) fontObj[fontStyle] = {};
-            if (!fontObj[fontStyle][fontColor]) fontObj[fontStyle][fontColor] = {};
-            fontObj[fontStyle][fontColor].info = fontFile;
-            fontObj[fontStyle][fontColor].src = Buffer.from(fs.readFileSync(__dirname + `/build/fonts/${filename.split(".")[0]}.png`)).toString("base64");
-            if (fontName == "vgasysr") {
-                fontsObj["vgasysr"] = fontObj;
+
+            fontObj[fontStyle].info = fontFile;
+            fontObj[fontStyle].src = Buffer.from(fs.readFileSync(__dirname + `/build/fonts/${filename.split(".")[0]}.png`)).toString("base64");
+
+            if (fontsDir.indexOf(filename) / 2 == (fontsDir.length / 2) - 1) {
+                fontsObj[recentFont] = fontObj;
                 fontObj = {};
             }
         }

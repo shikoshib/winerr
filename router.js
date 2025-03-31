@@ -35,17 +35,18 @@ router.get("/icons", (req, res) => {
         icons = JSON.parse(icons)
         arr.push({ name: system, icons: icons })
     }
-    let html = `<!DOCTYPE html>
+    let html = `
+    <!DOCTYPE html>
     <html>
-    <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Icons</title>
-    <link rel="stylesheet" href="../style.css">
-    </head>
-    <body>
-    <div class="os-wrapper">`;
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>Icons</title>
+            <link rel="stylesheet" href="../style.css">
+        </head>
+        <body>
+            <div class="os-wrapper">`;
     arr.forEach(s => {
         let obj = {
             "win1": "Windows 1.0",
@@ -61,9 +62,18 @@ router.get("/icons", (req, res) => {
             "win10": "Windows 10",
             "win11": "Windows 11"
         }
-        html += `<div class="os"><h1>${obj[s.name]}</h1><div class="icons-list">`
+        html += `<div class="os">
+        <h1>${obj[s.name]}</h1><div class="icons-list">`
         s.icons.forEach(i => {
-            html += `<div class="icon-card-wrapper"><span class="icon-id">${i.id}.</span><div class="icon-card"><span class="img"><img src="${i.data}"></span></div></div>`;
+            html += `
+            <div class="icon-card-wrapper">
+                <span class="icon-id">${i.id}.</span>
+                <div class="icon-card">
+                    <span class="img">
+                        <img src="${i.data}">
+                    </span>
+                </div>
+            </div>`;
         })
         html += `</div></div>`
     })
