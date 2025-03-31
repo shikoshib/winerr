@@ -95,18 +95,25 @@ async function createError(system, title, content, iconID, button1, button2, but
         charCanvas.width = charData.w;
         charCanvas.height = charData.h;
 
-        charCtx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, 0, 0, charData.w, charData.h);
+        charCtx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, 0, 0, charData.w, charData.h)
 
-        ctx.fillStyle = fillStyle;
+        const bitmapCanvas = document.createElement("canvas");
+        const bitmapCtx = bitmapCanvas.getContext("2d");
+        bitmapCanvas.width = ctx.canvas.width;
+        bitmapCanvas.height = ctx.canvas.height;
+
+        bitmapCtx.fillStyle = fillStyle;
 
         for (let i = 0; i < charCanvas.height; i++) {
             for (let j = 0; j < charCanvas.width; j++) {
                 const charImgData = charCtx.getImageData(j, i, 1, 1);
                 if (charImgData.data[3] == 0) continue;
-                ctx.globalAlpha = charImgData.data[3] / 255;
-                ctx.fillRect(x + charsWidth + j, y + i, 1, 1);
+                bitmapCtx.globalAlpha = charImgData.data[3] / 255;
+                bitmapCtx.fillRect(x + charsWidth + j, y + i, 1, 1);
             }
         }
+
+        ctx.drawImage(bitmapCanvas, 0, 0);
     }
 
     async function win1() {
