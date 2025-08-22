@@ -80,6 +80,7 @@ function loadBackup() {
 
     let iconSys = backup.os;
     if (iconSys == "winvista") iconSys = "win7";
+    if (iconSys == "win3") iconSys = "win31";
     let iconsCount = Object.keys(assetsArray[iconSys].assets).filter(i => i.startsWith("i-")).length;
     icon.max = iconsCount;
 
@@ -364,7 +365,7 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
         // Longhorn use MS UI Gothic, while Vista through 11 use Meiryo. If the text doesn't
         // contain any Chinese/Japanese characters, we just use the regular font assigned for
         // basic characters.
-        if (sys.value == "win31" && isCJ(char)) {
+        if (["win31", "win3"].includes(sys.value) && isCJ(char)) {
             fontface = "MSGothic";
             charsInfo = fonts["MSGothic"]["regular"].info;
         } else if (["win95", "win98", "win2k", "winwh", "winxp", "winlh-4093"].includes(sys.value) && isCJ(char)) {
@@ -390,6 +391,7 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
             if (char == "、") punctuationOffset = 5;
             if (char == "。" || char == "々") punctuationOffset = 3;
         }
+
         charsWidth += charWidth + addPx + punctuationOffset;
     }
     return charsWidth;
@@ -401,9 +403,11 @@ sys.addEventListener("change", async (e) => {
     let sysInfo = systems[sysname];
 
     // Windows Vista/7 (Basic) (codename "winvista") has the same icons as Windows
-    // Vista/7 (Aero) (codename "win7").
+    // Vista/7 (Aero) (codename "win7"). Windows 3.0 (codename "win3") shares icons
+    // with 3.1 (codename "win31").
     let iconSys = sysname;
     if (iconSys == "winvista") iconSys = "win7";
+    if (iconSys == "win3") iconSys = "win31";
     let iconsCount = Object.keys(assetsArray[iconSys].assets).filter(i => i.startsWith("i-")).length;
     icon.max = iconsCount;
 
@@ -581,6 +585,7 @@ generateBtn.addEventListener("click", async () => {
         overlay.style.opacity = 1;
         document.querySelector("body").style.overflowY = "hidden";
 
+        let totalTime;
         try {
             let eStart = performance.now();
             await createError(sys.value,
@@ -603,9 +608,10 @@ generateBtn.addEventListener("click", async () => {
                 `rgb(${getComputedStyle(root).getPropertyValue("--frame-color")})`,
                 `rgb(${getComputedStyle(root).getPropertyValue("--primary-gradient-color")})`,
                 `rgb(${getComputedStyle(root).getPropertyValue("--secondary-gradient-color")})`);
-            let eFinish = performance.now();
 
-            console.log(`Took ${(eFinish - eStart).toFixed(1)} ms to generate`);
+            let eFinish = performance.now();
+            totalTime = (eFinish - eStart).toFixed(1);
+            console.log(totalTime)
         } catch (e) {
             // In case any error happens
             console.error(e);
@@ -613,7 +619,7 @@ generateBtn.addEventListener("click", async () => {
             modalTitleWrapper.classList.add("title-error");
             modalTitleWrapper.classList.remove("title-warn");
             modalTitle.innerHTML = `Error!`;
-            modalContent.style.justifyContent = "center";
+            modalContent.style.alignItems = "center";
             modalIcon.classList.remove("hourglass");
             modalContent.innerHTML = `${e.name}: ${e.message}`;
             return;
@@ -633,7 +639,7 @@ generateBtn.addEventListener("click", async () => {
                 modalTitle.innerHTML = done;
                 modalIcon.src = checkB64;
                 modalIcon.classList.remove("hourglass");
-                modalContent.style.justifyContent = "center";
+                modalContent.style.alignItems = "center";
 
                 // Windows Longhorn and 7 use glow effects for titles. On some browsers
                 // the title for these OS'es doesn't get drawn on canvas for some reason,
@@ -641,7 +647,7 @@ generateBtn.addEventListener("click", async () => {
                 // PNG, add to the main canvas, and then render that to PNG and show it
                 // to the end user.
                 if (sys.value == "winlh-4093" || sys.value == "win7") {
-                    modalContent.innerHTML = `<canvas id="final-canvas" width="${img.width}" height="${img.height}">`;
+                    modalContent.innerHTML = `<canvas id="final-canvas" width="${img.width}" height="${img.height}"></canvas><small style="opacity:.5">${tookTime.replace("{{ms}}", totalTime)}</small>`;
                     let finalCanvas = document.querySelector("#final-canvas");
                     let finalCtx = finalCanvas.getContext("2d");
                     finalCtx.drawImage(img, 0, 0);
@@ -655,10 +661,10 @@ generateBtn.addEventListener("click", async () => {
                     setTimeout(() => {
                         let finalB64 = finalCanvas.toDataURL();
 
-                        modalContent.innerHTML = `<img src="${finalB64}">`;
+                        modalContent.innerHTML = `<img src="${finalB64}"><small style="opacity:.5">${tookTime.replace("{{ms}}", totalTime)}</small>`;
                     }, 200)
                 } else {
-                    modalContent.innerHTML = `<img src="${errorB64}">`;
+                    modalContent.innerHTML = `<img src="${errorB64}"><small style="opacity:.5">${tookTime.replace("{{ms}}", totalTime)}</small>`;
                 }
             }
         }
@@ -685,7 +691,7 @@ function closeModal() {
         modalTitle.innerHTML = pleaseWait;
         modalIcon.src = "./svg/hourglass.svg";
         modalIcon.classList.add("hourglass");
-        modalContent.style.justifyContent = "left";
+        modalContent.style.alignItems = "left";
         modalCross.style.display = "none";
 
         overlay.style.display = "none";
@@ -802,6 +808,6 @@ for (let colorPicker of colorPickers) {
         modalTitle.innerHTML = colorPickerStr;
         modalIcon.src = "./svg/i.svg";
         modalIcon.classList.remove("hourglass");
-        modalContent.style.justifyContent = "center";
+        modalContent.style.alignItems = "center";
     })
 }

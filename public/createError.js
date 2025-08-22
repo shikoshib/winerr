@@ -8,9 +8,12 @@ async function createError(system, title, content, iconID, button1, button2, but
 
     let sysName = system;
     if (system == "win98") sysName = "win95";
+    if (system == "win3") sysName = "win31";
     let assets = assetsArray[sysName].assets;
 
-    let iconInfo = assetsArray[sysName == "winvista" ? "win7" : sysName].assets[`i-${iconID}`];
+    let assetsSysName = sysName;
+    if (sysName == "winvista") assetsSysName = "win7";
+    let iconInfo = assetsArray[assetsSysName].assets[`i-${iconID}`];
 
     async function loadImageCallback(img, src) {
         img.src = `data:image/png;base64,${src}`;
@@ -390,6 +393,333 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
 
+    async function win3() {
+        let vgasysr = fonts["vgasysr"]["bold"];
+        title = title.replaceAll(" ", " ")
+        content = content.replaceAll(" ", " ")
+        let chars = content.split("");
+        chars.forEach(char => {
+            if (char == "\n") return;
+            let arrayChar = vgasysr.info[char.charCodeAt(0)];
+            if (!arrayChar && !isCJ(char)) {
+                title = title.replaceAll(char, "?");
+                content = content.replaceAll(char, "?");
+            }
+        });
+
+        let testY = 39;
+        const lineHeight = 16;
+
+        let vgasysrSS = new Image();
+        await loadImageCallback(vgasysrSS, vgasysr.src);
+
+        let MSGothic;
+
+        for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
+            if (isCJ(text)) {
+                MSGothic = new Image();
+                await loadImageCallback(MSGothic, fonts["MSGothic"]["regular"].src);
+                break;
+            } else {
+                continue;
+            }
+        }
+
+        async function drawBitmaps(ctx, content, x, y, a) {
+            let chars = content.split("");
+            let charsWidth = 0;
+            let symbolsData;
+            for (const char of chars) {
+                symbolsData = isCJ(char) ? fonts["MSGothic"]["regular"].info : vgasysr.info;
+                let charData = symbolsData[char.charCodeAt(0)];
+                ctx.globalAlpha = a;
+                drawColorBitmap(ctx, isCJ(char) ? MSGothic : vgasysrSS, x, y, charsWidth, ctx.fillStyle, charData);
+                ctx.globalAlpha = 1;
+                charsWidth += charData.w + (isCJ(char) ? 2 : 1);
+            }
+        }
+
+        const maxWidth = 295;
+        const subtexts = content.split("\n");
+        const lines = [];
+        for (let text of subtexts) {
+            const words = text.split(" ");
+            if (testBitmaps(text, true, false, true) > maxWidth) {
+                let testline = "";
+                for (let word of words) {
+                    if (testBitmaps(`${testline}${word}`, true, false, true) > maxWidth) {
+
+                        if (testBitmaps(word, true, false, true) > maxWidth) {
+                            let testword = "";
+                            for (let letter of word) {
+                                if (testBitmaps(`${testline}${testword}`, true, false, true) > maxWidth) {
+                                    lines.push(`${testline}${testword}`.trim());
+                                    testline = "";
+                                    testword = "";
+                                }
+                                testword += letter;
+                            }
+                            testline += testword + " ";
+                            continue;
+                        }
+
+                        lines.push(testline.trim());
+                        testline = "";
+                    }
+                    testline += word + " ";
+                }
+                lines.push(testline.trim());
+            } else {
+                lines.push(text);
+            }
+        }
+
+        let longestLineW = 0;
+
+        for (let line of lines) {
+            testY += lineHeight + (isCJ(line) ? 7 : 0);
+            const lineWidth = testBitmaps(line, true, false, true);
+            if (lineWidth >= longestLineW) {
+                longestLineW = lineWidth;
+            } else {
+                continue;
+            }
+        }
+
+        let canvasWidth = 120;
+        let canvasHeight = testY + 35;
+        if (longestLineW > 30) canvasWidth = longestLineW + 91;
+        if (lines.length > 1 && !button1.name) canvasHeight = canvasHeight - 19;
+        if (lines.length <= 1 && button1.name) canvasHeight = canvasHeight + 36;
+        if (lines.length > 1 && button1.name) canvasHeight = canvasHeight + 21;
+
+        if (button1) {
+            function getBtnsWidth() {
+                const btn1TextWidthFixed = testBitmaps(button1.name, true, false, true)
+                let btn1TextWidth = btn1TextWidthFixed < 38 ? 38 : btn1TextWidthFixed;
+                let btn1Width = btn1TextWidth + 32;
+
+                if (!button2) return btn1Width;
+
+                if (!button3) {
+                    const btn2TextWidthFixed = testBitmaps(button2.name, true, false, true)
+                    let btn2TextWidth = btn2TextWidthFixed < 38 ? 38 : btn2TextWidthFixed;
+                    let btn2Width = btn2TextWidth + 32;
+
+                    return btn1Width + btn2Width + 18;
+                }
+
+                const btn2TextWidthFixed = testBitmaps(button2.name, true, false, true)
+                let btn2TextWidth = btn2TextWidthFixed < 38 ? 38 : btn2TextWidthFixed;
+                let btn2Width = btn2TextWidth + 32;
+
+                const btn3TextWidthFixed = testBitmaps(button3.name, true, false, true)
+                let btn3TextWidth = btn3TextWidthFixed < 38 ? 38 : btn3TextWidthFixed;
+                let btn3Width = btn3TextWidth + 32;
+
+                return btn1Width + btn2Width + btn3Width + 36;
+            }
+
+            let btnsWidth = getBtnsWidth();
+
+            if (canvasWidth - 34 < btnsWidth) {
+                canvasHeight = canvasHeight + 8;
+                canvasWidth = btnsWidth + 34;
+            }
+        }
+
+        canvas = document.getElementById('canvas');
+        canvas.width = canvasWidth + 10;
+        canvas.height = canvasHeight + 9;
+        const ctx = canvas.getContext("2d");
+
+        ctx.imageSmoothingEnabled = false;
+
+        let y = 40;
+
+        for (let i = 0; i < canvas.height; i++) {
+            for (let j = 0; j < canvas.width; j++) {
+                ctx.fillStyle = (j % 2 == 0 && i % 2 == 0) || (j % 2 == 1 && i % 2 == 1) ? "#5555aa" : "#55aaaa";
+                ctx.fillRect(j, i, 1, 1);
+            }
+        }
+
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, 1);
+        ctx.fillRect(0, canvas.height - 1, canvas.width, 1);
+        ctx.fillRect(0, 0, 1, canvas.height);
+        ctx.fillRect(canvas.width - 1, 0, 1, canvas.height);
+
+        ctx.fillRect(6, 23, canvasWidth - 2, 1);
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(5, 4, canvasWidth, 1);
+        ctx.fillRect(5, canvas.height - 6, canvasWidth - 1, 1);
+        ctx.fillRect(5, 4, 1, canvasHeight);
+        ctx.fillRect(canvas.width - 6, 4, 1, canvasHeight);
+        ctx.fillRect(6, 24, canvas.width - 12, canvas.height - 30);
+
+        let minimize = assets.minimize;
+        ctx.drawImage(assetsSS, minimize.x, minimize.y, minimize.w, minimize.h, 6, 5, minimize.w, minimize.h);
+
+        for (let i = 1; i <= title.length; i++) {
+            let chunkWidth = testBitmaps(title.slice(0, i), true, false, true);
+            if (chunkWidth + 81 > canvas.width) {
+                title = `${title.slice(0, i).trim()}…`;
+                break;
+            }
+        }
+
+        let titleWidth = testBitmaps(title, true, false, true);
+        let titleX = Math.round((canvas.width - 31 - titleWidth) / 2) + 25;
+        await drawBitmaps(ctx, title, titleX, 6);
+
+        let iconY = 40;
+        if (lines.length >= 3) iconY = Math.round((testY - 39 + y) / 2);
+
+        ctx.drawImage(assetsSS, iconInfo.x, iconInfo.y, iconInfo.w, iconInfo.h, 23, iconY, 32, 32);
+
+        ctx.fillStyle = "black";
+        for (let line of lines) {
+            await drawBitmaps(ctx, line, 74, y, 1, true);
+            y += lineHeight + (isCJ(line) ? 7 : 0);
+        }
+
+        let btnLeftSide = assets["btn-left-side"];
+        let btnMiddle = assets["btn-middle"];
+        let btnRightSide = assets["btn-right-side"];
+
+        let btnRecLeftSide = assets["btn-rec-left-side"];
+        let btnRecMiddle = assets["btn-rec-middle"];
+        let btnRecRightSide = assets["btn-rec-right-side"];
+
+        if (button1.name) {
+            if (!button2) {
+                const btn1TextWidthFixed = testBitmaps(button1.name, true, false, true);
+                let btn1TextWidth = btn1TextWidthFixed < 38 ? 38 : btn1TextWidthFixed;
+                let btnWidth = btn1TextWidth + 32;
+
+                let xToCenterText = Math.round((btnWidth - btn1TextWidthFixed) / 2);
+                let btnX = Math.round((canvas.width - btnWidth) / 2);
+
+                if (button1.rec) {
+                    ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX, canvas.height - 42, btnRecLeftSide.w, btnRecLeftSide.h);
+                    ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 5, canvas.height - 42, btnWidth - 8, 27);
+                    ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btnWidth - 4, canvas.height - 42, btnRecRightSide.w, btnRecRightSide.h);
+                } else {
+                    ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX, canvas.height - 42, btnLeftSide.w, btnLeftSide.h);
+                    ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 4, canvas.height - 42, btnWidth - 8, 27);
+                    ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + btnWidth - 4, canvas.height - 42, btnRightSide.w, btnRightSide.h);
+                }
+                if (button1.disabled) ctx.globalAlpha = 0.33;
+                await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 36, ctx.globalAlpha)
+                ctx.globalAlpha = 1;
+            }
+            if (button2 && !button3) {
+                const btn1TextWidthFixed = testBitmaps(button1.name, true, false, true);
+                let btn1TextWidth = btn1TextWidthFixed < 38 ? 38 : btn1TextWidthFixed;
+                let btn1Width = btn1TextWidth + 32;
+
+                const btn2TextWidthFixed = testBitmaps(button2.name, true, false, true);
+                let btn2TextWidth = btn2TextWidthFixed < 38 ? 38 : btn2TextWidthFixed;
+                let btn2Width = btn2TextWidth + 32;
+
+                let xToCenterText1 = Math.round((btn1Width - btn1TextWidthFixed) / 2);
+                let xToCenterText2 = Math.round((btn2Width - btn2TextWidthFixed) / 2);
+                let btnX = Math.round((canvas.width - btn1Width - btn2Width - 18) / 2);
+
+                if (button1.rec) {
+                    ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX, canvas.height - 42, btnRecLeftSide.w, btnRecLeftSide.h);
+                    ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 5, canvas.height - 42, btn1Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btn1Width - 4, canvas.height - 42, btnRecRightSide.w, btnRecRightSide.h);
+                } else {
+                    ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX, canvas.height - 42, btnLeftSide.w, btnLeftSide.h);
+                    ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 4, canvas.height - 42, btn1Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + btn1Width - 4, canvas.height - 42, btnRightSide.w, btnRightSide.h);
+                }
+                if (button1.disabled) ctx.globalAlpha = 0.33;
+                await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 36, ctx.globalAlpha)
+                ctx.globalAlpha = 1;
+
+                if (button2.rec) {
+                    ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX + 18 + btn1Width, canvas.height - 42, btnRecLeftSide.w, btnRecLeftSide.h);
+                    ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 18 + btn1Width + 5, canvas.height - 42, btn2Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + 18 + btn1Width + btn2Width - 4, canvas.height - 42, btnRecRightSide.w, btnRecRightSide.h);
+                } else {
+                    ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX + 18 + btn1Width, canvas.height - 42, btnLeftSide.w, btnLeftSide.h);
+                    ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 18 + btn1Width + 4, canvas.height - 42, btn2Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + 18 + btn1Width + btn2Width - 4, canvas.height - 42, btnRightSide.w, btnRightSide.h);
+                }
+                if (button2.disabled) ctx.globalAlpha = 0.33;
+                await drawBitmaps(ctx, button2.name, btnX + 18 + btn1Width + xToCenterText2, canvas.height - 36, ctx.globalAlpha)
+                ctx.globalAlpha = 1;
+            }
+            if (button3) {
+                const btn1TextWidthFixed = testBitmaps(button1.name, true, false, true);
+                let btn1TextWidth = btn1TextWidthFixed < 38 ? 38 : btn1TextWidthFixed;
+                let btn1Width = btn1TextWidth + 32;
+
+                const btn2TextWidthFixed = testBitmaps(button2.name, true, false, true);
+                let btn2TextWidth = btn2TextWidthFixed < 38 ? 38 : btn2TextWidthFixed;
+                let btn2Width = btn2TextWidth + 32;
+
+                const btn3TextWidthFixed = testBitmaps(button3.name, true, false, true);
+                let btn3TextWidth = btn3TextWidthFixed < 38 ? 38 : btn3TextWidthFixed;
+                let btn3Width = btn3TextWidth + 32;
+
+                let xToCenterText1 = Math.round((btn1Width - btn1TextWidthFixed) / 2);
+                let xToCenterText2 = Math.round((btn2Width - btn2TextWidthFixed) / 2);
+                let xToCenterText3 = Math.round((btn3Width - btn3TextWidthFixed) / 2);
+                let btnX = Math.round((canvas.width - btn1Width - btn2Width - btn3Width - 34) / 2);
+
+                if (button1.rec) {
+                    ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX, canvas.height - 42, btnRecLeftSide.w, btnRecLeftSide.h);
+                    ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 5, canvas.height - 42, btn1Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btn1Width - 4, canvas.height - 42, btnRecRightSide.w, btnRecRightSide.h);
+                } else {
+                    ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX, canvas.height - 42, btnLeftSide.w, btnLeftSide.h);
+                    ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 4, canvas.height - 42, btn1Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + btn1Width - 4, canvas.height - 42, btnRightSide.w, btnRightSide.h);
+                }
+                if (button1.disabled) ctx.globalAlpha = 0.33;
+                await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 36, ctx.globalAlpha)
+                ctx.globalAlpha = 1;
+
+                if (button2.rec) {
+                    ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX + 18 + btn1Width, canvas.height - 42, btnRecLeftSide.w, btnRecLeftSide.h);
+                    ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 18 + btn1Width + 5, canvas.height - 42, btn2Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + 18 + btn1Width + btn2Width - 4, canvas.height - 42, btnRecRightSide.w, btnRecRightSide.h);
+                } else {
+                    ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX + 18 + btn1Width, canvas.height - 42, btnLeftSide.w, btnLeftSide.h);
+                    ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 18 + btn1Width + 4, canvas.height - 42, btn2Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + 18 + btn1Width + btn2Width - 4, canvas.height - 42, btnRightSide.w, btnRightSide.h);
+                }
+                if (button2.disabled) ctx.globalAlpha = 0.33;
+                await drawBitmaps(ctx, button2.name, btnX + 18 + btn1Width + xToCenterText2, canvas.height - 36, ctx.globalAlpha)
+                ctx.globalAlpha = 1;
+
+
+
+                if (button3.rec) {
+                    ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX + 18 + btn2Width + 18 + btn1Width, canvas.height - 42, btnRecLeftSide.w, btnRecLeftSide.h);
+                    ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 18 + btn2Width + 18 + btn1Width + 5, canvas.height - 42, btn3Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + 18 + btn2Width + 18 + btn1Width + btn3Width - 4, canvas.height - 42, btnRecRightSide.w, btnRecRightSide.h);
+                } else {
+                    ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX + 18 + btn2Width + 18 + btn1Width, canvas.height - 42, btnLeftSide.w, btnLeftSide.h);
+                    ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 18 + btn2Width + 18 + btn1Width + 4, canvas.height - 42, btn3Width - 8, 27);
+                    ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + 18 + btn2Width + 18 + btn1Width + btn3Width - 4, canvas.height - 42, btnRightSide.w, btnRightSide.h);
+                }
+                if (button3.disabled) ctx.globalAlpha = 0.33;
+                await drawBitmaps(ctx, button3.name, btnX + 18 + btn2Width + 18 + btn1Width + xToCenterText3, canvas.height - 36, ctx.globalAlpha)
+                ctx.globalAlpha = 1;
+            }
+        }
+    }
+
+
+
+
+
     async function win31() {
         let vgasysr = fonts["vgasysr"]["bold"];
         title = title.replaceAll(" ", " ")
@@ -571,7 +901,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillRect(0, 19, canvas.width, 1);
 
         let iconY = 37;
-        if (lines.length >= 3) iconY = Math.round((lines.length / 2 * lineHeight) + 14);
+        if (lines.length >= 3) iconY = Math.round((testY - 39 + y) / 2);
 
         ctx.drawImage(assetsSS, iconInfo.x, iconInfo.y, iconInfo.w, iconInfo.h, 19, iconY, 32, 32);
 
@@ -4907,6 +5237,9 @@ async function createError(system, title, content, iconID, button1, button2, but
     switch (system) {
         case "win1":
             win1();
+            break;
+        case "win3":
+            win3();
             break;
         case "win31":
             win31();

@@ -255,6 +255,8 @@ textarea {
     image-rendering: pixelated;
     display: flex;
     padding: 16px;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .modal-space {
