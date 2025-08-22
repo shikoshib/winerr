@@ -27,5 +27,6 @@
     "win8only": "Тільки для Windows 8/8.1.",
     "win9xonly": "Тільки для Windows 95, 98 і 2000.",
     "dl-btn": "Скачати",
-    "attention": "Увага!"
+    "attention": "Увага!",
+    "took-time": "На генерацію знадобилося {{ms}} мс."
 }

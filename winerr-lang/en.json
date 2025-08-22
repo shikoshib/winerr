@@ -27,5 +27,6 @@
     "win8only": "Only for Windows 8/8.1.",
     "win9xonly": "Only for Windows 95, 98 and 2000.",
     "dl-btn": "Download",
-    "attention": "Warning!"
+    "attention": "Warning!",
+    "took-time": "Took {{ms}} ms to generate."
 }

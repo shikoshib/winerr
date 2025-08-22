@@ -50,7 +50,7 @@ router.get("/icons", (req, res) => {
     arr.forEach(s => {
         let obj = {
             "win1": "Windows 1.0",
-            "win31": "Windows 3.1",
+            "win31": "Windows 3.0/3.1",
             "win95": "Windows 95",
             "win98": "Windows 98",
             "win2k": "Windows 2000",

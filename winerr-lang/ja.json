@@ -11,7 +11,7 @@
     "btn-recommended": "推奨",
     "btn-generate": "生成！",
     "generating": "生成中...",
-    "done": "生成が完了しました！",
+    "done": "完了！",
     "color-picker": "色のピッカー",
     "x-dis": "Xボタンをオフにする",
     "frame-color": "フレームの色",
@@ -21,11 +21,12 @@
     "extracting-assets": "アセットを展開しています...",
     "gradient-primary": "原色",
     "gradient-sec": "二次色",
-    "please-wait": "待ってください...",
+    "please-wait": "お待ちください...",
     "init": "初期化中...",
     "settings": "追加設定:",
-    "win8only": "Windows 8/8.1のみ。",
-    "win9xonly": "Windows 95、98、2000のみ。",
+    "win8only": "Windows 8/8.1のみです。",
+    "win9xonly": "Windows 95、98、2000のみです。",
     "dl-btn": "ダウンロード",
-    "attention": "警告！"
+    "attention": "警告！",
+    "took-time": "生成処理に{{ms}}ミリ秒かかりました。"
 }
