@@ -134,10 +134,11 @@ let fonts = {};
 let systems = {};
 async function load() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    let savedVersion = localStorage.getItem("version");
+    let savedVersion = await idbKeyval.get("version");
     let gzipRes = '';
     let iconsGzip = "";
     let fontsGzip = "";
+    let sysInfoGzip = "";
 
     // Check if the last downloaded version matches the actual newest one.
     // If it does, start downloading an update. If it doesn't, just load
@@ -147,8 +148,7 @@ async function load() {
 
         // Send the request to start downloading resources
         const reqResources = await fetch("/resources");
-        reader = reqResources.body.getReader();
-
+        const reader = reqResources.body.getReader();
         let receivedLength = 0;
 
         // This loop over here tracks how much data was downloaded, and
@@ -167,98 +167,21 @@ async function load() {
             modalContent.innerHTML = `${loadingAssets.replace("...", "")}: ${(receivedLength / 1048576).toFixed(2)} MB / ${(iconsLength / 1048576).toFixed(2)} MB (${percentage}%)`;
         }
 
-        // Save various OS info to localStorage, because it
-        // doesn't take as much as space as icons
-        localStorage.setItem("sysInfo", gzipRes.split("~")[2]);
-        localStorage.setItem("version", version); // Save this too to track any available updates
-
-        // Considering that winerr is quite a versatile tool, it's
-        // obvious that I need to have a lot of icons and the size
-        // is gonna be huge. So I have to use IndexedDB to store
-        // icons. The limitations may vary depending on the browser,
-        // but for winerr, it's gonna do just fine.
         iconsGzip = gzipRes.split("~")[0];
         fontsGzip = gzipRes.split("~")[1];
-        const request = indexedDB.open("assetsdb", 1); // Create a database
+        sysInfoGzip = gzipRes.split("~")[2];
 
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            let objectStore = db.createObjectStore("assets");
-            objectStore.createIndex("assets", "assets"); // In short, create a space in the database to store assets in
-
-            objectStore.transaction.oncomplete = (event) => {
-                const objStore = db
-                    .transaction("assets", "readwrite")
-                    .objectStore("assets");
-                objStore.add(iconsGzip, "assets"); // Add the assets
-                objStore.add(fontsGzip, "fonts"); // Add the fonts
-            };
-        }
+        await idbKeyval.set("version", version);
+        await idbKeyval.set("sysInfo", sysInfoGzip);
+        await idbKeyval.set("assets", iconsGzip);
+        await idbKeyval.set("fonts", fontsGzip);
     } else {
         // No update available
-        async function loadIcons() {
-            return new Promise((resolve, reject) => {
-                // Load the existing database
-                const request = indexedDB.open("assetsdb");
-
-                request.onsuccess = function (event) {
-                    const db = event.target.result;
-
-                    // Load the space the assets are stored in
-                    const transaction = db.transaction(["assets"], "readonly");
-                    const objectStore = transaction.objectStore("assets");
-                    const getRequest = objectStore.get("assets");
-
-                    getRequest.onsuccess = function (event) {
-                        const gz = event.target.result;
-                        resolve(gz);
-                    };
-
-                    getRequest.onerror = function (event) {
-                        reject(event.target.error);
-                    };
-                };
-
-                request.onerror = function (event) {
-                    reject(event.target.error);
-                };
-            });
-        }
-
-        async function loadFonts() {
-            return new Promise((resolve, reject) => {
-                // Load the existing database
-                const request = indexedDB.open("assetsdb");
-
-                request.onsuccess = function (event) {
-                    const db = event.target.result;
-
-                    // Load the space the assets are stored in
-                    const transaction = db.transaction(["assets"], "readonly");
-                    const objectStore = transaction.objectStore("assets");
-                    const getRequest = objectStore.get("fonts");
-
-                    getRequest.onsuccess = function (event) {
-                        const gz = event.target.result;
-                        resolve(gz);
-                    };
-
-                    getRequest.onerror = function (event) {
-                        reject(event.target.error);
-                    };
-                };
-
-                request.onerror = function (event) {
-                    reject(event.target.error);
-                };
-            });
-        }
-
-        iconsGzip = await loadIcons();
-        fontsGzip = await loadFonts();
+        iconsGzip = await idbKeyval.get("assets");
+        fontsGzip = await idbKeyval.get("fonts");
+        sysInfoGzip = await idbKeyval.get("sysInfo");
     }
 
-    const sysInfoGzip = localStorage.getItem("sysInfo");
     const assetsObjGzip = iconsGzip;
     const fontsObjGzip = fontsGzip;
     modalContent.innerHTML = extractingAssets;
