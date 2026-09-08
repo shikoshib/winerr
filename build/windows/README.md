@@ -1,1 +1,1 @@
-Don't delete this folder, it'll be used for storing auto-created asset spritesheets
+Don't delete this folder, it will be used for storing automatically created asset spritesheets
