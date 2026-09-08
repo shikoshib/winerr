@@ -18,7 +18,7 @@
 
 ## Установка (Linux)
 ```bash
-# Встановлення Node.js та Git, якщо вони у вас не встановлені
+# Встановлення Node.js та Git, якщо у вас їх немає
 sudo apt update
 sudo apt install nodejs npm git
 
