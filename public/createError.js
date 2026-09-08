@@ -28,21 +28,8 @@ async function createError(system, title, content, iconID, button1, button2, but
     let iconSS;
     if (system == "win98") {
         iconSS = new Image();
-        await loadImageCallback(iconSS, assetsArray["win98"].src);
-        iconInfo = assetsArray["win98"].assets[`i-${iconID}`];
-    }
-
-    async function loadImage(ctx, i, x, y, w, h, a) {
-        let img = new Image();
-        img.src = i.startsWith("iVB") ? `data:image/png;base64,${i}` : i;
-        img.onload = () => {
-            if (!w) w = img.width;
-            if (!h) h = img.height;
-            ctx.save();
-            ctx.globalAlpha = !a ? 1 : a;
-            ctx.drawImage(img, x, y, w, h);
-            ctx.restore();
-        }
+        await loadImageCallback(iconSS, assetsArray.win98.src);
+        iconInfo = assetsArray.win98.assets[`i-${iconID}`];
     }
 
     let osToFixBtns = ["winvista", "win7", "win8", "win10", "win11"];
@@ -56,7 +43,6 @@ async function createError(system, title, content, iconID, button1, button2, but
             button2 = btn1;
         }
     }
-
 
     if (button2) {
         if (!button1.name && button2.name) {
@@ -81,15 +67,6 @@ async function createError(system, title, content, iconID, button1, button2, but
             button2 = null;
             button3 = null;
         }
-    }
-
-    function jpProcess(text) {
-        return text
-            .replaceAll("（", "(")
-            .replaceAll("）", ")")
-            .replaceAll("：", " : ")
-            .replaceAll("／", "/")
-            .replaceAll("・", " ∙ ");
     }
 
     function drawColorBitmap(ctx, spriteSheet, x, y, charsWidth, fillStyle, charData) {
@@ -135,8 +112,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         })
 
         content = content.replaceAll(" ", " ");
-        let chars = content.split("");
-        chars.forEach(char => {
+        content.split("").forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
             if (!arrayChar) content = content.replaceAll(char, "?");
@@ -148,12 +124,12 @@ async function createError(system, title, content, iconID, button1, button2, but
         const lineHeight = 16;
 
         let Fixedsys = new Image();
-        await loadImageCallback(Fixedsys, fonts["Fixedsys"]["bold"].src);
+        await loadImageCallback(Fixedsys, fonts.Fixedsys.bold.src);
 
         async function drawBitmaps(ctx, content, x, y, a) {
             let chars = content.split("");
             let charsWidth = 0;
-            let symbolsData = fonts["Fixedsys"]["bold"].info;
+            let symbolsData = fonts.Fixedsys.bold.info;
             for (const char of chars) {
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
@@ -239,7 +215,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        canvas = document.getElementById('canvas');
+        canvas = document.getElementById("canvas");
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         const ctx = canvas.getContext("2d");
@@ -268,7 +244,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let titleWidth = testBitmaps(title);
         if (titleWidth + 34 >= canvas.width) {
             let splittingChar = Math.round((canvas.width - 34) / 8);
-            title = `${title.slice(0, splittingChar)}…`
+            title = `${title.slice(0, splittingChar)}…`;
         }
 
         titleWidth = testBitmaps(title);
@@ -394,18 +370,38 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win3() {
-        let vgasysr = fonts["vgasysr"]["bold"];
-        title = title.replaceAll(" ", " ")
-        content = content.replaceAll(" ", " ")
-        let chars = content.split("");
-        chars.forEach(char => {
+        let vgasysr = fonts.vgasysr.bold;
+        title = title.replaceAll(" ", " ");
+        content = content.replaceAll(" ", " ");
+        content.split("").forEach(char => {
             if (char == "\n") return;
             let arrayChar = vgasysr.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) {
+            if (!arrayChar && !MSUIGothicRegex.test(char)) {
                 title = title.replaceAll(char, "?");
                 content = content.replaceAll(char, "?");
             }
         });
+
+        if (button1) {
+            button1.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            button2.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            button3.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let testY = 39;
         const lineHeight = 16;
@@ -416,9 +412,9 @@ async function createError(system, title, content, iconID, button1, button2, but
         let MSGothic;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MSUIGothicRegex.test(text)) {
                 MSGothic = new Image();
-                await loadImageCallback(MSGothic, fonts["MSGothic"]["regular"].src);
+                await loadImageCallback(MSGothic, fonts.MSGothic.regular.src);
                 break;
             } else {
                 continue;
@@ -430,12 +426,12 @@ async function createError(system, title, content, iconID, button1, button2, but
             let charsWidth = 0;
             let symbolsData;
             for (const char of chars) {
-                symbolsData = isCJ(char) ? fonts["MSGothic"]["regular"].info : vgasysr.info;
+                symbolsData = MSUIGothicRegex.test(char) ? fonts.MSGothic.regular.info : vgasysr.info;
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                drawColorBitmap(ctx, isCJ(char) ? MSGothic : vgasysrSS, x, y, charsWidth, ctx.fillStyle, charData);
+                drawColorBitmap(ctx, MSUIGothicRegex.test(char) ? MSGothic : vgasysrSS, x, y, charsWidth, ctx.fillStyle, charData);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + (isCJ(char) ? 2 : 1);
+                charsWidth += charData.w + (MSUIGothicRegex.test(char) ? 2 : 1);
             }
         }
 
@@ -477,7 +473,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight + (isCJ(line) ? 7 : 0);
+            testY += lineHeight + (MSUIGothicRegex.test(line) ? 7 : 0);
             const lineWidth = testBitmaps(line, true, false, true);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -528,7 +524,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        canvas = document.getElementById('canvas');
+        canvas = document.getElementById("canvas");
         canvas.width = canvasWidth + 10;
         canvas.height = canvasHeight + 9;
         const ctx = canvas.getContext("2d");
@@ -582,7 +578,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillStyle = "black";
         for (let line of lines) {
             await drawBitmaps(ctx, line, 74, y, 1, true);
-            y += lineHeight + (isCJ(line) ? 7 : 0);
+            y += lineHeight + (MSUIGothicRegex.test(line) ? 7 : 0);
         }
 
         let btnLeftSide = assets["btn-left-side"];
@@ -721,21 +717,42 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win31() {
-        let vgasysr = fonts["vgasysr"]["bold"];
+        let vgasysr = fonts.vgasysr.bold;
         title = title.replaceAll(" ", " ")
         title.split("").forEach(char => {
             let arrayChar = vgasysr.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "?");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) title = title.replaceAll(char, "?");
         });
 
-        let symbolCodes = fonts["MSSansSerif"]["bold"];
+        let symbolCodes = fonts.MSSansSerif.bold;
         content = content.replaceAll(" ", " ")
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "?");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) content = content.replaceAll(char, "?");
         })
+
+        if (button1) {
+            button1.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            button2.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            button3.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let x = 69;
         let testY = 39;
@@ -750,9 +767,9 @@ async function createError(system, title, content, iconID, button1, button2, but
         let MSGothic;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MSUIGothicRegex.test(text)) {
                 MSGothic = new Image();
-                await loadImageCallback(MSGothic, fonts["MSGothic"]["regular"].src);
+                await loadImageCallback(MSGothic, fonts.MSGothic.regular.src);
                 break;
             } else {
                 continue;
@@ -764,12 +781,12 @@ async function createError(system, title, content, iconID, button1, button2, but
             let charsWidth = 0;
             let symbolsData;
             for (const char of chars) {
-                symbolsData = isCJ(char) ? fonts["MSGothic"]["regular"].info : symbolCodes.info;
+                symbolsData = MSUIGothicRegex.test(char) ? fonts.MSGothic.regular.info : symbolCodes.info;
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
-                ctx.drawImage(isCJ(char) ? MSGothic : MSSansSerif, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
+                ctx.drawImage(MSUIGothicRegex.test(char) ? MSGothic : MSSansSerif, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y, charData.w, charData.h);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + (isCJ(char) ? 2 : 1);
+                charsWidth += charData.w + (MSUIGothicRegex.test(char) ? 2 : 1);
             }
         }
 
@@ -778,10 +795,10 @@ async function createError(system, title, content, iconID, button1, button2, but
             let charsWidth = 0;
             let symbolsData;
             for (const char of chars) {
-                symbolsData = isCJ(char) ? fonts["MSGothic"]["regular"].info : vgasysr.info;
+                symbolsData = MSUIGothicRegex.test(char) ? fonts.MSGothic.regular.info : vgasysr.info;
                 let charData = symbolsData[char.charCodeAt(0)];
-                drawColorBitmap(ctx, isCJ(char) ? MSGothic : vgasysrSS, x, y, charsWidth, "white", charData);
-                charsWidth += charData.w + (isCJ(char) ? 2 : 1);
+                drawColorBitmap(ctx, MSUIGothicRegex.test(char) ? MSGothic : vgasysrSS, x, y, charsWidth, "white", charData);
+                charsWidth += charData.w + (MSUIGothicRegex.test(char) ? 2 : 1);
             }
         }
 
@@ -823,7 +840,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight + (isCJ(line) ? 7 : 0);
+            testY += lineHeight + (MSUIGothicRegex.test(line) ? 7 : 0);
             const lineWidth = testBitmaps(line, true);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -874,7 +891,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        canvas = document.getElementById('canvas');
+        canvas = document.getElementById("canvas");
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         const ctx = canvas.getContext("2d");
@@ -907,7 +924,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x, y);
-            y += lineHeight + (isCJ(line) ? 7 : 0);
+            y += lineHeight + (MSUIGothicRegex.test(line) ? 7 : 0);
         }
 
         for (let i = 1; i <= title.length; i++) {
@@ -1058,20 +1075,41 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win9x() {
-        let symbolCodes = fonts["MSSansSerif"]["regular"];
-        title = jpProcess(title.replaceAll(" ", " "));
+        let symbolCodes = fonts.MSSansSerif.regular;
+        title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) title = title.replaceAll(char, "□");
         })
 
-        content = jpProcess(content.replaceAll(" ", " "));
+        content = content.replaceAll(" ", " ");
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) content = content.replaceAll(char, "□");
         })
+
+        if (button1) {
+            button1.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            button2.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            button3.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let x = 61;
         let testY = 33;
@@ -1082,13 +1120,13 @@ async function createError(system, title, content, iconID, button1, button2, but
         await loadImageCallback(MSSansSerif, symbolCodes.src);
 
         let MSSansSerifBold = new Image();
-        await loadImageCallback(MSSansSerifBold, fonts["MSSansSerif"]["bold"].src);
+        await loadImageCallback(MSSansSerifBold, fonts.MSSansSerif.bold.src);
 
         let MSUIGothic;
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MSUIGothicRegex.test(text)) {
                 MSUIGothic = new Image();
                 await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
 
@@ -1111,13 +1149,14 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
             let symbolsData;
             for (let char of chars) {
-                if (isCJ(char)) {
+                const fontface = MSUIGothicRegex.test(char) ? "MSUIGothic" : "MSSansSerif";
+                if (MSUIGothicRegex.test(char)) {
                     if (!isBold) {
                         spriteSheet = MSUIGothic;
-                        symbolsData = fonts["MSUIGothic"]["regular"].info;
+                        symbolsData = fonts.MSUIGothic.regular.info;
                     } else {
                         spriteSheet = MSUIGothicBold;
-                        symbolsData = fonts["MSUIGothic"]["bold"].info;
+                        symbolsData = fonts.MSUIGothic.bold.info;
                     }
                 } else {
                     if (isBold) {
@@ -1126,23 +1165,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                         spriteSheet = MSSansSerif;
                     }
 
-                    symbolsData = isBold ? fonts["MSSansSerif"]["bold"].info : fonts["MSSansSerif"]["regular"].info;
+                    symbolsData = isBold ? fonts.MSSansSerif.bold.info : fonts.MSSansSerif.regular.info;
                 }
+
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
 
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
                 if (whiteText) {
-                    drawColorBitmap(ctx, spriteSheet, x, y + (isCJ(char) ? 1 : 0), charsWidth, "white", charData);
+                    drawColorBitmap(ctx, spriteSheet, x, y + (MSUIGothicRegex.test(char) ? 1 : 0), charsWidth, "white", charData);
                 } else {
-                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth - preShift, y + (MSUIGothicRegex.test(char) ? 1 : 0), charData.w, charData.h);
                 }
 
                 ctx.globalAlpha = 1;
 
-                let punctuationOffset = 0;
-                if (char == "、") punctuationOffset = 5;
-                if (char == "。" || char == "々") punctuationOffset = 3;
-                charsWidth += charData.w + 1 + punctuationOffset;
+                charsWidth += charData.w + 1 - preShift + postShift;
             }
         }
 
@@ -1184,7 +1224,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight + (isCJ(line) ? 3 : 0);
+            testY += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -1240,7 +1280,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        canvas = document.getElementById('canvas');
+        canvas = document.getElementById("canvas");
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         const ctx = canvas.getContext("2d");
@@ -1253,7 +1293,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 1, y);
-            y += lineHeight + (isCJ(line) ? 3 : 0);
+            y += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);
         }
 
         let frameTop = assets["icon-frame-top"];
@@ -1294,7 +1334,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         await drawBitmaps(ctx, title, 6, 5, true)
         whiteText = false;
 
-        let crossImg = crossDisabled ? assets["cross-disabled"] : assets["cross"];
+        let crossImg = crossDisabled ? assets["cross-disabled"] : assets.cross;
         ctx.drawImage(assetsSS, crossImg.x, crossImg.y, crossImg.w, crossImg.h, canvas.width - 21, 5, crossImg.w, crossImg.h);
 
         let btnLeftSide = assets["btn-left-side"];
@@ -1319,20 +1359,20 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 3, canvas.height - 37, btnWidth - 7, btnRecMiddle.h);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btnWidth - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 32);
+                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 33);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 2, canvas.height - 37, btnWidth - 5, btnMiddle.h);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + btnWidth - 3, canvas.height - 37, btnRightSide.w, btnRightSide.h);
                     if (button1.disabled) {
                         whiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText + 1, canvas.height - 32);
                         whiteText = false;
                         ctx.globalAlpha = .32;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 32, false, ctx.globalAlpha);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 33, false, ctx.globalAlpha);
                         ctx.globalAlpha = 1;
                     } else {
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 32);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText, canvas.height - 33);
                     }
                 }
             }
@@ -1356,20 +1396,20 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 3, canvas.height - 37, btn1Width - 7, btnRecMiddle.h);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btn1Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32);
+                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 2, canvas.height - 37, btn1Width - 5, btnMiddle.h);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + btn1Width - 3, canvas.height - 37, btnRightSide.w, btnRightSide.h);
                     if (button1.disabled) {
                         whiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 32);
                         whiteText = false;
                         ctx.globalAlpha = .32;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33, false, ctx.globalAlpha);
                         ctx.globalAlpha = 1;
                     } else {
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33);
                     }
                 }
 
@@ -1377,20 +1417,20 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 5 + btn1Width + 3, canvas.height - 37, btn2Width - 7, btnRecMiddle.h);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX + 5 + btn1Width, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + 5 + btn1Width + btn2Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32);
+                    await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 33);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 5 + btn1Width + 2, canvas.height - 37, btn2Width - 5, btnMiddle.h);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX + 5 + btn1Width, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + 5 + btn1Width + btn2Width - 3, canvas.height - 37, btnRightSide.w, btnRightSide.h);
                     if (button2.disabled) {
                         whiteText = true;
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 32);
                         whiteText = false;
                         ctx.globalAlpha = .32;
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 33, false, ctx.globalAlpha);
                         ctx.globalAlpha = 1;
                     } else {
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 33);
                     }
                 }
             }
@@ -1419,20 +1459,20 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 3, canvas.height - 37, btn1Width - 7, btnRecMiddle.h);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + btn1Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32);
+                    await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 2, canvas.height - 37, btn1Width - 5, btnMiddle.h);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + btn1Width - 3, canvas.height - 37, btnRightSide.w, btnRightSide.h);
                     if (button1.disabled) {
                         whiteText = true;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1 + 1, canvas.height - 32);
                         whiteText = false;
                         ctx.globalAlpha = .32;
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32, false, ctx.globalAlpha);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33, false, ctx.globalAlpha);
                         ctx.globalAlpha = 1;
                     } else {
-                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 32);
+                        await drawBitmaps(ctx, button1.name, btnX + xToCenterText1, canvas.height - 33);
                     }
                 }
 
@@ -1440,20 +1480,20 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 5 + btn1Width + 3, canvas.height - 37, btn2Width - 7, btnRecMiddle.h);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX + 5 + btn1Width, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + 5 + btn1Width + btn2Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32);
+                    await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 33);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 5 + btn1Width + 2, canvas.height - 37, btn2Width - 5, btnMiddle.h);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX + 5 + btn1Width, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + 5 + btn1Width + btn2Width - 3, canvas.height - 37, btnRightSide.w, btnRightSide.h);
                     if (button2.disabled) {
                         whiteText = true;
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2 + 1, canvas.height - 32);
                         whiteText = false;
                         ctx.globalAlpha = .32;
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32, false, ctx.globalAlpha);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 33, false, ctx.globalAlpha);
                         ctx.globalAlpha = 1;
                     } else {
-                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 32);
+                        await drawBitmaps(ctx, button2.name, btnX + 5 + btn1Width + xToCenterText2, canvas.height - 33);
                     }
                 }
 
@@ -1461,20 +1501,20 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, btnX + 10 + btn1Width + btn2Width + 3, canvas.height - 37, btn3Width - 7, btnRecMiddle.h);
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, btnX + 10 + btn1Width + btn2Width, canvas.height - 37, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, btnX + 10 + btn1Width + btn2Width + btn3Width - 4, canvas.height - 37, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 32);
+                    await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 33);
                 } else {
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, btnX + 10 + btn1Width + btn2Width + 2, canvas.height - 37, btn3Width - 5, btnMiddle.h);
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, btnX + 10 + btn1Width + btn2Width, canvas.height - 37, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, btnX + 10 + btn1Width + btn2Width + btn3Width - 3, canvas.height - 37, btnRightSide.w, btnRightSide.h);
                     if (button3.disabled) {
                         whiteText = true;
-                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3 + 1, canvas.height - 31);
+                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3 + 1, canvas.height - 32);
                         whiteText = false;
                         ctx.globalAlpha = .32;
-                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 32, false, ctx.globalAlpha);
+                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 33, false, ctx.globalAlpha);
                         ctx.globalAlpha = 1;
                     } else {
-                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 32);
+                        await drawBitmaps(ctx, button3.name, btnX + 10 + btn1Width + btn2Width + xToCenterText3, canvas.height - 33);
                     }
                 }
             }
@@ -1484,20 +1524,41 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win2k() {
-        let symbolCodes = fonts["Tahoma"]["regular"];
-        title = jpProcess(title.replaceAll(" ", " "));
+        let symbolCodes = fonts.Tahoma.regular;
+        title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□")
+            if (!arrayChar && !MSUIGothicRegex.test(char)) title = title.replaceAll(char, "□");
         })
 
-        content = jpProcess(content.replaceAll(" ", " "));
+        content = content.replaceAll(" ", " ");
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□")
+            if (!arrayChar && !MSUIGothicRegex.test(char)) content = content.replaceAll(char, "□");
         })
+
+        if (button1) {
+            button1.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            button2.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            button3.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let whiteText = false;
 
@@ -1505,18 +1566,18 @@ async function createError(system, title, content, iconID, button1, button2, but
         await loadImageCallback(Tahoma, symbolCodes.src);
 
         let TahomaBold = new Image();
-        await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"].src);
+        await loadImageCallback(TahomaBold, fonts.Tahoma.bold.src);
 
         let MSUIGothic;
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MSUIGothicRegex.test(text)) {
                 MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
+                await loadImageCallback(MSUIGothic, fonts.MSUIGothic.regular.src);
 
                 MSUIGothicBold = new Image();
-                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"].src);
+                await loadImageCallback(MSUIGothicBold, fonts.MSUIGothic.bold.src);
                 break;
             } else {
                 continue;
@@ -1534,13 +1595,14 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
             let symbolsData;
             for (let char of chars) {
-                if (isCJ(char)) {
+                const fontface = MSUIGothicRegex.test(char) ? "MSUIGothic" : "Tahoma";
+                if (MSUIGothicRegex.test(char)) {
                     if (!isBold) {
                         spriteSheet = MSUIGothic;
-                        symbolsData = fonts["MSUIGothic"]["regular"].info;
+                        symbolsData = fonts.MSUIGothic.regular.info;
                     } else {
                         spriteSheet = MSUIGothicBold;
-                        symbolsData = fonts["MSUIGothic"]["bold"].info;
+                        symbolsData = fonts.MSUIGothic.bold.info;
                     }
                 } else {
                     if (isBold) {
@@ -1549,24 +1611,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                         spriteSheet = Tahoma;
                     }
 
-                    symbolsData = isBold ? fonts["Tahoma"]["bold"].info : fonts["Tahoma"]["regular"].info;
+                    symbolsData = isBold ? fonts.Tahoma.bold.info : fonts.Tahoma.regular.info;
                 }
 
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
 
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
                 if (whiteText) {
-                    drawColorBitmap(ctx, spriteSheet, x, y + (isCJ(char) ? 1 : 0), charsWidth, "white", charData);
+                    drawColorBitmap(ctx, spriteSheet, x, y + (MSUIGothicRegex.test(char) ? 1 : 0), charsWidth, "white", charData);
                 } else {
-                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth - preShift, y + (MSUIGothicRegex.test(char) ? 1 : 0), charData.w, charData.h);
                 }
 
                 ctx.globalAlpha = 1;
 
-                let punctuationOffset = 0;
-                if (char == "、") punctuationOffset = 5;
-                if (char == "。" || char == "々") punctuationOffset = 3;
-                charsWidth += charData.w + 1 + punctuationOffset;
+                charsWidth += charData.w + 1 - preShift + postShift;
             }
         }
 
@@ -1612,7 +1674,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight + (isCJ(line) ? 3 : 0);
+            testY += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -1661,7 +1723,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        canvas = document.getElementById('canvas');
+        canvas = document.getElementById("canvas");
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
         const ctx = canvas.getContext("2d");
@@ -1700,7 +1762,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 2, y + 2);
-            y += lineHeight + (isCJ(line) ? 3 : 0);;
+            y += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);;
         }
 
         for (let i = 1; i <= title.length; i++) {
@@ -1715,7 +1777,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         await drawBitmaps(ctx, title, 5, 5, true);
         whiteText = false;
 
-        let crossImgSrc = crossDisabled ? assets["cross-disabled"] : assets["cross"];
+        let crossImgSrc = crossDisabled ? assets["cross-disabled"] : assets.cross;
         ctx.drawImage(assetsSS, crossImgSrc.x, crossImgSrc.y, crossImgSrc.w, crossImgSrc.h, canvas.width - 21, 5, crossImgSrc.w, crossImgSrc.h);
 
         let btnLeftSide = assets["btn-left-side"];
@@ -1907,37 +1969,57 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function winwh() {
-        let symbolCodes = fonts["Tahoma"]["regular"];
-        title = jpProcess(title.replaceAll(" ", " "));
+        let symbolCodes = fonts.Tahoma.regular;
+        title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) title = title.replaceAll(char, "□");
         })
 
-        content = jpProcess(content.replaceAll(" ", " "));
-        let chars = content.split("");
-        chars.forEach(char => {
+        content = content.replaceAll(" ", " ");
+        content.split("").forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) content = content.replaceAll(char, "□");
         })
+
+        if (button1) {
+            button1.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            button2.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            button3.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let Tahoma = new Image();
         await loadImageCallback(Tahoma, symbolCodes.src);
 
         let TahomaBold = new Image();
-        await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"].src);
+        await loadImageCallback(TahomaBold, fonts.Tahoma.bold.src);
 
         let MSUIGothic;
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MSUIGothicRegex.test(text)) {
                 MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
+                await loadImageCallback(MSUIGothic, fonts.MSUIGothic.regular.src);
 
                 MSUIGothicBold = new Image();
-                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"].src);
+                await loadImageCallback(MSUIGothicBold, fonts.MSUIGothic.bold.src);
                 break;
             } else {
                 continue;
@@ -1955,13 +2037,14 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
             let symbolsData;
             for (let char of chars) {
-                if (isCJ(char)) {
+                const fontface = MSUIGothicRegex.test(char) ? "MSUIGothic" : "Tahoma";
+                if (MSUIGothicRegex.test(char)) {
                     if (!isBold) {
                         spriteSheet = MSUIGothic;
-                        symbolsData = fonts["MSUIGothic"]["regular"].info;
+                        symbolsData = fonts.MSUIGothic.regular.info;
                     } else {
                         spriteSheet = MSUIGothicBold;
-                        symbolsData = fonts["MSUIGothic"]["bold"].info;
+                        symbolsData = fonts.MSUIGothic.bold.info;
                     }
                 } else {
                     if (isBold) {
@@ -1970,24 +2053,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                         spriteSheet = Tahoma;
                     }
 
-                    symbolsData = isBold ? fonts["Tahoma"]["bold"].info : fonts["Tahoma"]["regular"].info;
+                    symbolsData = isBold ? fonts.Tahoma.bold.info : fonts.Tahoma.regular.info;
                 }
 
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
 
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
                 if (whiteText) {
-                    drawColorBitmap(ctx, spriteSheet, x, y + (isCJ(char) ? 1 : 0), charsWidth, "white", charData);
+                    drawColorBitmap(ctx, spriteSheet, x, y + (MSUIGothicRegex.test(char) ? 1 : 0), charsWidth, "white", charData);
                 } else {
-                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth - preShift, y + (MSUIGothicRegex.test(char) ? 1 : 0), charData.w, charData.h);
                 }
 
                 ctx.globalAlpha = 1;
 
-                let punctuationOffset = 0;
-                if (char == "、") punctuationOffset = 5;
-                if (char == "。" || char == "々") punctuationOffset = 3;
-                charsWidth += charData.w + 1 + punctuationOffset;
+                charsWidth += charData.w + 1 - preShift + postShift;
             }
         }
 
@@ -2035,7 +2118,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight + (isCJ(line) ? 3 : 0);
+            testY += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -2109,7 +2192,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let frameBottomLeft = assets["frame-bottom-left-corner"];
         let frameBottomRight = assets["frame-bottom-right-corner"];
         let frameBottom = assets["frame-bottom"];
-        let rectangles = assets["rectangles"];
+        let rectangles = assets.rectangles;
         let comments = assets[crossDisabled ? "frame-middle-comments-no-cross" : "frame-middle-comments"];
 
         ctx.drawImage(assetsSS, frameLeftCorner.x, frameLeftCorner.y, frameLeftCorner.w, frameLeftCorner.h, 0, 0, frameLeftCorner.w, frameLeftCorner.h);
@@ -2147,7 +2230,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 2, y + 2);
-            y += lineHeight + (isCJ(line) ? 3 : 0);
+            y += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);
         }
 
         let btnLeftSide = assets["btn-left-side"];
@@ -2338,21 +2421,42 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function winxp() {
-        let TMSCodes = fonts["TrebuchetMS"]["bold"];
-        title = jpProcess(title.replaceAll(" ", " "));
+        let TMSCodes = fonts.TrebuchetMS.bold;
+        title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = TMSCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) title = title.replaceAll(char, "□");
         })
 
-        let symbolCodes = fonts["Tahoma"]["regular"];
-        content = jpProcess(content.replaceAll(" ", " "));
+        let symbolCodes = fonts.Tahoma.regular;
+        content = content.replaceAll(" ", " ");
         let chars = content.split("");
         chars.forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) content = content.replaceAll(char, "□");
         })
+
+        if (button1) {
+            button1.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            button2.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            button3.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let x = 63;
         let testY = 41;
@@ -2368,12 +2472,12 @@ async function createError(system, title, content, iconID, button1, button2, but
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MSUIGothicRegex.test(text)) {
                 MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
+                await loadImageCallback(MSUIGothic, fonts.MSUIGothic.regular.src);
 
                 MSUIGothicBold = new Image();
-                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"].src);
+                await loadImageCallback(MSUIGothicBold, fonts.MSUIGothic.bold.src);
                 break;
             } else {
                 continue;
@@ -2383,25 +2487,20 @@ async function createError(system, title, content, iconID, button1, button2, but
         async function drawBitmaps(ctx, content, x, y, a) {
             let chars = content.split("");
             let charsWidth = 0;
-            let spriteSheet = Tahoma;
-            let symbolsData = symbolCodes.info;
             for (let char of chars) {
-                if (isCJ(char)) {
-                    spriteSheet = MSUIGothic;
-                    symbolsData = fonts["MSUIGothic"]["regular"].info;
-                } else {
-                    spriteSheet = Tahoma;
-                    symbolsData = symbolCodes.info;
-                }
+                const fontface = MSUIGothicRegex.test(char) ? "MSUIGothic" : "Tahoma";
+                let spriteSheet = MSUIGothicRegex.test(char) ? MSUIGothic : Tahoma;
+                let symbolsData = fonts[fontface].regular.info;
                 let charData = symbolsData[char.charCodeAt(0)];
+
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
                 ctx.globalAlpha = a;
-                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+                ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth - preShift, y + (MSUIGothicRegex.test(char) ? 1 : 0), charData.w, charData.h);
                 ctx.globalAlpha = 1;
 
-                let punctuationOffset = 0;
-                if (char == "、") punctuationOffset = 5;
-                if (char == "。" || char == "々") punctuationOffset = 3;
-                charsWidth += charData.w + 1 + punctuationOffset;
+                charsWidth += charData.w + 1 - preShift + postShift;
             }
         }
 
@@ -2443,7 +2542,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight + (isCJ(line) ? 3 : 0);
+            testY += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -2537,25 +2636,22 @@ async function createError(system, title, content, iconID, button1, button2, but
             let spriteSheet;
             let symbolsData;
             for (const char of chars) {
-                if (isCJ(char)) {
+                if (MSUIGothicRegex.test(char)) {
                     spriteSheet = MSUIGothicBold;
-                    symbolsData = fonts["MSUIGothic"]["bold"].info;
+                    symbolsData = fonts.MSUIGothic.bold.info;
                 } else {
                     spriteSheet = TrebuchetMS;
                     symbolsData = TMSCodes.info;
                 }
 
                 let charData = symbolsData[char.charCodeAt(0)];
-                let yOffset = isCJ(char) ? 3 : 0;
-                let xOffset = isCJ(char) ? 1 : 0;
+                let yOffset = MSUIGothicRegex.test(char) ? 3 : 0;
+                let xOffset = MSUIGothicRegex.test(char) ? 1 : 0;
 
                 drawColorBitmap(ctx, spriteSheet, x + xOffset + 1, y + yOffset + 1, charsWidth, "#0a1883", charData);
                 drawColorBitmap(ctx, spriteSheet, x + xOffset, y + yOffset, charsWidth, "white", charData);
 
-                let punctuationOffset = 0;
-                if (char == "、") punctuationOffset = 5;
-                if (char == "。" || char == "々") punctuationOffset = 3;
-                charsWidth += charData.w + 1 + punctuationOffset;
+                charsWidth += charData.w + 1;
             }
         }
 
@@ -2569,7 +2665,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 2, y - 3);
-            y += lineHeight + (isCJ(line) ? 3 : 0);
+            y += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);
         }
         await drawTitle(ctx, title, 7, 7);
 
@@ -2755,20 +2851,40 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function winlh() {
-        let symbolCodes = fonts["Tahoma"]["regular"];
-        title = jpProcess(title.replaceAll(" ", " "));
+        let symbolCodes = fonts.Tahoma.regular;
+        title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) title = title.replaceAll(char, "□");
         })
 
-        content = jpProcess(content.replaceAll(" ", " "));
-        let chars = content.split("");
-        chars.forEach(char => {
+        content = content.replaceAll(" ", " ");
+        content.split("").forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
+            if (!arrayChar && !MSUIGothicRegex.test(char)) content = content.replaceAll(char, "□");
         })
+
+        if (button1) {
+            button1.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            button2.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            button3.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MSUIGothicRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let whiteText = false;
 
@@ -2776,7 +2892,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         await loadImageCallback(Tahoma, symbolCodes.src);
 
         let TahomaBold = new Image();
-        await loadImageCallback(TahomaBold, fonts["Tahoma"]["bold"].src);
+        await loadImageCallback(TahomaBold, fonts.Tahoma.bold.src);
 
         let testCanvas = document.getElementById("test-canvas");
         const testCtx = testCanvas.getContext("2d");
@@ -2785,12 +2901,12 @@ async function createError(system, title, content, iconID, button1, button2, but
         let MSUIGothicBold;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MSUIGothicRegex.test(text)) {
                 MSUIGothic = new Image();
-                await loadImageCallback(MSUIGothic, fonts["MSUIGothic"]["regular"].src);
+                await loadImageCallback(MSUIGothic, fonts.MSUIGothic.regular.src);
 
                 MSUIGothicBold = new Image();
-                await loadImageCallback(MSUIGothicBold, fonts["MSUIGothic"]["bold"].src);
+                await loadImageCallback(MSUIGothicBold, fonts.MSUIGothic.bold.src);
                 break;
             } else {
                 continue;
@@ -2808,13 +2924,14 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
             let symbolsData;
             for (let char of chars) {
-                if (isCJ(char)) {
+                const fontface = MSUIGothicRegex.test(char) ? "MSUIGothic" : "Tahoma";
+                if (MSUIGothicRegex.test(char)) {
                     if (!isBold) {
                         spriteSheet = MSUIGothic;
-                        symbolsData = fonts["MSUIGothic"]["regular"].info;
+                        symbolsData = fonts.MSUIGothic.regular.info;
                     } else {
                         spriteSheet = MSUIGothicBold;
-                        symbolsData = fonts["MSUIGothic"]["bold"].info;
+                        symbolsData = fonts.MSUIGothic.bold.info;
                     }
                 } else {
                     if (isBold) {
@@ -2823,24 +2940,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                         spriteSheet = Tahoma;
                     }
 
-                    symbolsData = isBold ? fonts["Tahoma"]["bold"].info : fonts["Tahoma"]["regular"].info;
+                    symbolsData = isBold ? fonts.Tahoma.bold.info : fonts.Tahoma.regular.info;
                 }
 
                 let charData = symbolsData[char.charCodeAt(0)];
                 ctx.globalAlpha = a;
 
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
                 if (whiteText) {
-                    drawColorBitmap(ctx, spriteSheet, x, y + (isCJ(char) ? 1 : 0), charsWidth, "white", charData);
+                    drawColorBitmap(ctx, spriteSheet, x, y + (MSUIGothicRegex.test(char) ? 1 : 0), charsWidth, "white", charData);
                 } else {
-                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth, y + (isCJ(char) ? 1 : 0), charData.w, charData.h);
+                    ctx.drawImage(spriteSheet, charData.x, charData.y, charData.w, charData.h, x + charsWidth - preShift, y + (MSUIGothicRegex.test(char) ? 1 : 0), charData.w, charData.h);
                 }
 
                 ctx.globalAlpha = 1;
 
-                let punctuationOffset = 0;
-                if (char == "、") punctuationOffset = 5;
-                if (char == "。" || char == "々") punctuationOffset = 3;
-                charsWidth += charData.w + 1 + punctuationOffset;
+                charsWidth += charData.w + 1 - preShift + postShift;
             }
         }
 
@@ -2886,7 +3003,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         let longestLineW = 0;
 
         for (let line of lines) {
-            testY += lineHeight + (isCJ(line) ? 3 : 0);
+            testY += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);
             const lineWidth = testBitmaps(line);
             if (lineWidth >= longestLineW) {
                 longestLineW = lineWidth;
@@ -2996,7 +3113,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         whiteText = false;
         for (let line of lines) {
             await drawBitmaps(ctx, line, x + 2, y + 2);
-            y += lineHeight + (isCJ(line) ? 3 : 0);
+            y += lineHeight + (MSUIGothicRegex.test(line) ? 3 : 0);
         }
 
         let btnLeft = assets["btn-left-side"];
@@ -3194,30 +3311,53 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function winvista() {
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
+        let symbolCodes = fonts.SegoeUI_9pt.regular;
         title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
+            if (!arrayChar && !MeiryoRegex.test(char)) title = title.replaceAll(char, "□");
         })
 
         content = content.replaceAll(" ", " ");
-        let chars = content.split("");
-        chars.forEach(char => {
+        content.split("").forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
+            if (!arrayChar && !MeiryoRegex.test(char)) content = content.replaceAll(char, "□");
         })
+
+        if (button1) {
+            button1.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            button2.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            button3.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let SegoeUI = new Image();
         await loadImageCallback(SegoeUI, symbolCodes.src);
 
+        let SegoeUITransparent = new Image();
+        await loadImageCallback(SegoeUITransparent, fonts.SegoeUI_9pt.transparent.src);
+
         let Meiryo;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MeiryoRegex.test(text)) {
                 Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
+                await loadImageCallback(Meiryo, fonts.Meiryo.regular.src);
                 break;
             } else {
                 continue;
@@ -3225,31 +3365,32 @@ async function createError(system, title, content, iconID, button1, button2, but
         }
 
         iconSS = new Image();
-        await loadImageCallback(iconSS, assetsArray["win7"].src);
-        iconInfo = assetsArray["win7"].assets[`i-${iconID}`];
+        await loadImageCallback(iconSS, assetsArray.win7.src);
+        iconInfo = assetsArray.win7.assets[`i-${iconID}`];
 
-        async function drawBitmaps(ctx, content, x, y, a) {
+        async function drawBitmaps(ctx, content, x, y, a, clearType = true) {
+            const bitmaps = [];
             let chars = content.split("");
             let charsWidth = 0;
             for (const char of chars) {
-                let spriteSheet = isCJ(char) ? Meiryo : SegoeUI;
-                let symbolsData = isCJ(char) ? fonts["Meiryo"]["regular"] : symbolCodes;
+                const fontface = MeiryoRegex.test(char) ? "Meiryo" : "SegoeUI_9pt";
+                let spriteSheet = MeiryoRegex.test(char) ? Meiryo : (clearType ? SegoeUI : SegoeUITransparent);
+                let symbolsData = MeiryoRegex.test(char) ? fonts.Meiryo.regular : symbolCodes;
                 let charData = symbolsData.info[char.charCodeAt(0)];
-                let xOffset = isCJ(char) ? 2 : 0;
-                let yOffset = isCJ(char) ? -1 : 0;
+                let yOffset = MeiryoRegex.test(char) ? -1 : 0;
+
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
+                bitmaps.push([spriteSheet, charData.x, charData.y, charData.w, charData.ah || charData.h, x + charsWidth - preShift, y + yOffset]);
+                charsWidth += charData.w - preShift + postShift;
+            }
+
+            for (let i = bitmaps.length - 1; i >= 0; i--) {
                 ctx.globalAlpha = a;
-                ctx.drawImage(
-                    spriteSheet,
-                    charData.x,
-                    charData.y,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16,
-                    x + charsWidth + xOffset,
-                    y + yOffset,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16);
+                const b = bitmaps[i];
+                ctx.drawImage(b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[3], b[4]);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
@@ -3410,7 +3551,7 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        await drawBitmaps(ctx, title, 9, 10);
+        await drawBitmaps(ctx, title, 9, 10, 1, false);
 
         let btnLeftSide = assets["btn-left-side"];
         let btnMiddle = assets["btn-middle"];
@@ -3434,25 +3575,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (textWidth < 56) textWidth = 56;
 
                 let btnWidth = textWidth + 10;
-                let xToCenterText = Math.round((btnWidth - textWidthFixed) / 2) + 1;
+                let xToCenterText = Math.round((btnWidth - textWidthFixed) / 2) + 2;
 
                 if (button1.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 22 - btnWidth, canvas.height - 39, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 22 - btnWidth + 2, canvas.height - 39, textWidth + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 12 - btnWidth + textWidth, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btnWidth + xToCenterText, canvas.height - 36, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btnWidth + xToCenterText, canvas.height - 36, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 22 - btnWidth, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 22 - btnWidth + 3, canvas.height - 39, textWidth + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 12 - btnWidth + textWidth, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btnWidth + xToCenterText, canvas.height - 36);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btnWidth + xToCenterText, canvas.height - 36, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 22 - btnWidth, canvas.height - 39, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 22 - btnWidth + 3, canvas.height - 39, textWidth + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 12 - btnWidth + textWidth, canvas.height - 39, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btnWidth + xToCenterText, canvas.height - 36);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btnWidth + xToCenterText, canvas.height - 36, 1, false);
                 }
             }
 
@@ -3462,25 +3603,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text1Width < 56) text1Width = 56;
 
                 let btn1Width = text1Width + 10;
-                let xToCenterText1 = Math.round((btn1Width - text1WidthFixed) / 2) + 1;
+                let xToCenterText1 = Math.round((btn1Width - text1WidthFixed) / 2) + 2;
 
                 if (button1.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 22 - btn1Width, canvas.height - 39, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 22 - btn1Width + 2, canvas.height - 39, text1Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 22 - btn1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 22 - btn1Width, canvas.height - 39, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36, 1, false);
                 }
 
                 const text2WidthFixed = testBitmaps(button2.name);
@@ -3488,25 +3629,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text2Width < 56) text2Width = 56;
 
                 let btn2Width = text2Width + 10;
-                let xToCenterText2 = Math.round((btn2Width - text2WidthFixed) / 2) + 1;
+                let xToCenterText2 = Math.round((btn2Width - text2WidthFixed) / 2) + 2;
 
                 if (button2.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 22 - btn2Width - 8 - btn1Width + 2, canvas.height - 39, text2Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button2.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 22 - btn2Width - 8 - btn1Width + 3, canvas.height - 39, text2Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 22 - btn2Width - 8 - btn1Width + 3, canvas.height - 39, text2Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36, 1, false);
                 }
             }
 
@@ -3516,25 +3657,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text1Width < 56) text1Width = 56;
 
                 let btn1Width = text1Width + 10;
-                let xToCenterText1 = Math.round((btn1Width - text1WidthFixed) / 2) + 1;
+                let xToCenterText1 = Math.round((btn1Width - text1WidthFixed) / 2) + 2;
 
                 if (button1.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 22 - btn1Width, canvas.height - 39, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 22 - btn1Width + 2, canvas.height - 39, text1Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 22 - btn1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 22 - btn1Width, canvas.height - 39, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 22 - btn1Width + 3, canvas.height - 39, text1Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 12 - btn1Width + text1Width, canvas.height - 39, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 23 - btn1Width + xToCenterText1, canvas.height - 36, 1, false);
                 }
 
                 const text2WidthFixed = testBitmaps(button2.name);
@@ -3542,25 +3683,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text2Width < 56) text2Width = 56;
 
                 let btn2Width = text2Width + 10;
-                let xToCenterText2 = Math.round((btn2Width - text2WidthFixed) / 2) + 1;
+                let xToCenterText2 = Math.round((btn2Width - text2WidthFixed) / 2) + 2;
 
                 if (button2.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 22 - btn2Width - 8 - btn1Width + 2, canvas.height - 39, text2Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button2.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 22 - btn2Width - 8 - btn1Width + 3, canvas.height - 39, text2Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 22 - btn2Width - 8 - btn1Width, canvas.height - 39, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 22 - btn2Width - 8 - btn1Width + 3, canvas.height - 39, text2Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 12 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 39, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 23 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 36, 1, false);
                 }
 
                 const text3WidthFixed = testBitmaps(button3.name);
@@ -3568,25 +3709,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text3Width < 56) text3Width = 56;
 
                 let btn3Width = text3Width + 10;
-                let xToCenterText3 = Math.round((btn3Width - text3WidthFixed) / 2);
+                let xToCenterText3 = Math.round((btn3Width - text3WidthFixed) / 2) + 2;
 
                 if (button3.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 22 - btn3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 39, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 22 - btn3Width - 8 - btn1Width - 8 - btn2Width + 2, canvas.height - 39, text3Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 12 - btn3Width + text3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button3.name, canvas.width - 23 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 36, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 23 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 36, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button3.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 22 - btn3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 22 - btn3Width - 8 - btn1Width - 8 - btn2Width + 3, canvas.height - 39, text3Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 12 - btn3Width + text3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
-                    await drawBitmaps(ctx, button3.name, canvas.width - 23 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 36);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 23 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 36, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 22 - btn3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 39, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 22 - btn3Width - 8 - btn1Width - 8 - btn2Width + 3, canvas.height - 39, text3Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 12 - btn3Width + text3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 39, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button3.name, canvas.width - 23 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 36);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 23 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 36, 1, false);
                 }
             }
         }
@@ -3596,61 +3737,83 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win7() {
-        let testCanvas = document.getElementById("test-canvas");
-        const testCtx = testCanvas.getContext("2d");
-
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
+        let symbolCodes = fonts.SegoeUI_9pt.regular;
         title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
+            if (!arrayChar && !MeiryoRegex.test(char)) title = title.replaceAll(char, "□");
         })
 
         content = content.replaceAll(" ", " ");
-        let chars = content.split("");
-        chars.forEach(char => {
+        content.split("").forEach(char => {
             if (char == "\n") return;
             let arrayChar = symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
+            if (!arrayChar && !MeiryoRegex.test(char)) content = content.replaceAll(char, "□");
         })
+
+        if (button1) {
+            button1.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            button2.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            button3.name.split("").forEach(char => {
+                let arrayChar = symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let SegoeUI = new Image();
         await loadImageCallback(SegoeUI, symbolCodes.src);
 
+        let SegoeUITransparent = new Image();
+        await loadImageCallback(SegoeUITransparent, fonts.SegoeUI_9pt.transparent.src);
+
         let Meiryo;
 
         for (const text of [title, content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MeiryoRegex.test(text)) {
                 Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
+                await loadImageCallback(Meiryo, fonts.Meiryo.regular.src);
                 break;
             } else {
                 continue;
             }
         }
 
-        async function drawBitmaps(ctx, content, x, y, a) {
+        async function drawBitmaps(ctx, content, x, y, a, clearType = true) {
+            const bitmaps = [];
             let chars = content.split("");
             let charsWidth = 0;
             for (const char of chars) {
-                let spriteSheet = isCJ(char) ? Meiryo : SegoeUI;
-                let symbolsData = isCJ(char) ? fonts["Meiryo"]["regular"] : symbolCodes;
+                const fontface = MeiryoRegex.test(char) ? "Meiryo" : "SegoeUI_9pt";
+                let spriteSheet = MeiryoRegex.test(char) ? Meiryo : (clearType ? SegoeUI : SegoeUITransparent);
+                let symbolsData = MeiryoRegex.test(char) ? fonts.Meiryo.regular : symbolCodes;
                 let charData = symbolsData.info[char.charCodeAt(0)];
-                let xOffset = isCJ(char) ? 2 : 0;
-                let yOffset = isCJ(char) ? -1 : 0;
+                let yOffset = 0;
+                if (MeiryoRegex.test(char)) yOffset = y != (canvas.height - 54) ? -2 : -1;
+
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
+                bitmaps.push([spriteSheet, charData.x, charData.y, charData.w, charData.ah || charData.h, x + charsWidth - preShift - (MeiryoRegex.test(char) ? 1 : 0), y + yOffset]);
+                charsWidth += charData.w - preShift + postShift;
+            }
+
+            for (let i = bitmaps.length - 1; i >= 0; i--) {
                 ctx.globalAlpha = a;
-                ctx.drawImage(
-                    spriteSheet,
-                    charData.x,
-                    charData.y,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16,
-                    x + charsWidth + xOffset,
-                    y + yOffset,
-                    isCJ(char) ? charData.w : 18,
-                    isCJ(char) ? charData.h : 16);
+                const b = bitmaps[i];
+                ctx.drawImage(b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[3], b[4]);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
@@ -3777,7 +3940,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.drawImage(assetsSS, aeroRightDark.x, aeroRightDark.y, aeroRightDark.w, aeroRightDark.h, canvas.width - 25, canvas.height - 75, aeroRightDark.w, aeroRightDark.h);
         ctx.drawImage(assetsSS, aeroBottomLeft.x, aeroBottomLeft.y, aeroBottomLeft.w, aeroBottomLeft.h, 0, canvas.height - 26, aeroBottomLeft.w, aeroBottomLeft.h);
         ctx.drawImage(assetsSS, aeroBottomRight.x, aeroBottomRight.y, aeroBottomRight.w, aeroBottomRight.h, canvas.width - 25, canvas.height - 26, aeroBottomRight.w, aeroBottomRight.h);
-        ctx.drawImage(assetsSS, aeroBottom.x, aeroBottom.y, aeroBottom.w, aeroBottom.h, 21, canvas.height - 26, canvas.width - 21 - (canvas.width >= 339 ? 24 : 25), 26);
+        ctx.drawImage(assetsSS, aeroBottom.x, aeroBottom.y, aeroBottom.w, aeroBottom.h, 21, canvas.height - 26, canvas.width - 21 - 25, 26);
         ctx.drawImage(assetsSS, aeroRightSideGradient.x, aeroRightSideGradient.y, aeroRightSideGradient.w, aeroRightSideGradient.h, canvas.width - 25, 42, aeroRightSideGradient.w, aeroRightSideGradient.h);
 
         ctx.fillStyle = "white";
@@ -3800,18 +3963,14 @@ async function createError(system, title, content, iconID, button1, button2, but
             }
         }
 
-        testCanvas.width = testBitmaps(title) ? testBitmaps(title) + 40 : 1;
-        testCanvas.height = 50;
+        let titleGlowLeft = assets["title-glow-left"];
+        let titleGlowMiddle = assets["title-glow-middle"];
+        let titleGlowRight = assets["title-glow-right"];
 
-        if (testBitmaps(title)) {
-            testCtx.shadowColor = 'rgba(255,255,255)';
-            testCtx.shadowOffsetX = 0;
-            testCtx.shadowOffsetY = 0;
-            testCtx.shadowBlur = 9;
-            await drawBitmaps(testCtx, title, 19, 19);
-            await drawBitmaps(testCtx, title, 19, 19);
-            await drawBitmaps(testCtx, title, 19, 19);
-        }
+        ctx.drawImage(assetsSS, titleGlowLeft.x, titleGlowLeft.y, titleGlowLeft.w, titleGlowLeft.h, 4, 13, titleGlowLeft.w, titleGlowLeft.h);
+        ctx.drawImage(assetsSS, titleGlowMiddle.x, titleGlowMiddle.y, titleGlowMiddle.w, titleGlowMiddle.h, 31, 13, testBitmaps(title) - 17, titleGlowMiddle.h);
+        ctx.drawImage(assetsSS, titleGlowRight.x, titleGlowRight.y, titleGlowRight.w, titleGlowRight.h, 14 + testBitmaps(title), 13, titleGlowRight.w, titleGlowRight.h);
+        await drawBitmaps(ctx, title, 21, 20, 1, false);
 
         let btnLeftSide = assets["btn-left-side"];
         let btnMiddle = assets["btn-middle"];
@@ -3835,25 +3994,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (textWidth < 56) textWidth = 56;
 
                 let btnWidth = textWidth + 10;
-                let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2) + 2;
+                let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2) + 4;
 
                 if (button1.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 36 - btnWidth, canvas.height - 57, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 36 - btnWidth + 2, canvas.height - 57, textWidth + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 26 - btnWidth + textWidth, canvas.height - 57, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btnWidth + xToCenterText, canvas.height - 54, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btnWidth + xToCenterText, canvas.height - 54, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 36 - btnWidth, canvas.height - 57, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 36 - btnWidth + 3, canvas.height - 57, textWidth + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 26 - btnWidth + textWidth, canvas.height - 57, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btnWidth + xToCenterText, canvas.height - 54);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btnWidth + xToCenterText, canvas.height - 54, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 36 - btnWidth, canvas.height - 57, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 36 - btnWidth + 3, canvas.height - 57, textWidth + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 26 - btnWidth + textWidth, canvas.height - 57, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btnWidth + xToCenterText, canvas.height - 54);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btnWidth + xToCenterText, canvas.height - 54, 1, false);
                 }
             }
 
@@ -3863,25 +4022,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text1Width < 56) text1Width = 56;
 
                 let btn1Width = text1Width + 10;
-                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) + 2;
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) + 4;
 
                 if (button1.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 36 - btn1Width, canvas.height - 57, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 36 - btn1Width + 2, canvas.height - 57, text1Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 36 - btn1Width, canvas.height - 57, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 36 - btn1Width + 3, canvas.height - 57, text1Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 36 - btn1Width, canvas.height - 57, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 36 - btn1Width + 3, canvas.height - 57, text1Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54, 1, false);
                 }
 
                 const text2WidthFixed = testBitmaps(button2.name);
@@ -3889,25 +4048,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text2Width < 56) text2Width = 56;
 
                 let btn2Width = text2Width + 10;
-                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) + 2;
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) + 4;
 
                 if (button2.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 36 - btn2Width + 2 - 8 - btn1Width, canvas.height - 57, text2Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button2.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 36 - btn2Width + 3 - 8 - btn1Width, canvas.height - 57, text2Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 36 - btn2Width + 3 - 8 - btn1Width, canvas.height - 57, text2Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54, 1, false);
                 }
             }
 
@@ -3917,25 +4076,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text1Width < 56) text1Width = 56;
 
                 let btn1Width = text1Width + 10;
-                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) + 2;
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) + 4;
 
                 if (button1.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 36 - btn1Width, canvas.height - 57, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 36 - btn1Width + 2, canvas.height - 57, text1Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 36 - btn1Width, canvas.height - 57, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 36 - btn1Width + 3, canvas.height - 57, text1Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 36 - btn1Width, canvas.height - 57, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 36 - btn1Width + 3, canvas.height - 57, text1Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 26 - btn1Width + text1Width, canvas.height - 57, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 38 - btn1Width + xToCenterText1, canvas.height - 54, 1, false);
                 }
 
                 const text2WidthFixed = testBitmaps(button2.name);
@@ -3943,25 +4102,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text2Width < 56) text2Width = 56;
 
                 let btn2Width = text2Width + 10;
-                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) + 2;
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) + 4;
 
                 if (button2.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 36 - btn2Width + 2 - 8 - btn1Width, canvas.height - 57, text2Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button2.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 36 - btn2Width + 3 - 8 - btn1Width, canvas.height - 57, text2Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 36 - btn2Width - 8 - btn1Width, canvas.height - 57, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 36 - btn2Width + 3 - 8 - btn1Width, canvas.height - 57, text2Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 26 - btn2Width + text2Width - 8 - btn1Width, canvas.height - 57, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 38 - btn2Width + xToCenterText2 - 8 - btn1Width, canvas.height - 54, 1, false);
                 }
 
                 const text3WidthFixed = testBitmaps(button3.name);
@@ -3969,25 +4128,25 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text3Width < 56) text3Width = 56;
 
                 let btn3Width = text3Width + 10;
-                let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2) + 2;
+                let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2) + 4;
 
                 if (button3.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 36 - btn3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 57, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 36 - btn3Width + 2 - 8 - btn1Width - 8 - btn2Width, canvas.height - 57, text3Width + 8, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 26 - btn3Width + text3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 57, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .29;
-                    await drawBitmaps(ctx, button3.name, canvas.width - 38 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 54, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 38 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 54, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 } else if (button3.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 36 - btn3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 57, btnRecLeftSide.w, btnRecLeftSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 36 - btn3Width + 3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 57, text3Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRecRightSide.x, btnRecRightSide.y, btnRecRightSide.w, btnRecRightSide.h, canvas.width - 26 - btn3Width + text3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 57, btnRecRightSide.w, btnRecRightSide.h);
-                    await drawBitmaps(ctx, button3.name, canvas.width - 38 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 54);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 38 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 54, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 36 - btn3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 57, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 36 - btn3Width + 3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 57, text3Width + 7, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 26 - btn3Width + text3Width - 8 - btn1Width - 8 - btn2Width, canvas.height - 57, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button3.name, canvas.width - 38 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 54);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 38 - btn3Width + xToCenterText3 - 8 - btn1Width - 8 - btn2Width, canvas.height - 54, 1, false);
                 }
             }
         }
@@ -4000,23 +4159,47 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win8() {
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
-        let SegoeUILargeInfo = fonts["SegoeUI_11pt"]["regular"];
+        let symbolCodes = fonts.SegoeUI_9pt.regular;
+        let SegoeUILargeInfo = fonts.SegoeUI_11pt.regular;
         title = title.replaceAll(" ", " ");
         _.split(title, "").forEach(char => {
-            let arrayChar = fonts["EMOJI_8"]["regular"].info[char] ? fonts["EMOJI_8"]["regular"] : SegoeUILargeInfo.info[char.charCodeAt(0)];
+            let arrayChar = fonts.EMOJI_8.regular.info[char] ? fonts.EMOJI_8.regular : SegoeUILargeInfo.info[char.charCodeAt(0)];
             if (!arrayChar) title = title.replaceAll(char, "□");
         })
 
         content = content.replaceAll(" ", " ");
         _.split(content, "").forEach(char => {
             if (char == "\n") return;
-            let arrayChar = fonts["EMOJI_8"]["regular"].info[char] ? fonts["EMOJI_8"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
+            let arrayChar = fonts.EMOJI_8.regular.info[char] ? fonts.EMOJI_8.regular : symbolCodes.info[char.charCodeAt(0)];
+            if (!arrayChar && !MeiryoRegex.test(char)) content = content.replaceAll(char, "□");
         })
+
+        if (button1) {
+            _.split(button1.name, "").forEach(char => {
+                let arrayChar = fonts.EMOJI_8.regular.info[char] ? fonts.EMOJI_8.regular : symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            _.split(button2.name, "").forEach(char => {
+                let arrayChar = fonts.EMOJI_8.regular.info[char] ? fonts.EMOJI_8.regular : symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            _.split(button3.name, "").forEach(char => {
+                let arrayChar = fonts.EMOJI_8.regular.info[char] ? fonts.EMOJI_8.regular : symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let SegoeUI = new Image();
         await loadImageCallback(SegoeUI, symbolCodes.src);
+
+        let SegoeUITransparent = new Image();
+        await loadImageCallback(SegoeUITransparent, fonts.SegoeUI_9pt.transparent.src);
 
         let SegoeUILarge = new Image();
         await loadImageCallback(SegoeUILarge, SegoeUILargeInfo.src);
@@ -4025,68 +4208,57 @@ async function createError(system, title, content, iconID, button1, button2, but
         let EmojiSS;
 
         for (const text of [content, button1 ? button1.name : "", button2 ? button2.name : "", button3 ? button3.name : ""]) {
-            if (isCJ(text)) {
+            if (MeiryoRegex.test(text)) {
+                if (Meiryo) continue;
                 Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
-                break;
+                await loadImageCallback(Meiryo, fonts.Meiryo.regular.src);
             }
 
-            if (emojiRegex().exec(text)) {
+            if (emojiRegex().test(text)) {
+                if (EmojiSS) continue;
                 EmojiSS = new Image();
-                await loadImageCallback(EmojiSS, fonts["EMOJI_8"]["regular"].src);
-                break;
+                await loadImageCallback(EmojiSS, fonts.EMOJI_8.regular.src);
             }
         }
 
-        async function drawBitmaps(ctx, content, x, y, a) {
+        async function drawBitmaps(ctx, content, x, y, a, clearType = true) {
+            const bitmaps = [];
             let chars = _.split(content, "");
             let charsWidth = 0;
             for (const char of chars) {
+                let fontface = MeiryoRegex.test(char) ? "Meiryo" : "SegoeUI_9pt";
                 let spriteSheet;
                 let symbolsData;
 
-                let charW;
-                let charH;
-
-                if (isCJ(char)) {
+                if (MeiryoRegex.test(char)) {
                     spriteSheet = Meiryo;
-                    symbolsData = fonts["Meiryo"]["regular"];
-                } else if (emojiRegex().exec(char)) {
+                    symbolsData = fonts[fontface].regular;
+                } else if (emojiRegex().test(char)) {
                     spriteSheet = EmojiSS;
-                    symbolsData = fonts["EMOJI_8"]["regular"];
+                    fontface = "EMOJI_8";
+                    symbolsData = fonts[fontface].regular;
                 } else {
-                    spriteSheet = SegoeUI;
+                    spriteSheet = clearType ? SegoeUI : SegoeUITransparent;
                     symbolsData = symbolCodes;
                 }
 
                 let charData = symbolsData.info[spriteSheet == EmojiSS ? char : char.charCodeAt(0)];
 
-                if (isCJ(char)) {
-                    charW = charData.w;
-                    charH = charData.h;
-                } else if (emojiRegex().exec(char)) {
-                    charW = charData.w;
-                    charH = charData.h;
-                } else {
-                    charW = 18;
-                    charH = 16;
-                }
+                let yOffset = 0;
+                if (MeiryoRegex.test(char)) yOffset = y != (canvas.height - 36) ? -2 : -1;
 
-                let xOffset = isCJ(char) ? 2 : 0;
-                let yOffset = isCJ(char) ? -1 : 0;
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
+                bitmaps.push([spriteSheet, charData.x, charData.y, charData.w, charData.ah || charData.h, x + charsWidth - preShift, y + yOffset]);
+                charsWidth += charData.w - preShift + postShift;
+            }
+
+            for (let i = bitmaps.length - 1; i >= 0; i--) {
                 ctx.globalAlpha = a;
-                ctx.drawImage(
-                    spriteSheet,
-                    charData.x,
-                    charData.y,
-                    charW,
-                    charH,
-                    x + charsWidth + xOffset,
-                    y + yOffset,
-                    charW,
-                    charH);
+                const b = bitmaps[i];
+                ctx.drawImage(b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[3], b[4]);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
@@ -4228,7 +4400,7 @@ async function createError(system, title, content, iconID, button1, button2, but
         ctx.fillRect(7, 31 + canvas.height - 39, canvas.width - 14, 1);
         ctx.fillRect(8 + canvas.width - 16, 31, 1, canvas.height - 39);
 
-        let cross = assets["cross"];
+        let cross = assets.cross;
         ctx.globalAlpha = crossDisabled ? .5 : 1;
         ctx.drawImage(assetsSS, cross.x, cross.y, cross.w, cross.h, canvas.width - 38, 1, cross.w, cross.h);
         ctx.globalAlpha = 1;
@@ -4272,7 +4444,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let textWidth = textWidthFixed;
                 if (textWidth < 36) textWidth = 36;
                 let btnWidth = textWidth + 30;
-                let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2) - 4;
+                let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2) - 2;
 
                 if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 17 - btnWidth, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
@@ -4287,7 +4459,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 17 - btnWidth + 2, canvas.height - 39, btnWidth - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 19, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                 }
-                await drawBitmaps(ctx, button1.name, canvas.width - 15 - btnWidth + xToCenterText, canvas.height - 36, button1.disabled ? .45 : 1);
+                await drawBitmaps(ctx, button1.name, canvas.width - 15 - btnWidth + xToCenterText, canvas.height - 36, button1.disabled ? .45 : 1, false);
             }
 
             if (button2 && !button3) {
@@ -4295,7 +4467,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let text1Width = text1WidthFixed;
                 if (text1Width < 36) text1Width = 36;
                 let btn1Width = text1Width + 30;
-                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) - 4;
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) - 2;
 
                 if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 17 - btn1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
@@ -4310,13 +4482,13 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 17 - btn1Width + 2, canvas.height - 39, btn1Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 19, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                 }
-                await drawBitmaps(ctx, button1.name, canvas.width - 15 - btn1Width + xToCenterText1, canvas.height - 36, button1.disabled ? .45 : 1);
+                await drawBitmaps(ctx, button1.name, canvas.width - 15 - btn1Width + xToCenterText1, canvas.height - 36, button1.disabled ? .45 : 1, false);
 
                 const text2WidthFixed = testBitmaps(button2.name);
                 let text2Width = text2WidthFixed;
                 if (text2Width < 36) text2Width = 36;
                 let btn2Width = text2Width + 30;
-                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) - 4;
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) - 2;
 
                 if (button2.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 8 - btn1Width - 17 - btn2Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
@@ -4331,7 +4503,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 8 - btn1Width - 17 - btn2Width + 2, canvas.height - 39, btn2Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 8 - btn1Width - 19, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                 }
-                await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 15 - btn2Width + xToCenterText2, canvas.height - 36, button2.disabled ? .45 : 1);
+                await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 15 - btn2Width + xToCenterText2, canvas.height - 36, button2.disabled ? .45 : 1, false);
             }
 
             if (button3) {
@@ -4339,7 +4511,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let text1Width = text1WidthFixed;
                 if (text1Width < 36) text1Width = 36;
                 let btn1Width = text1Width + 30;
-                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) - 4;
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) - 2;
 
                 if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 17 - btn1Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
@@ -4354,13 +4526,13 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 17 - btn1Width + 2, canvas.height - 39, btn1Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 19, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                 }
-                await drawBitmaps(ctx, button1.name, canvas.width - 15 - btn1Width + xToCenterText1, canvas.height - 36, button1.disabled ? .45 : 1);
+                await drawBitmaps(ctx, button1.name, canvas.width - 15 - btn1Width + xToCenterText1, canvas.height - 36, button1.disabled ? .45 : 1, false);
 
                 const text2WidthFixed = testBitmaps(button2.name);
                 let text2Width = text2WidthFixed;
                 if (text2Width < 36) text2Width = 36;
                 let btn2Width = text2Width + 30;
-                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) - 4;
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) - 2;
 
                 if (button2.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 8 - btn1Width - 17 - btn2Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
@@ -4375,13 +4547,13 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 8 - btn1Width - 17 - btn2Width + 2, canvas.height - 39, btn2Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 8 - btn1Width - 19, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                 }
-                await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 15 - btn2Width + xToCenterText2, canvas.height - 36, button2.disabled ? .45 : 1);
+                await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 15 - btn2Width + xToCenterText2, canvas.height - 36, button2.disabled ? .45 : 1, false);
 
                 const text3WidthFixed = testBitmaps(button3.name);
                 let text3Width = text3WidthFixed;
                 if (text3Width < 36) text3Width = 36;
                 let btn3Width = text3Width + 30;
-                let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2) - 4;
+                let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2) - 2;
 
                 if (button3.rec) {
                     ctx.drawImage(assetsSS, btnRecLeftSide.x, btnRecLeftSide.y, btnRecLeftSide.w, btnRecLeftSide.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 17 - btn3Width, canvas.height - 39, btnRecLeftSide.w, btnRecLeftSide.h);
@@ -4396,7 +4568,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 17 - btn3Width + 2, canvas.height - 39, btn3Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 19, canvas.height - 39, btnDisabledRightSide.w, btnDisabledRightSide.h);
                 }
-                await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - 8 - btn1Width - 15 - btn3Width + xToCenterText3, canvas.height - 36, button3.disabled ? .45 : 1);
+                await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - 8 - btn1Width - 15 - btn3Width + xToCenterText3, canvas.height - 36, button3.disabled ? .45 : 1, false);
             }
         }
     }
@@ -4406,25 +4578,48 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win10() {
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
+        let symbolCodes = fonts.SegoeUI_9pt.regular;
         title = title.replaceAll(" ", " ");
         _.split(title, "").forEach(char => {
-            let arrayChar = fonts["EMOJI_10"]["regular"].info[char] ? fonts["EMOJI_10"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
+            let arrayChar = fonts.EMOJI_10.regular.info[char] ? fonts.EMOJI_10.regular : symbolCodes.info[char.charCodeAt(0)];
+            if (!arrayChar && !MeiryoRegex.test(char)) title = title.replaceAll(char, "□");
         })
 
         content = content.replaceAll(" ", " ");
-        let chars = _.split(content, "");
-        chars.forEach(char => {
+        _.split(content, "").forEach(char => {
             if (char == "\n") return;
-            let arrayChar = fonts["EMOJI_10"]["regular"].info[char] ? fonts["EMOJI_10"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
+            let arrayChar = fonts.EMOJI_10.regular.info[char] ? fonts.EMOJI_10.regular : symbolCodes.info[char.charCodeAt(0)];
+            if (!arrayChar && !MeiryoRegex.test(char)) content = content.replaceAll(char, "□");
         })
+
+        if (button1) {
+            _.split(button1.name, "").forEach(char => {
+                let arrayChar = fonts.EMOJI_10.regular.info[char] ? fonts.EMOJI_10.regular : symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button1.name = button1.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button2) {
+            _.split(button2.name, "").forEach(char => {
+                let arrayChar = fonts.EMOJI_10.regular.info[char] ? fonts.EMOJI_10.regular : symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button2.name = button2.name.replaceAll(char, "□");
+            })
+        }
+
+        if (button3) {
+            _.split(button3.name, "").forEach(char => {
+                let arrayChar = fonts.EMOJI_10.regular.info[char] ? fonts.EMOJI_10.regular : symbolCodes.info[char.charCodeAt(0)];
+                if (!arrayChar && !MeiryoRegex.test(char)) button3.name = button3.name.replaceAll(char, "□");
+            })
+        }
 
         let SegoeUI = new Image();
         await loadImageCallback(SegoeUI, symbolCodes.src);
 
-        let Meiryo;
+        let SegoeUITransparent = new Image();
+        await loadImageCallback(SegoeUITransparent, fonts.SegoeUI_9pt.transparent.src);
+
+        let YuGothicUI;
         let EmojiSS;
 
         let allText = "";
@@ -4434,66 +4629,65 @@ async function createError(system, title, content, iconID, button1, button2, but
         allText = allText.replaceAll("\n", "");
 
         for (const char of _.split(allText, "")) {
-            if (isCJ(char) && !Meiryo) {
-                Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
+            if (MeiryoRegex.test(char) && !YuGothicUI) {
+                YuGothicUI = new Image();
+                await loadImageCallback(YuGothicUI, fonts.YuGothicUI.regular.src);
             }
 
-            if (emojiRegex().exec(char) && !EmojiSS) {
+            if (emojiRegex().test(char) && !EmojiSS) {
                 EmojiSS = new Image();
-                await loadImageCallback(EmojiSS, fonts["EMOJI_10"]["regular"].src);
+                await loadImageCallback(EmojiSS, fonts.EMOJI_10.regular.src);
             }
         }
 
-        async function drawBitmaps(ctx, content, x, y, a) {
+        async function drawBitmaps(ctx, content, x, y, a, clearType = true) {
+            const bitmaps = [];
             let chars = _.split(content, "");
             let charsWidth = 0;
             for (const char of chars) {
+                let fontface = "SegoeUI_9pt";
                 let spriteSheet;
                 let symbolsData;
 
                 let charW;
                 let charH;
 
-                if (isCJ(char)) {
-                    spriteSheet = Meiryo;
-                    symbolsData = fonts["Meiryo"]["regular"];
-                } else if (emojiRegex().exec(char)) {
+                if (emojiRegex().test(char)) {
                     spriteSheet = EmojiSS;
-                    symbolsData = fonts["EMOJI_10"]["regular"];
+                    fontface = "EMOJI_10";
+                    symbolsData = fonts[fontface].regular;
+                } else if (MeiryoRegex.test(char)) {
+                    spriteSheet = YuGothicUI;
+                    fontface = "YuGothicUI";
+                    symbolsData = fonts[fontface].regular;
                 } else {
-                    spriteSheet = SegoeUI;
+                    spriteSheet = clearType ? SegoeUI : SegoeUITransparent, 1, false;
                     symbolsData = symbolCodes;
                 }
 
                 let charData = symbolsData.info[spriteSheet == EmojiSS ? char : char.charCodeAt(0)];
 
-                if (isCJ(char)) {
-                    charW = charData.w;
-                    charH = charData.h;
-                } else if (emojiRegex().exec(char)) {
-                    charW = charData.w;
-                    charH = charData.h;
-                } else {
-                    charW = 18;
-                    charH = 16;
-                }
+                charW = charData.w;
+                charH = charData.ah || charData.h;
 
-                let xOffset = isCJ(char) || emojiRegex().exec(char) ? 2 : 0;
-                let yOffset = isCJ(char) ? -1 : 0;
+                let xOffset = emojiRegex().test(char) ? 1 : 0;
+                // canvas.height - 52 is the Y location where buttons render, and Japanese characters need to be lowered by 1px to appear centered
+                let yOffset = MeiryoRegex.test(char) && y != (canvas.height - 52) ? -1 : 0;
+
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
+                bitmaps.push([spriteSheet, charData.x, charData.y, charW, charH, x + charsWidth + xOffset - preShift, y + yOffset]);
+                charsWidth += charData.w + xOffset - preShift + postShift;
+                if (MeiryoRegex.test(char) && charData.o) charsWidth += charData.o;
+                if (emojiRegex().test(char)) charsWidth += 1;
+            }
+
+            for (let i = bitmaps.length - 1; i >= 0; i--) {
                 ctx.globalAlpha = a;
-                ctx.drawImage(
-                    spriteSheet,
-                    charData.x,
-                    charData.y,
-                    charW,
-                    charH,
-                    x + charsWidth + xOffset,
-                    y + yOffset,
-                    charW,
-                    charH);
+                const b = bitmaps[i];
+                ctx.drawImage(b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[3], b[4]);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
@@ -4664,24 +4858,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let textWidth = textWidthFixed;
                 if (textWidth < 36) textWidth = 36;
                 let btnWidth = textWidth + 30;
-                let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2) - 2;
+                let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2);
 
                 if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 33 - btnWidth, canvas.height - 55, btnRecSide.w, btnRecSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 33 - btnWidth + 2, canvas.height - 55, btnWidth - 4, 21);
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 33 - 2, canvas.height - 55, btnRecSide.w, btnRecSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btnWidth + xToCenterText, canvas.height - 52);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btnWidth + xToCenterText, canvas.height - 52, 1, false);
                 } else if (!button1.disabled) {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 33 - btnWidth, canvas.height - 55, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 33 - btnWidth + 2, canvas.height - 55, btnWidth - 4, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 33 - 2, canvas.height - 55, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btnWidth + xToCenterText, canvas.height - 52);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btnWidth + xToCenterText, canvas.height - 52, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 33 - btnWidth, canvas.height - 55, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 33 - btnWidth + 2, canvas.height - 55, btnWidth - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 33 - 2, canvas.height - 55, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .37;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btnWidth + xToCenterText, canvas.height - 52, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btnWidth + xToCenterText, canvas.height - 52, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 }
             }
@@ -4691,24 +4885,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let text1Width = text1WidthFixed;
                 if (text1Width < 36) text1Width = 36;
                 let btn1Width = text1Width + 30;
-                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) - 2;
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2);
 
                 if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 33 - btn1Width, canvas.height - 55, btnRecSide.w, btnRecSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 33 - 2, canvas.height - 55, btnRecSide.w, btnRecSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52, 1, false);
                 } else if (!button1.disabled) {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 33 - btn1Width, canvas.height - 55, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 33 - 2, canvas.height - 55, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 33 - btn1Width, canvas.height - 55, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 33 - 2, canvas.height - 55, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .37;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 }
 
@@ -4716,24 +4910,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let text2Width = text2WidthFixed;
                 if (text2Width < 36) text2Width = 36;
                 let btn2Width = text2Width + 30;
-                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) - 2;
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2);
 
                 if (button2.rec) {
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 8 - btn1Width - 33 - btn2Width, canvas.height - 55, btnRecSide.w, btnRecSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 8 - btn1Width - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 8 - btn1Width - 33 - 2, canvas.height - 55, btnRecSide.w, btnRecSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52, 1, false);
                 } else if (!button2.disabled) {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 8 - btn1Width - 33 - btn2Width, canvas.height - 55, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 8 - btn1Width - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 8 - btn1Width - 33 - 2, canvas.height - 55, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 8 - btn1Width - 33 - btn2Width, canvas.height - 55, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 8 - btn1Width - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 8 - btn1Width - 33 - 2, canvas.height - 55, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .37;
-                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 }
             }
@@ -4743,24 +4937,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let text1Width = text1WidthFixed;
                 if (text1Width < 36) text1Width = 36;
                 let btn1Width = text1Width + 30;
-                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) - 2;
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2);
 
                 if (button1.rec) {
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 33 - btn1Width, canvas.height - 55, btnRecSide.w, btnRecSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 33 - 2, canvas.height - 55, btnRecSide.w, btnRecSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52, 1, false);
                 } else if (!button1.disabled) {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 33 - btn1Width, canvas.height - 55, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 33 - 2, canvas.height - 55, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 33 - btn1Width, canvas.height - 55, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 33 - btn1Width + 2, canvas.height - 55, btn1Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 33 - 2, canvas.height - 55, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .37;
-                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button1.name, canvas.width - 33 - btn1Width + xToCenterText1, canvas.height - 52, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 }
 
@@ -4768,24 +4962,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let text2Width = text2WidthFixed;
                 if (text2Width < 36) text2Width = 36;
                 let btn2Width = text2Width + 30;
-                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) - 2;
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2);
 
                 if (button2.rec) {
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 8 - btn1Width - 33 - btn2Width, canvas.height - 55, btnRecSide.w, btnRecSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 8 - btn1Width - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 8 - btn1Width - 33 - 2, canvas.height - 55, btnRecSide.w, btnRecSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52, 1, false);
                 } else if (!button2.disabled) {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 8 - btn1Width - 33 - btn2Width, canvas.height - 55, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 8 - btn1Width - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 8 - btn1Width - 33 - 2, canvas.height - 55, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 8 - btn1Width - 33 - btn1Width, canvas.height - 55, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 8 - btn1Width - 33 - btn2Width + 2, canvas.height - 55, btn2Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 8 - btn1Width - 33 - 2, canvas.height - 55, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .37;
-                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button2.name, canvas.width - 8 - btn1Width - 33 - btn2Width + xToCenterText2, canvas.height - 52, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 }
 
@@ -4793,24 +4987,24 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let text3Width = text3WidthFixed;
                 if (text3Width < 36) text3Width = 36;
                 let btn3Width = text3Width + 30;
-                let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2) - 2;
+                let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2);
 
                 if (button3.rec) {
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width, canvas.height - 55, btnRecSide.w, btnRecSide.h);
                     ctx.drawImage(assetsSS, btnRecMiddle.x, btnRecMiddle.y, btnRecMiddle.w, btnRecMiddle.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width + 2, canvas.height - 55, btn3Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRecSide.x, btnRecSide.y, btnRecSide.w, btnRecSide.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - 2, canvas.height - 55, btnRecSide.w, btnRecSide.h);
-                    await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width + xToCenterText3, canvas.height - 52);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width + xToCenterText3, canvas.height - 52, 1, false);
                 } else if (!button3.disabled) {
                     ctx.drawImage(assetsSS, btnLeftSide.x, btnLeftSide.y, btnLeftSide.w, btnLeftSide.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width, canvas.height - 55, btnLeftSide.w, btnLeftSide.h);
                     ctx.drawImage(assetsSS, btnMiddle.x, btnMiddle.y, btnMiddle.w, btnMiddle.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width + 2, canvas.height - 55, btn3Width - 4, 21);
                     ctx.drawImage(assetsSS, btnRightSide.x, btnRightSide.y, btnRightSide.w, btnRightSide.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - 2, canvas.height - 55, btnRightSide.w, btnRightSide.h);
-                    await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width + xToCenterText3, canvas.height - 52);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width + xToCenterText3, canvas.height - 52, 1, false);
                 } else {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width, canvas.height - 55, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width + 2, canvas.height - 55, btn3Width - 4, 21);
                     ctx.drawImage(assetsSS, btnDisabledRightSide.x, btnDisabledRightSide.y, btnDisabledRightSide.w, btnDisabledRightSide.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - 2, canvas.height - 55, btnDisabledRightSide.w, btnDisabledRightSide.h);
                     ctx.globalAlpha = .37;
-                    await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width + xToCenterText3, canvas.height - 52, ctx.globalAlpha);
+                    await drawBitmaps(ctx, button3.name, canvas.width - 8 - btn2Width - 8 - btn1Width - 33 - btn3Width + xToCenterText3, canvas.height - 52, ctx.globalAlpha, false);
                     ctx.globalAlpha = 1;
                 }
             }
@@ -4823,25 +5017,25 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function win11() {
-        let symbolCodes = fonts["SegoeUI_9pt"]["regular"];
+        let symbolCodes = fonts.SegoeUI_9pt.regular;
         title = title.replaceAll(" ", " ");
         _.split(title, "").forEach(char => {
-            let arrayChar = fonts["EMOJI_11"]["regular"].info[char] ? fonts["EMOJI_11"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) title = title.replaceAll(char, "□");
+            let arrayChar = fonts.EMOJI_11.regular.info[char] ? fonts.EMOJI_11.regular : symbolCodes.info[char.charCodeAt(0)];
+            if (!arrayChar && !MeiryoRegex.test(char)) title = title.replaceAll(char, "□");
         })
 
         content = content.replaceAll(" ", " ");
         let chars = _.split(content, "");
         chars.forEach(char => {
             if (char == "\n") return;
-            let arrayChar = fonts["EMOJI_11"]["regular"].info[char] ? fonts["EMOJI_11"]["regular"] : symbolCodes.info[char.charCodeAt(0)];
-            if (!arrayChar && !isCJ(char)) content = content.replaceAll(char, "□");
+            let arrayChar = fonts.EMOJI_11.regular.info[char] ? fonts.EMOJI_11.regular : symbolCodes.info[char.charCodeAt(0)];
+            if (!arrayChar && !MeiryoRegex.test(char)) content = content.replaceAll(char, "□");
         })
 
         let SegoeUI = new Image();
         await loadImageCallback(SegoeUI, symbolCodes.src);
 
-        let Meiryo;
+        let YuGothicUI;
         let EmojiSS;
 
         let allText = "";
@@ -4851,33 +5045,37 @@ async function createError(system, title, content, iconID, button1, button2, but
         allText = allText.replaceAll("\n", "");
 
         for (const char of _.split(allText, "")) {
-            if (isCJ(char) && !Meiryo) {
-                Meiryo = new Image();
-                await loadImageCallback(Meiryo, fonts["Meiryo"]["regular"].src);
+            if (MeiryoRegex.test(char) && !YuGothicUI) {
+                YuGothicUI = new Image();
+                await loadImageCallback(YuGothicUI, fonts.YuGothicUI.regular.src);
             }
 
-            if (emojiRegex().exec(char) && !EmojiSS) {
+            if (emojiRegex().test(char) && !EmojiSS) {
                 EmojiSS = new Image();
-                await loadImageCallback(EmojiSS, fonts["EMOJI_11"]["regular"].src);
+                await loadImageCallback(EmojiSS, fonts.EMOJI_11.regular.src);
             }
         }
 
         async function drawBitmaps(ctx, content, x, y, a) {
+            const bitmaps = [];
             let chars = _.split(content, "");
             let charsWidth = 0;
             for (const char of chars) {
+                let fontface = "SegoeUI_9pt";
                 let spriteSheet;
                 let symbolsData;
 
                 let charW;
                 let charH;
 
-                if (isCJ(char)) {
-                    spriteSheet = Meiryo;
-                    symbolsData = fonts["Meiryo"]["regular"];
-                } else if (emojiRegex().exec(char)) {
+                if (MeiryoRegex.test(char)) {
+                    spriteSheet = YuGothicUI;
+                    fontface = "YuGothicUI";
+                    symbolsData = fonts[fontface].regular;
+                } else if (emojiRegex().test(char)) {
                     spriteSheet = EmojiSS;
-                    symbolsData = fonts["EMOJI_11"]["regular"];
+                    fontface = "EMOJI_11";
+                    symbolsData = fonts[fontface].regular;
                 } else {
                     spriteSheet = SegoeUI;
                     symbolsData = symbolCodes;
@@ -4885,32 +5083,27 @@ async function createError(system, title, content, iconID, button1, button2, but
 
                 let charData = symbolsData.info[spriteSheet == EmojiSS ? char : char.charCodeAt(0)];
 
-                if (isCJ(char)) {
-                    charW = charData.w;
-                    charH = charData.h;
-                } else if (emojiRegex().exec(char)) {
-                    charW = charData.w;
-                    charH = charData.h;
-                } else {
-                    charW = 18;
-                    charH = 16;
-                }
+                charW = charData.w;
+                charH = charData.ah || charData.h;
 
-                let xOffset = isCJ(char) || emojiRegex().exec(char) ? 2 : 0;
-                let yOffset = isCJ(char) ? -1 : 0;
+                let xOffset = emojiRegex().test(char) ? 1 : 0;
+                // canvas.height - 108 is the Y location where buttons render, and Japanese characters need to be lowered by 1px to appear centered
+                let yOffset = MeiryoRegex.test(char) && y != (canvas.height - 108) ? -1 : 0;
+
+                const preShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+                const postShift = shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
+
+                bitmaps.push([spriteSheet, charData.x, charData.y, charW, charH, x + charsWidth + xOffset - preShift, y + yOffset]);
+                charsWidth += charData.w + xOffset - preShift + postShift;
+                if (MeiryoRegex.test(char) && charData.o) charsWidth += charData.o;
+                if (emojiRegex().test(char)) charsWidth += 1;
+            }
+
+            for (let i = bitmaps.length - 1; i >= 0; i--) {
                 ctx.globalAlpha = a;
-                ctx.drawImage(
-                    spriteSheet,
-                    charData.x,
-                    charData.y,
-                    charW,
-                    charH,
-                    x + charsWidth + xOffset,
-                    y + yOffset,
-                    charW,
-                    charH);
+                const b = bitmaps[i];
+                ctx.drawImage(b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[3], b[4]);
                 ctx.globalAlpha = 1;
-                charsWidth += charData.w + 1 + (jpPunctuation.includes(char) ? 6 : 0);
             }
         }
 
@@ -5040,7 +5233,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
         for (let i = 1; i <= _.split(title, "").length; i++) {
             let chunkWidth = testBitmaps(_.slice(_.split(title, ""), 0, i).join(""));
-            if (chunkWidth + 95 > canvas.width) {
+            if (chunkWidth + 142 > canvas.width) {
                 title = `${_.slice(_.split(title, ""), 0, i).join("").trim()}...`;
                 break;
             }
@@ -5083,7 +5276,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (textWidth < 36) textWidth = 36;
                 let btnWidth = textWidth + 30;
 
-                let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2);
+                let xToCenterText = Math.floor((btnWidth - textWidthFixed) / 2) + 2;
                 if (button1.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 60 - btnWidth, canvas.height - 111, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width + 4 - 60 - btnWidth, canvas.height - 111, btnWidth - 4, 21);
@@ -5110,7 +5303,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text1Width < 36) text1Width = 36;
                 let btn1Width = text1Width + 30;
 
-                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2);
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) + 2;
                 if (button1.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 60 - btn1Width, canvas.height - 111, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width + 4 - 60 - btn1Width, canvas.height - 111, btn1Width - 4, 21);
@@ -5135,7 +5328,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text2Width < 36) text2Width = 36;
                 let btn2Width = text2Width + 30;
 
-                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2);
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) + 2;
                 if (button2.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 8 - btn1Width - 60 - btn2Width, canvas.height - 111, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 8 - btn1Width + 4 - 60 - btn2Width, canvas.height - 111, btn2Width - 4, 21);
@@ -5162,7 +5355,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text1Width < 36) text1Width = 36;
                 let btn1Width = text1Width + 30;
 
-                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2);
+                let xToCenterText1 = Math.floor((btn1Width - text1WidthFixed) / 2) + 2;
                 if (button1.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 60 - btn1Width, canvas.height - 111, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width + 4 - 60 - btn1Width, canvas.height - 111, btn1Width - 4, 21);
@@ -5187,7 +5380,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                 if (text2Width < 36) text2Width = 36;
                 let btn2Width = text2Width + 30;
 
-                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2);
+                let xToCenterText2 = Math.floor((btn2Width - text2WidthFixed) / 2) + 2;
                 if (button2.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 8 - btn1Width - 60 - btn2Width, canvas.height - 111, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 8 - btn1Width + 4 - 60 - btn2Width, canvas.height - 111, btn2Width - 4, 21);
@@ -5211,7 +5404,7 @@ async function createError(system, title, content, iconID, button1, button2, but
                 let text3Width = text3WidthFixed;
                 if (text3Width < 36) text3Width = 36;
                 let btn3Width = text3Width + 30;
-                let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2);
+                let xToCenterText3 = Math.floor((btn3Width - text3WidthFixed) / 2) + 2;
                 if (button3.disabled) {
                     ctx.drawImage(assetsSS, btnDisabledLeftSide.x, btnDisabledLeftSide.y, btnDisabledLeftSide.w, btnDisabledLeftSide.h, canvas.width - 8 - btn2Width - 8 - btn1Width - 60 - btn3Width, canvas.height - 111, btnDisabledLeftSide.w, btnDisabledLeftSide.h);
                     ctx.drawImage(assetsSS, btnDisabledMiddle.x, btnDisabledMiddle.y, btnDisabledMiddle.w, btnDisabledMiddle.h, canvas.width - 8 - btn2Width - 8 - btn1Width + 4 - 60 - btn3Width, canvas.height - 111, btn3Width - 4, 21);

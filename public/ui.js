@@ -11,8 +11,6 @@ const errorCanvas = document.getElementById("canvas");
 
 const root = document.documentElement;
 
-const jpPunctuation = ["！", "？", "（", "）", "．", "。", "、"];
-
 let sys = document.querySelector("#os");
 let icon = document.querySelector("#icon");
 let titleElem = document.querySelector("#err-title");
@@ -135,7 +133,7 @@ let systems = {};
 async function load() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     let savedVersion = await idbKeyval.get("version");
-    let gzipRes = '';
+    let gzipRes = "";
     let iconsGzip = "";
     let fontsGzip = "";
     let sysInfoGzip = "";
@@ -149,6 +147,7 @@ async function load() {
         // Send the request to start downloading resources
         const reqResources = await fetch("/resources");
         const reader = reqResources.body.getReader();
+
         let receivedLength = 0;
 
         // This loop over here tracks how much data was downloaded, and
@@ -169,6 +168,7 @@ async function load() {
 
         iconsGzip = gzipRes.split("~")[0];
         fontsGzip = gzipRes.split("~")[1];
+
         sysInfoGzip = gzipRes.split("~")[2];
 
         await idbKeyval.set("version", version);
@@ -177,6 +177,7 @@ async function load() {
         await idbKeyval.set("fonts", fontsGzip);
     } else {
         // No update available
+
         iconsGzip = await idbKeyval.get("assets");
         fontsGzip = await idbKeyval.get("fonts");
         sysInfoGzip = await idbKeyval.get("sysInfo");
@@ -188,7 +189,7 @@ async function load() {
 
     // Here comes the extracting process. winerr uses Gzip compression to reduce
     // the assets size, but of course, it requires a few additional steps. In
-    // this exact case, I use the pako library to un-gzip the encoded chunk.
+    // this exact case, the pako library is used to un-gzip the encoded chunk.
 
     // Starting off with system data.
     const gzippedSysData = atob(sysInfoGzip);
@@ -225,6 +226,7 @@ load();
 
 let sysFontObj = {
     "win1": "Fixedsys",
+    "win3": "MSSansSerif",
     "win31": "MSSansSerif",
     "win95": "MSSansSerif",
     "win98": "MSSansSerif",
@@ -239,29 +241,148 @@ let sysFontObj = {
     "win11": "SegoeUI_9pt"
 }
 
-// Check if a string of text includes Chinese or Japanese characters
-function isCJ(text) {
-    if (!text) return false;
-    const ChineseRegex = new RegExp(String.raw`
-    [\u{FA0E}\u{FA0F}\u{FA11}\u{FA13}\u{FA14}\u{FA1F}\u{FA21}\u{FA23}\u{FA24}\u{FA27}-\u{FA29}]
-    |[\u{3000}-\u{303F}]
-    |[\u{4E00}-\u{9FCC}]
-    |[\u{3400}-\u{4DB5}]
-    |[\u{20000}-\u{2A6D6}]
-    |[\u{2A700}-\u{2B734}]
-    |[\u{2B740}-\u{2B81D}]
-    |[\u{2B820}-\u{2CEAF}]
-    |[\u{2CEB0}-\u{2EBEF}]
-  `.replace(/\s+/g, ''), "u");
-    const JapaneseRegex = /[一-龠]+|[ぁ-ゔ]+|[ァ-ヴー]+|[ａ-ｚＡ-Ｚ０-９]+|[々〆〤ヶ]+/u;
-    for (let regex of [ChineseRegex, JapaneseRegex]) {
-        if (text.match(regex)) {
-            return true;
-        } else {
-            continue;
-        }
-    }
-    return false;
+// Regex for multiple CJK fonts.
+// Meiryo, the font for Japanese/Chinese on Windows Vista - 8. Also used by Yu Gothic UI on Windows 10 and 11.
+const MeiryoRegex = /[\u2190-\u21EA\u2460-\u2935\u2E80-\u9FC6\uF900-\uFA6D\uFE30-\uFE46\uFF01-\uFFEE\u{1B000}\u{1B001}\u{1F100}-\u{1F251}\u{20000}-\u{2A6B2}\u{2F804}-\u{2F9F4}]/u;
+// MS UI Gothic, the font for Japanese/Chinese on Windows 95 - Longhorn build 4093.
+const MSUIGothicRegex = /[\u2190-\u21EA\u2460-\u2935\u3000-\u9FC6\uF91D-\uFA6D\uFE45-\uFE46\uFF01-\uFFEE\u{1F200}-\u{1F251}\u{20000}-\u{2A6B2}]/u;
+
+// The number before the comma means how many pixels the character should be shifted to the left,
+// while the number after the comma means how many pixels need to be added after the character.
+const shift = {
+    YuGothicUI: {
+        "。": "0,3",
+        "、": "0,4",
+        "！": "-5,0",
+        "？": "-3,0",
+        "＊": "-2,1",
+        "（": "-7,-7",
+        "）": "0,8",
+        "【": "-1,-1",
+        "】": "0,1",
+        "「": "-1,-1",
+        "」": "0,1",
+        "『": "-1,-1",
+        "』": "0,1",
+        "ら": "1,1",
+        "・": "0,1",
+        "ソ": "0,1",
+        "ン": "0,1",
+        "も": "0,1",
+        "た": "0,1",
+        "シ": "0,1",
+        "わ": "0,1",
+        "ぇ": "0,1",
+        "ェ": "0,1",
+        "う": "1,1",
+        "ク": "1,0",
+        "が": "1,-1",
+        "コ": "-1,1",
+        "レ": "-1,-1",
+        "プ": "0,-1",
+        "デ": "0,-1",
+        "ト": "-2,2",
+        "っ": "1,0",
+        "よ": "1,0",
+    },
+    SegoeUI_9pt: {
+        "1": "0,1",
+        "2": "0,-1",
+        "3": "0,-1",
+        "4": "0,-1",
+        "6": "0,-1",
+        "7": "0,-1",
+        "8": "0,-1",
+        "9": "0,-1",
+        " ": "0,2",
+        "j": "2,0",
+        "k": "0,-1",
+        "K": "0,-1",
+        "r": "0,-1",
+        "e": "0,-1",
+        "\"": "0,-1",
+        "#": "0,-1",
+        "+": "0,1",
+        ",": "0,1",
+        "<": "0,2",
+        "=": "0,1",
+        ">": "0,1",
+        "?": "0,-1",
+        "M": "0,1",
+        "C": "0,-1",
+        "Q": "0,-1",
+        "R": "0,-1",
+        "T": "1,-1",
+        "V": "0,-1",
+        "W": "0,-1",
+        "[": "0,-1",
+        "]": "0,1",
+        "f": "0,-1",
+        "m": "0,1",
+        "t": "0,-1",
+        "z": "0,-1",
+        "y": "1,0",
+        "x": "0,-1",
+        " ": "0,2",
+        "£": "0,-1",
+        "¤": "0,-1",
+        "Г": "0,-1",
+        "г": "0,-1",
+        "Д": "0,-1",
+        "Ё": "0,-1",
+        "К": "0,-2",
+        "М": "0,1",
+        "Н": "0,1",
+        "П": "0,1",
+        "Т": "0,-1",
+        "Щ": "0,-1",
+        "У": "0,-1",
+        "Ъ": "0,-1",
+        "Э": "0,-1",
+        "д": "1,-1",
+        "е": "0,-1",
+        "ё": "0,-2",
+        "ж": "0,-1",
+        "и": "0,-1",
+        "л": "1,0",
+        "з": "0,-1",
+        "к": "0,-1",
+        "у": "1,-1",
+        "т": "1,-1",
+        "с": "0,-1",
+        "ц": "0,-1",
+        "х": "0,-1",
+        "ш": "0,1",
+        "ю": "0,-1",
+        "я": "0,-1"
+    },
+    EMOJI_8: {},
+    EMOJI_10: {},
+    EMOJI_11: {},
+    Meiryo: {
+        "「": "-7,-1",
+        "」": "0,6",
+        "『": "-7,-1",
+        "』": "0,6",
+        "【": "-8,-1",
+        "】": "0,7",
+        "（": "-7,-1",
+        "）": "0,7",
+        "？": "-3,4",
+        "！": "-5,5",
+        "。": "-1,7"
+    },
+    MSGothic: {},
+    MSUIGothic: {
+        "「": "-1,0",
+        "」": "0,1",
+        "【": "-1,0",
+        "】": "0,1"
+    },
+    Tahoma: {
+        "※": "-2,2"
+    },
+    MSSansSerif: {}
 }
 
 // Calculate the width of a string of text in pixels
@@ -272,6 +393,8 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
     if (vgasysr) fontface = "vgasysr"
     if (sys.value == "winxp" && isBold) fontface = "TrebuchetMS";
 
+    const initFontface = fontface;
+
     let chars = _.split(content, "");
     if (chars[chars.length - 1] == "") chars.pop();
     let charsWidth = 0;
@@ -280,42 +403,44 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
     // means that every character has the same width. So we can safely multiply
     // the content's length by 8 (the width of a character in Fixedsys).
     if (sys.value == "win1") return chars.length * 8;
-    let charsInfo;
-    let initFontFace = fontface;
+    let charsInfo = fonts[fontface][isBold ? "bold" : "regular"].info;
     for (const char of chars) {
-        // This thing may look intimidating, but in reality it just checks what OS is
-        // selected and if the text has Chinese or Japanese characters. Windows 95 through
-        // Longhorn use MS UI Gothic, while Vista through 11 use Meiryo. If the text doesn't
-        // contain any Chinese/Japanese characters, we just use the regular font assigned for
-        // basic characters.
-        if (["win31", "win3"].includes(sys.value) && isCJ(char)) {
+        if (["win31", "win3"].includes(sys.value) && MSUIGothicRegex.test(char)) {
             fontface = "MSGothic";
-            charsInfo = fonts["MSGothic"]["regular"].info;
-        } else if (["win95", "win98", "win2k", "winwh", "winxp", "winlh-4093"].includes(sys.value) && isCJ(char)) {
+            charsInfo = fonts.MSGothic.regular.info;
+        } else if (["win95", "win98", "win2k", "winwh", "winxp", "winlh-4093"].includes(sys.value) && MSUIGothicRegex.test(char)) {
             fontface = "MSUIGothic";
-            charsInfo = fonts["MSUIGothic"][isBold ? "bold" : "regular"].info;
-        } else if (["winvista", "win7", "win8", "win10", "win11"].includes(sys.value) && isCJ(char)) {
-            fontface = "Meiryo";
-            charsInfo = fonts["Meiryo"]["regular"].info;
-        } else if (!isCJ(char)) {
-            fontface = initFontFace;
-            charsInfo = fonts[fontface][isBold ? "bold" : "regular"].info;
+            charsInfo = fonts.MSUIGothic[isBold ? "bold" : "regular"].info;
+        } else if (["winvista", "win7", "win8", "win10", "win11"].includes(sys.value)) {
+            if (MeiryoRegex.test(char)) {
+                if (["winvista", "win7", "win8"].includes(sys.value)) {
+                    fontface = "Meiryo";
+                } else {
+                    fontface = "YuGothicUI";
+                }
+                charsInfo = fonts[fontface].regular.info;
+            }
         }
 
-        const charWidth = emojiRegex().exec(char) ? 14 : charsInfo[char.charCodeAt(0)].w;
+        if (!charsInfo[char.charCodeAt(0)]) {
+            fontface = initFontface;
+            charsInfo = fonts[fontface].regular.info;
+        }
+
+        let charWidth = emojiRegex().exec(char) ? 14 : charsInfo[char.charCodeAt(0)].w;
 
         // Slight font offsets
         let addPx = 1;
-        if (fontface == "SegoeUI_11pt" || fontface == "MSGothic") addPx = 2;
+        if (["SegoeUI_11pt", "MSGothic", "EMOJI_10", "EMOJI_11"].includes(fontface)) addPx = 2;
+        if (["SegoeUI_9pt", "YuGothicUI", "Meiryo"].includes(fontface)) addPx = 0;
 
-        let punctuationOffset = 0;
-        if (jpPunctuation.includes(char) && fontface == "Meiryo") punctuationOffset = 6;
-        if (jpPunctuation.includes(char) && fontface == "MSUIGothic") {
-            if (char == "、") punctuationOffset = 5;
-            if (char == "。" || char == "々") punctuationOffset = 3;
+        charsWidth += charWidth + addPx;
+        if (shift[fontface]) {
+            charsWidth -= shift[fontface][char] ? Number(shift[fontface][char].split(",")[0]) : 0;
+            charsWidth += shift[fontface][char] ? Number(shift[fontface][char].split(",")[1]) : 0;
         }
 
-        charsWidth += charWidth + addPx + punctuationOffset;
+        if (MeiryoRegex.test(char) && charsInfo[char.charCodeAt(0)] && ["win10", "win11"].includes(sys.value)) charsWidth += charsInfo[char.charCodeAt(0)].o;
     }
     return charsWidth;
 }
@@ -564,12 +689,12 @@ generateBtn.addEventListener("click", async () => {
                 modalIcon.classList.remove("hourglass");
                 modalContent.style.alignItems = "center";
 
-                // Windows Longhorn and 7 use glow effects for titles. On some browsers
-                // the title for these OS'es doesn't get drawn on canvas for some reason,
-                // so I render the title on a separate canvas with effects, render it to
-                // PNG, add to the main canvas, and then render that to PNG and show it
+                // Windows Longhorn uses glow effects for titles. On some browsers
+                // the title for this OS doesn't get drawn on canvas for some reason,
+                // so I render the title on a separate canvas with effects, render it as
+                // PNG, add to the main canvas, and then render that as PNG and show it
                 // to the end user.
-                if (sys.value == "winlh-4093" || sys.value == "win7") {
+                if (sys.value == "winlh-4093") {
                     modalContent.innerHTML = `<canvas id="final-canvas" width="${img.width}" height="${img.height}"></canvas><small style="opacity:.5">${tookTime.replace("{{ms}}", totalTime)}</small>`;
                     let finalCanvas = document.querySelector("#final-canvas");
                     let finalCtx = finalCanvas.getContext("2d");

@@ -29,7 +29,7 @@ header {
     background: #000;
     display: inline-block;
     height: 48px;
-    box-shadow: 0 0 16px rgba(0, 0, 0, .75);
+    box-shadow: 0 0 8px rgba(0, 0, 0, .75);
 }
 
 a:hover {
@@ -312,7 +312,7 @@ input[type="checkbox"]:disabled {
     border-radius: 8px;
     padding: 16px;
     background: #191919;
-    box-shadow: 0 0 16px rgb(25, 25, 25);
+    box-shadow: 0 0 8px rgb(25, 25, 25);
 }
 
 .selector {
