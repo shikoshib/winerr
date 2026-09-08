@@ -418,7 +418,7 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
                 } else {
                     fontface = "YuGothicUI";
                 }
-                charsInfo = fonts[fontface].regular.info;
+                charsInfo = fonts[fontface][isBold ? "bold" : "regular"].info;
             }
         }
 
