@@ -418,13 +418,13 @@ function testBitmaps(content, isBold = false, isLarge = false, vgasysr = false) 
                 } else {
                     fontface = "YuGothicUI";
                 }
-                charsInfo = fonts[fontface][isBold ? "bold" : "regular"].info;
+                charsInfo = fonts[fontface].regular.info;
             }
         }
 
         if (!charsInfo[char.charCodeAt(0)]) {
             fontface = initFontface;
-            charsInfo = fonts[fontface].regular.info;
+            charsInfo = fonts[fontface][isBold ? "bold" : "regular"].info;
         }
 
         let charWidth = emojiRegex().exec(char) ? 14 : charsInfo[char.charCodeAt(0)].w;
