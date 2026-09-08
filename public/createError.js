@@ -2423,7 +2423,7 @@ async function createError(system, title, content, iconID, button1, button2, but
 
 
     async function winxp() {
-        let TMSCodes = fonts.TrebuchetMS.bold;
+        let TMSCodes = fonts.TrebuchetMS.regular;
         title = title.replaceAll(" ", " ");
         title.split("").forEach(char => {
             let arrayChar = TMSCodes.info[char.charCodeAt(0)];
