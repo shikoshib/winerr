@@ -372,6 +372,8 @@ async function createError(system, title, content, iconID, button1, button2, but
     async function win3() {
         let vgasysr = fonts.vgasysr.bold;
         title = title.replaceAll(" ", " ");
+
+        let symbolCodes = fonts.MSSansSerif.bold;
         content = content.replaceAll(" ", " ");
         content.split("").forEach(char => {
             if (char == "\n") return;
