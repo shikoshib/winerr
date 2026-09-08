@@ -4,7 +4,11 @@ const zlib = require("zlib");
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
+const csrf = require("csurf");
 const { Jimp } = require("jimp");
+
+app.use(cookieParser());
+app.use(csrf({ cookie: true }));
 
 // delete a line from stdout
 function stddel(count) {
@@ -241,7 +245,6 @@ build().then(() => {
     fs.writeFileSync(__dirname + "/build/gzip", gzipArr.join("~"));
 
     app.use(express.static(__dirname + "/public"));
-    app.use(cookieParser());
 
     // The actual pages are defined in router.js
     const router = require("./router");
